@@ -1,0 +1,297 @@
+#pragma kernel CSMain
+
+#include "UnityCG.cginc"
+
+// G-Buffer
+uint2 _GBufferSize;
+uint2 _UnityBufferSize;
+
+RWTexture2D<float4> _PositionBuffer; // The texture to write the positions
+RWTexture2D<float4> _NormalBuffer; // The texture to write the normals
+RWTexture2D<float4> _DepthBuffer; // The texture to write the depth
+RWTexture2D<float4> _BlocksBuffer; // The texture to write block ID's
+
+Texture3D<float4> _WorldTexture;
+uint3 _WorldTextureSize;
+
+Texture2D<float> _UnityDepthTexture;
+
+float _VoxelRenderDistance;
+float4x4 _InvProjectionMatrix;
+float4x4 _InvViewMatrix;
+float3 _CameraPos;
+
+struct rayMarchInfo
+{
+    int complexity;
+    uint blockID;
+    float3 pos;
+    float depth;
+    float3 normal;
+};
+
+rayMarchInfo newRayMarchInfo()
+{
+    rayMarchInfo info;
+    info.complexity = 0;
+    info.blockID = 0;
+    info.pos = float3(0, 0, 0);
+    info.depth = 0;
+    info.normal = float3(0, 0, 0);
+    return info;
+}
+
+bool isInWorld(float3 pos)
+{
+    return pos.y <= (float) _WorldTextureSize.y && pos.y >= 0;
+}
+
+// Sample world using world space coordinates
+uint sampleWorld(float3 pos)
+{
+    if (!isInWorld(pos))
+    {
+        return 0;
+    }
+    float3 uvw = frac(pos / _WorldTextureSize);
+    uint3 texelCoords = (uint3)(uvw * float3(_WorldTextureSize));
+    float4 color = _WorldTexture.Load(float4(texelCoords, 0));
+    uint blockID = round(color.r * 255);
+    return blockID;
+}
+
+float dstToPlane(float3 rayOrigin, float3 rayDir, float planeY)
+{
+    // Check if the plane is parallel to the ray
+    if (rayDir.y == 0)
+    {
+        return -1.0f;
+    }
+
+    float t = (planeY - rayOrigin.y) / rayDir.y;
+
+    // Check if the plane is behind the ray's origin
+    if (t < 0)
+    {
+        return -1.0f;
+    }
+
+    return t;
+}
+
+float2 rayWorldHit(float3 rayOrigin, float3 rayDir)
+{
+    // Returns float3 (dist to world, dist inside world, intersection pos)
+    float dstTop = dstToPlane(rayOrigin, rayDir, _WorldTextureSize.y);
+    float dstBottom = dstToPlane(rayOrigin, rayDir, 0);
+
+    float dstToWorld;
+    float dstInsideWorld;
+
+    // If inside the world
+    if (isInWorld(rayOrigin))
+    {
+        dstToWorld = 0;
+        // Check if direction is parallel to the planes
+        if (rayDir.y == 0) return float2(dstToWorld, 1e10); 
+        // Return dist inside world
+        return float2(dstToWorld, max(dstTop, dstBottom));
+    }
+
+    // If above the world
+    if (rayOrigin.y > (float) _WorldTextureSize.y)
+    {
+        // Check if looking at world
+        if (dstTop < 0) return float2(-1, -1);
+
+        dstInsideWorld = dstBottom - dstTop;
+        return float2(dstTop, dstInsideWorld);
+    }
+    // If under the world
+    else
+    {
+        // Check if looking at world
+        if (dstBottom < 0) return float2(-1, -1);
+
+        dstInsideWorld = dstTop - dstBottom;
+        return float2(dstBottom, dstInsideWorld);
+    }
+}
+
+int3 voxelPos(float3 pos)
+{
+    return int3(floor(pos.x), floor(pos.y), floor(pos.z));
+}
+
+float3 getNormal(float3 tMax, float3 step)
+{
+    // Determine the normal based on the axis of intersection
+    if (tMax.x < tMax.y && tMax.x < tMax.z)
+    {
+        return step.x * float3(1, 0, 0);
+    }
+    else if (tMax.y < tMax.z)
+    {
+        return step.y * float3(0, 1, 0); // HACK
+    }
+    else
+    {
+        return step.z * float3(0, 0, 1);
+    }
+}
+
+rayMarchInfo rayMarchWorld(float3 startPos, float3 rayDir)
+{
+    float2 rayWorldInfo = rayWorldHit(startPos, rayDir);
+    float dstToWorld = rayWorldInfo.x;
+    float dstInsideWorld = rayWorldInfo.y;
+    rayMarchInfo res = newRayMarchInfo();
+
+    // EXIT EARLY
+    if (dstInsideWorld <= 0) 
+    {
+        res.depth = 1e10;
+        return res;
+    }
+    if (dstToWorld > 0)
+    {
+        startPos = startPos + rayDir * dstToWorld; // Start at intersection point
+    }
+    int3 voxelIndex = voxelPos(startPos);
+    float3 step = sign(rayDir);
+    float3 tMax;  // Distance to next voxel boundary
+    float3 tMax_old; // Used to get the normals
+    float3 tDelta;  // How far we travel to cross a voxel
+
+    // Calculate initial tMax and tDelta for each axis
+    [unroll(3)]
+    for (int i = 0; i < 3; i++)
+    { 
+        if (rayDir[i] == 0)
+        {
+            tMax[i] = 1e10;
+            tDelta[i] = 1e10;
+        }
+        else
+        {
+            float voxelBoundary = voxelIndex[i] + (step[i] > 0 ? 1 : 0);
+            tMax[i] = (voxelBoundary - startPos[i]) / rayDir[i]; 
+            tDelta[i] = abs(1.0 / rayDir[i]);
+        }
+    }
+
+    float dstLimit = min(_VoxelRenderDistance - dstToWorld, dstInsideWorld);
+    float dstTravelled = 0;
+    int loopCount = 0;
+    int hardLoopLimit = (int) dstLimit * 2; // Hack that prevents convergence caused by precision issues or some dark mathematical magic
+
+    [loop]
+    while (loopCount++ < hardLoopLimit && dstTravelled < dstLimit)
+    {
+        // Check the position for a voxel
+        float3 rayPos = startPos + rayDir * (dstTravelled + 0.001);
+        uint blockID = sampleWorld(rayPos);
+                    
+        // Return the voxel
+        if (blockID > 0)
+        {
+            res.blockID = blockID;
+            res.complexity = loopCount;
+            res.depth = dstToWorld + dstTravelled;
+            res.normal = -getNormal(tMax_old, step);
+            res.pos = rayPos;
+            return res; 
+        }
+
+        // Move to the next voxel
+        tMax_old = tMax;
+        if (tMax.x < tMax.y && tMax.x < tMax.z)
+        {
+            dstTravelled = tMax.x;
+            tMax.x += tDelta.x;
+            voxelIndex.x += step.x;
+        }
+        else if (tMax.y < tMax.z)
+        {
+            dstTravelled = tMax.y;
+            tMax.y += tDelta.y;
+            voxelIndex.y += step.y;
+        }
+        else
+        {
+            dstTravelled = tMax.z;
+            tMax.z += tDelta.z;
+            voxelIndex.z += step.z;
+        }
+    }
+
+    res.depth = 1e10;
+    return res;
+}
+
+
+float3 computeRayDir(float2 uv)
+{    
+    float3 direction = mul(_InvProjectionMatrix, float4(uv, 0.0f, 1.0f)).xyz;
+    direction = mul(_InvViewMatrix, float4(direction, 0.0f)).xyz;
+    return direction;
+}
+
+float computeUnityDepth(uint3 id)
+{
+    float2 depthUV = id.xy * ((float2) _UnityBufferSize / (float2) _GBufferSize);
+    return LinearEyeDepth(_UnityDepthTexture[depthUV]);
+}
+
+[numthreads(8, 8, 1)]
+void CSMain(uint3 id : SV_DispatchThreadID)
+{
+    float2 uv = float2((id.xy + float2(0.5f, 0.5f)) / (float2) _GBufferSize * 2.0f - 1.0f);
+    // Screen space -> NDC
+    // NDC -> clip space (-1 to 1)
+    //float4 clipPos = float4(uv * 2.0f - 1.0f, -1.0f, 1.0f);
+    // Clip space -> view space
+    //float4 viewPos = mul(clipPos, _InvProjectionMatrix);
+    // View space -> world space
+    //float4 worldPos = mul(_InvViewMatrix, viewPos);
+    //worldPos.xyz /= worldPos.w;
+
+    // Initialize ray position and direction
+    //float3 rayDir = worldPos.xyz - rayPos;
+    //rayDir /= length(rayDir.xyz);
+
+    float3 rayPos = _CameraPos;
+    float3 rayDir = computeRayDir(uv);
+
+    // Raymarch world
+    float2 rayWorldInfo = rayWorldHit(rayPos, rayDir);
+    rayMarchInfo rayMarchRes = rayMarchWorld(rayPos, rayDir); 
+
+    float unityDepth = computeUnityDepth(id);
+    float voxelDepth = rayMarchRes.depth;
+    uint blockID = rayMarchRes.blockID;
+    float3 normal = rayMarchRes.normal;
+    float3 pos = rayMarchRes.pos;
+
+    // Combine depths
+    float combinedDepth = voxelDepth;
+    if (unityDepth < voxelDepth)
+    {
+        blockID = 0;
+        combinedDepth = unityDepth;
+    }
+
+    // Fill buffers
+    _BlocksBuffer[id.xy] = float4(blockID, 0, 0, 1);
+    _NormalBuffer[id.xy] = float4(normal, 1);
+    //_DepthBuffer[id.xy] = float4(1, 1, 1, 1) * (1 - combinedDepth / 20.0);
+    _DepthBuffer[id.xy] = combinedDepth;
+    _PositionBuffer[id.xy] = float4(pos, 1);  
+}
+     
+// VERY IMPORTANT: CREATE SHADOW MAP FROM DIRECTIONAL LIGHT
+// Use it for the shadows instead
+// Use it for the light shafts instead
+// It will allow the meshes to interact with the light shafts
+// ALSO !! It should allow to not raymarch towards the light at each light shaft sample, the time complexity will go from n^2 to n
+// Also investigate global illumination with voxel cone tracing

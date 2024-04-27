@@ -1,0 +1,41 @@
+// UnityComputeShader.compute
+#pragma kernel CSMain
+
+// The 3D texture that we will write to
+RWTexture3D<float4> Result;
+
+// The buffer containing points data
+StructuredBuffer<float3> pointsBuffer;
+
+// Uniforms
+int pointsBufferLength;
+int3 textureDimensions;
+
+[numthreads(8, 8, 8)]
+void CSMain(uint3 id : SV_DispatchThreadID)
+{
+    // Compute the normalized position within the texture
+    float3 normalizedPos = id / float3(textureDimensions);
+
+    // Initialize the minimum distance with a large value
+    float minDist = 1e10; // Using a large float value for initialization
+
+    // Iterate through the points buffer to find the closest point
+    for (int i = 0; i < pointsBufferLength; ++i)
+    {
+        // Compute the distance from the current point to the normalized position
+        float newDist = distance(normalizedPos, pointsBuffer[i]);
+
+        // Update the minimum distance
+        if (newDist < minDist)
+        {
+            minDist = newDist;
+        }
+    }
+
+    // Calculate the Worley noise value with diminution factor
+    float worleyDist = 1.0 - (minDist * 10); // Using 10 as the diminution factor, can be changed to a uniform parameter if needed
+
+    // Write the result to the 3D texture
+    Result[id] = float4(worleyDist, worleyDist, worleyDist, 1.0);
+}
