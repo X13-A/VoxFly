@@ -64,6 +64,11 @@ Shader "Custom/WorldPostProcess"
             float _VoxelRenderDistance; 
             int _BlocksCount;
             int _DebugToggle;
+            int _LightShaftSampleCount;
+            float _LightShaftRenderDistance;
+            float _LightShaftFadeStart;
+            float _LightShaftIntensity;
+            float _LightShaftMaximumValue;
 
             // Shadow map
             float3 _LightDir;
@@ -220,7 +225,6 @@ Shader "Custom/WorldPostProcess"
                 float4 res = tex3D(_WorldTexture, pos / _WorldTextureSize);
                 if (res.a == 0) return -1;
 
-                // TODO: change _WorldTexture to char instead of float
                 int blockID = round(res.r * 255); // Scale and round to nearest whole number
                 return blockID;
             }
@@ -358,8 +362,8 @@ Shader "Custom/WorldPostProcess"
             // DEPRECATED
             float getLightShaft_old(float3 rayStart, float3 rayDir, float3 lightDir, float depth, float offset)
             {
-                    float n = 20;
-                    float dstLimit = min(50, depth);
+                    float n = _LightShaftSampleCount;
+                    float dstLimit = min(_LightShaftRenderDistance, depth);
                     float dstTravelled = offset;
                     float stepSize = dstLimit / n;
                     
@@ -423,10 +427,11 @@ Shader "Custom/WorldPostProcess"
                 return true;
             }
 
-            float computeLighting(float3 pos, float3 normal, float3 lightDir)
+            float computeLighting(float3 pos, float3 normal, float3 lightDir, bool useShadowMap)
             {
                 float light = dot(lightDir, normal); 
-                if (isInShadow_rayMarched(pos, normal, lightDir) == true) light = 0; 
+                if (!useShadowMap && isInShadow_rayMarched(pos, normal, lightDir) == true) light = 0; 
+                if (useShadowMap && isInShadow(pos, normal, lightDir) == true) light = 0; 
                 float occlusion = calculateOcclusion(pos, normal, 9, 0.3);
                 float ambientLight = 0.075 * saturate(pos.y / _WorldTextureSize.y) * occlusion;
                 return max(ambientLight, saturate(light));
@@ -434,23 +439,25 @@ Shader "Custom/WorldPostProcess"
 
             float getLightShaft(float3 rayStart, float3 rayDir, float3 lightDir, float depth, float offset)
             {
-                    float n = 20;
-                    float dstLimit = min(50, depth);
+                    float n = _LightShaftSampleCount;
+                    float dstLimit = min(_LightShaftRenderDistance, depth);
                     float dstTravelled = offset;
                     float stepSize = dstLimit / n;
-                    
+                    float blendStart = _LightShaftFadeStart * _LightShaftRenderDistance;
+                     
                     float lightScattered = 0;
                     [loop]
                     while (dstTravelled < dstLimit)
                     {
+                        float blendFactor = 1 - saturate((dstTravelled - blendStart) / (_LightShaftRenderDistance - blendStart));
                         float3 rayPos = rayStart + rayDir * dstTravelled;
                         if (rayPos.y >= _WorldTextureSize.y || isInShadow(rayPos, float3(0, 0, 0), lightDir) == false)
                         {
-                            lightScattered += 0.01 * stepSize / 2.0;
+                            lightScattered += 0.01 * stepSize * blendFactor * _LightShaftIntensity;
                         }
                         dstTravelled += stepSize;
                     }
-                    return lightScattered;
+                    return min(lightScattered, _LightShaftMaximumValue);
             }
 
 
@@ -473,24 +480,33 @@ Shader "Custom/WorldPostProcess"
                 bool isBackground = block == 0;
                 float4 worldColor = getBlockColor(block, pos, normal);// * getOutline(pos);
 
-                // Compute fog 
-                float fog = saturate(depth / 3000) * 1;
-                float4 fogColor = (1, 1, 1, 1);
+                // Compute fog
+                float fog = saturate(depth / 5000) * 1;
+                float4 fogColor = saturate(dot(lightDir, float3(0, 1, 0)));
                 
                 // Compute lighting
-                float lightIntensity = computeLighting(pos, normal, lightDir);
-
                 float offset = tex2D(_NoiseTexture, i.uv/1) * 2;
                 float lightShaft = getLightShaft(rayPos, rayDir, lightDir, depth, offset);
-                float lightShaftMultiplier = saturate(dot(float3(0, 1, 0), lightDir)) * 2;
-                lightShaft *= lightShaftMultiplier;
+                float lightShaftTimeMultiplier = saturate(dot(float3(0, 1, 0), lightDir)) * 2;
+                lightShaft *= lightShaftTimeMultiplier;
 
-                //TODO: use unity depth for shadows and light shaft
                 if (isBackground)
                 {
-                    return float4(backgroundColor.rgb + lightShaft, 1);
+                    if (depth < 100)
+                    {
+                        float3 objectPos = rayPos + rayDir * depth;
+                        float3 light = 1;
+                        if (isInShadow_rayMarched(objectPos, float3(0, 0, 0), lightDir))
+                        {
+                            light = 0.2;
+                        }
+                        return float4(backgroundColor.rgb * light, 1);
+                    }
+                    return backgroundColor;
                 }
-                return float4(worldColor.rgb * lightIntensity + lightShaft, worldColor.a) + fogColor * 0;
+
+                float lightIntensity = computeLighting(pos, normal, lightDir, false);
+                return float4(worldColor.rgb * lightIntensity + lightShaft, worldColor.a) + fogColor * fog;
             }
 
             ENDCG

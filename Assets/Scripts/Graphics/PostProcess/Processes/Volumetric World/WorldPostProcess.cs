@@ -12,6 +12,13 @@ public class WorldPostProcess : PostProcessBase
     [SerializeField] private WorldGenerator worldGenerator;
     [SerializeField] private ShadowMap shadowMap;
 
+    [Header("Volumetric Lighting Parameters")]
+    [SerializeField] [Range(0, 200)] private int lightShaftSampleCount;
+    [SerializeField] [Range(0f, 1000f)] private float lightShaftRenderDistance;
+    [SerializeField][Range(0f, 1f)] private float lightShaftFadeStart;
+    [SerializeField][Range(0f, 5f)] private float lightShaftIntensity;
+    [SerializeField][Range(0f, 1f)] private float lightShaftMaximumValue;
+
     [Header("Textures")]
     [SerializeField] private List<Texture2D> blockTextures;
     [SerializeField] private Texture2D textureAtlas;
@@ -71,12 +78,17 @@ public class WorldPostProcess : PostProcessBase
         postProcessMaterial.SetInt("_DebugToggle", debugToggle ? 1 : 0);
         postProcessMaterial.SetTexture("_NoiseTexture", noiseTexture);
 
+        // Parameters
+        postProcessMaterial.SetFloat("_LightShaftRenderDistance", lightShaftRenderDistance);
+        postProcessMaterial.SetFloat("_LightShaftFadeStart", lightShaftFadeStart);
+        postProcessMaterial.SetFloat("_LightShaftIntensity", lightShaftIntensity);
+        postProcessMaterial.SetFloat("_LightShaftMaximumValue", lightShaftMaximumValue);
+        postProcessMaterial.SetInt("_LightShaftSampleCount", lightShaftSampleCount);
+
         // Shadow map
         postProcessMaterial.SetVector("_LightDir", shadowMap.LightDir);
         postProcessMaterial.SetVector("_LightUp", shadowMap.LightUp);
         postProcessMaterial.SetVector("_LightRight", shadowMap.LightRight);
-
-
         postProcessMaterial.SetTexture("_ShadowMap", shadowMap.ShadowMapRenderTexture);
         postProcessMaterial.SetVector("_ShadowMapOrigin", shadowMap.Origin);
         postProcessMaterial.SetVector("_ShadowMapCoverage", new Vector2(shadowMap.MapWidth, shadowMap.MapHeight));

@@ -96,7 +96,7 @@ float2 rayWorldHit(float3 rayOrigin, float3 rayDir)
         if (rayDir.y == 0) return float2(dstToWorld, 1e10); 
         // Return dist inside world
         return float2(dstToWorld, max(dstTop, dstBottom));
-    }
+    } 
 
     // If above the world
     if (rayOrigin.y > (float) _WorldTextureSize.y)
@@ -247,18 +247,6 @@ float computeUnityDepth(uint3 id)
 void CSMain(uint3 id : SV_DispatchThreadID)
 {
     float2 uv = float2((id.xy + float2(0.5f, 0.5f)) / (float2) _GBufferSize * 2.0f - 1.0f);
-    // Screen space -> NDC
-    // NDC -> clip space (-1 to 1)
-    //float4 clipPos = float4(uv * 2.0f - 1.0f, -1.0f, 1.0f);
-    // Clip space -> view space
-    //float4 viewPos = mul(clipPos, _InvProjectionMatrix);
-    // View space -> world space
-    //float4 worldPos = mul(_InvViewMatrix, viewPos);
-    //worldPos.xyz /= worldPos.w;
-
-    // Initialize ray position and direction
-    //float3 rayDir = worldPos.xyz - rayPos;
-    //rayDir /= length(rayDir.xyz);
 
     float3 rayPos = _CameraPos;
     float3 rayDir = computeRayDir(uv);
@@ -284,14 +272,6 @@ void CSMain(uint3 id : SV_DispatchThreadID)
     // Fill buffers
     _BlocksBuffer[id.xy] = float4(blockID, 0, 0, 1);
     _NormalBuffer[id.xy] = float4(normal, 1);
-    //_DepthBuffer[id.xy] = float4(1, 1, 1, 1) * (1 - combinedDepth / 20.0);
     _DepthBuffer[id.xy] = combinedDepth;
     _PositionBuffer[id.xy] = float4(pos, 1);  
 }
-     
-// VERY IMPORTANT: CREATE SHADOW MAP FROM DIRECTIONAL LIGHT
-// Use it for the shadows instead
-// Use it for the light shafts instead
-// It will allow the meshes to interact with the light shafts
-// ALSO !! It should allow to not raymarch towards the light at each light shaft sample, the time complexity will go from n^2 to n
-// Also investigate global illumination with voxel cone tracing
