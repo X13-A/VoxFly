@@ -51,9 +51,7 @@ Shader"Custom/CloudsPostProcess"
             sampler2D _PositionTexture;
 
             sampler2D _HeightMap;
-            sampler3D _NoiseTex1;
-            sampler3D _NoiseTex2;
-            sampler3D _NoiseTex3;
+            float2 _HeightMapSpeed;
 
             float4 _BoundsMin;
             float4 _BoundsMax;
@@ -69,24 +67,15 @@ Shader"Custom/CloudsPostProcess"
             int _ShadowSteps;
             float _ShadowDist;
 
-            float _GlobalScale1;
-            float _GlobalScale2;
-            float _GlobalScale3;
             sampler2D _CoverageMap;
             sampler2D _BlueNoise;
             float _OffsetNoiseIntensity;
 
             float3 _CoverageOffset;
+            float3 _CoverageSpeed;
             float _CoverageScale;
             float _Coverage;
-            float _GlobalDensity1;
-            float _GlobalDensity2;
-            float _GlobalDensity3;
-            float _StepSize;
-
-            float4 _GlobalSpeed1;
-            float4 _GlobalSpeed2;
-            float4 _GlobalSpeed3;
+            float _StepSize; 
 
             float min4(float a, float b, float c, float d)
             {
@@ -95,7 +84,7 @@ Shader"Custom/CloudsPostProcess"
 
             float sampleCoverage(float3 pos)
             {
-                float res = length(tex2D(_CoverageMap, (pos.xz + _CoverageOffset.xz) / _CoverageScale).rgb);
+                float res = length(tex2D(_CoverageMap, (pos.xz + _CoverageOffset.xz + _Time.y * _CoverageSpeed) / _CoverageScale).rgb);
                 res = saturate(1 - res / _Coverage);
                 return res;
             }
@@ -106,25 +95,18 @@ Shader"Custom/CloudsPostProcess"
                 float bottom = min(_BoundsMin.y, _BoundsMax.y);
 
                 float boxHeight = abs(top - bottom);
-                float maxHeight = top - tex2D(_HeightMap, pos.xz / _HeightScale).r * _HeightVariation;
-	            float minHeight = bottom + tex2D(_HeightMap, pos.xz / _HeightScale) * _HeightVariation;
+                float maxHeight = top - tex2D(_HeightMap, (pos.xz + _Time.y * _HeightMapSpeed) / _HeightScale).r * _HeightVariation;
+	            float minHeight = bottom + tex2D(_HeightMap, (pos.xz + _Time.y * _HeightMapSpeed) / _HeightScale) * _HeightVariation;
 	            float centerHeight = (minHeight + maxHeight) / 2;
 
                 float t1 = smoothstep(minHeight, centerHeight, pos.y); 
                 float t2 = smoothstep(maxHeight, centerHeight, pos.y);
                 float fade = pow(min(t1, t2), 3);
 
-                float3 speed1 = float3(1, 1, 1) * _Time.x * _GlobalSpeed1;
-                float3 speed2 = float3(1, 1, 1) * _Time.x * _GlobalSpeed2;
-                float3 speed3 = float3(1, 1, 1) * _Time.x * _GlobalSpeed3;
-                //float density1 = length(tex3D(_NoiseTex1, (pos + speed1) / _GlobalScale1).rgb) * _GlobalDensity1;
-                //float density2 = length(tex3D(_NoiseTex2, (pos + speed2) / _GlobalScale2).rgb) * _GlobalDensity2;
-                //float density3 = length(tex3D(_NoiseTex3, (pos + speed3) / _GlobalScale3).rgb) * _GlobalDensity3;
-
                 float res = 1;
                 res *= sampleCoverage(pos);
                 res *= fade;
-
+                
                 // Disables clouds at night
                 float densityFactor = saturate(dot(float3(0, 1, 0), _WorldSpaceLightPos0));
                 res *= densityFactor;
