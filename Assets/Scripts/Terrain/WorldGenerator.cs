@@ -69,6 +69,17 @@ public class WorldGenerator : MonoBehaviour
             }
         }
 
+        // Fill bottom
+        for (int x = 0; x < width; x++)
+        {
+            for (int z = 0; z < depth; z++)
+            {
+                WorldTexture.SetPixel(x, 0, z, stoneColor);
+                WorldTexture.SetPixel(x, 1, z, stoneColor);
+                WorldTexture.SetPixel(x, 2, z, stoneColor);
+            }
+        }
+
         // Debug: Create tower at origin
         //for (int y = 0; y < height - 1; y++)
         //{

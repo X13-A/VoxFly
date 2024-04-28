@@ -1,14 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class CloudsPostProcess : PostProcessBase
 {
     [Header("General parameters")]
     [SerializeField] private Material postProcessMaterial;
-    [SerializeField] private CloudsNoiseGenerator noiseGenerator;
     [SerializeField] private GBuffer gBuffer;
 
     [Header("Shape parameters")]
@@ -43,6 +42,9 @@ public class CloudsPostProcess : PostProcessBase
     [SerializeField] private uint shadowSteps = 3;
     [SerializeField] private float shadowDist = 10000;
 
+    public Vector3 BoundsMin => container.position - container.localScale / 2;
+    public Vector3 BoundsMax => container.position + container.localScale / 2;
+
     private float GetStepSize()
     {
         float containerDist = Mathf.Abs(container.transform.position.y - Camera.current.transform.position.y);
@@ -64,6 +66,8 @@ public class CloudsPostProcess : PostProcessBase
             postProcessMaterial.SetTexture("_PositionTexture", gBuffer.PositionBuffer);
         }
 
+        postProcessMaterial.SetFloat("_CustomTime", Time.time);
+
         // Noise params
         postProcessMaterial.SetTexture("_BlueNoise", blueNoise);
         postProcessMaterial.SetFloat("_OffsetNoiseIntensity", offsetNoiseIntensity);
@@ -73,13 +77,8 @@ public class CloudsPostProcess : PostProcessBase
         postProcessMaterial.SetFloat("_StepSize", computedStepSize);
         
         // Shape params
-        Vector3 halfExtents = Vector3.one * 0.5f; // TODO: Find min and max here
-        halfExtents.Scale(container.localScale);
-        Vector3 corner1 = container.position - container.localScale/2;
-        Vector3 corner2 = container.position + container.localScale/2;
-
-        postProcessMaterial.SetVector("_BoundsMin", corner1);
-        postProcessMaterial.SetVector("_BoundsMax", corner2);
+        postProcessMaterial.SetVector("_BoundsMin", BoundsMin);
+        postProcessMaterial.SetVector("_BoundsMax", BoundsMax);
         postProcessMaterial.SetTexture("_HeightMap", heightMap);
         postProcessMaterial.SetFloat("_HeightScale", heightScale);
         postProcessMaterial.SetVector("_HeightMapSpeed", heightMapSpeed);
@@ -100,6 +99,25 @@ public class CloudsPostProcess : PostProcessBase
         postProcessMaterial.SetInteger("_ShadowSteps", (int)shadowSteps);
         postProcessMaterial.SetFloat("_ShadowDist", shadowDist);
     }
+
+    public Vector3 SampleCoverage(Vector3 pos)
+    {
+        Vector2 uv = new Vector2(pos.x, pos.z);
+        uv += coverageOffset;
+        uv += new Vector2(Time.time * coverageSpeed.x, Time.time * coverageSpeed.y);
+        uv /= coverageScale;
+
+        uv.x = Mathf.Repeat(uv.x, 1.0f);
+        uv.y = Mathf.Repeat(uv.y, 1.0f);
+        uv.Scale(new Vector2(coverageMap.width, coverageMap.height));
+
+        Color resColor = coverageMap.GetPixel((int) uv.x, (int) uv.y);
+        float res = resColor.r + resColor.g + resColor.b;
+
+        res = res / coverage;
+        return new Vector3(res, uv.x, uv.y);
+    }
+
     public override void Apply(RenderTexture source, RenderTexture dest)
     {
         if (postProcessMaterial != null && Camera.current != null)
