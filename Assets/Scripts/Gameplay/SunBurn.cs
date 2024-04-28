@@ -1,3 +1,4 @@
+using SDD.Events;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -11,6 +12,8 @@ public class SunBurn : MonoBehaviour
     [SerializeField] private WorldGenerator generator;
     [SerializeField] private CloudsPostProcess cloudsPostProcess;
     [SerializeField] private float dstLimit = 1000;
+    [SerializeField] private float SunRayRate = .1f;
+    [SerializeField] private float ShadowRayRate = .1f;
     [SerializeField] private bool result;
     [SerializeField] private float resultIntensity;
     [SerializeField] private Vector2 resultUV;
@@ -157,6 +160,7 @@ public class SunBurn : MonoBehaviour
             // Return the voxel
             if (blockID != -1)
             {
+                EventManager.Instance.Raise(new PlaneIsInShadowEvent() { eIsInShadow = true, eRayRate = ShadowRayRate });
                 return true;
             }
 
@@ -182,6 +186,8 @@ public class SunBurn : MonoBehaviour
             }
             loopCount++;
         }
+
+        EventManager.Instance.Raise(new PlaneIsInShadowEvent() { eIsInShadow = false, eRayRate = SunRayRate });
         return false;
     }
 
