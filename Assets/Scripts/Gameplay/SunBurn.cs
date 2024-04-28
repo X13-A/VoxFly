@@ -1,15 +1,25 @@
+using SDD.Events;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.TestTools;
 
 public class SunBurn : MonoBehaviour
 {
     [SerializeField] private Transform directionalLight;
     [SerializeField] private WorldGenerator generator;
+    [SerializeField] private CloudsPostProcess cloudsPostProcess;
     [SerializeField] private float dstLimit = 1000;
+    [SerializeField] private float SunRayRate = .1f;
+    [SerializeField] private float ShadowRayRate = .1f;
     [SerializeField] private bool result;
+    [SerializeField] private float resultIntensity;
+    [SerializeField] private Vector2 resultUV;
+
+    public List<Vector3> LightSteps;
+    public List<float> LightSamples;
 
     private struct RayWorldInfo
     {
@@ -23,7 +33,19 @@ public class SunBurn : MonoBehaviour
         }
     }
 
-    float DstToPlane(Vector3 rayOrigin, Vector3 rayDir, float planeY)
+    private struct RayBoxInfo
+    {
+        public float dstToBox;
+        public float dstInsideBox;
+
+        public RayBoxInfo(float dstToBox, float dstInsideBox)
+        {
+            this.dstToBox = dstToBox;
+            this.dstInsideBox = dstInsideBox;
+        }
+    }
+
+    private float DstToPlane(Vector3 rayOrigin, Vector3 rayDir, float planeY)
     {
         // Check if the plane is parallel to the ray
         if (rayDir.y == 0)
@@ -42,7 +64,7 @@ public class SunBurn : MonoBehaviour
         return t;
     }
 
-    RayWorldInfo RayWorldHit(Vector3 pos, Vector3 dir)
+    private RayWorldInfo RayWorldHit(Vector3 pos, Vector3 dir)
     {
         float dstTop = DstToPlane(pos, dir, generator.WorldTexture.height);
         float dstBottom = DstToPlane(pos, dir, 0);
@@ -80,7 +102,7 @@ public class SunBurn : MonoBehaviour
         }
     }
 
-    bool IsInShadow(Vector3 pos, Vector3 lightDir)
+    private bool IsInShadow(Vector3 pos, Vector3 lightDir)
     {
         Vector3 startPos = pos;
         Vector3 rayDir = lightDir;
@@ -138,6 +160,7 @@ public class SunBurn : MonoBehaviour
             // Return the voxel
             if (blockID != -1)
             {
+                EventManager.Instance.Raise(new PlaneIsInShadowEvent() { eIsInShadow = true, eRayRate = ShadowRayRate });
                 return true;
             }
 
@@ -163,11 +186,96 @@ public class SunBurn : MonoBehaviour
             }
             loopCount++;
         }
+
+        EventManager.Instance.Raise(new PlaneIsInShadowEvent() { eIsInShadow = false, eRayRate = SunRayRate });
         return false;
+    }
+
+    RayBoxInfo rayBoxDst(Vector3 rayOrigin, Vector3 rayDir)
+    {
+        Vector3 invRayDir =  new Vector3(1f / rayDir.x, 1f / rayDir.y, 1f / rayDir.z);
+
+        // Calculate ray intersections with box
+        Vector3 t0 = (cloudsPostProcess.BoundsMin - rayOrigin);
+        t0.Scale(invRayDir);
+        Vector3 t1 = (cloudsPostProcess.BoundsMax - rayOrigin);
+        t1.Scale(invRayDir);
+        Vector3 tmin = Vector3.Min(t0, t1);
+        Vector3 tmax = Vector3.Max(t0, t1);
+
+        // Calculate distances
+        float dstA = Mathf.Max(Mathf.Max(tmin.x, tmin.y), tmin.z); // A is the closest point
+        float dstB = Mathf.Min(tmax.x, Mathf.Min(tmax.y, tmax.z)); // B is the furthest point
+
+        float dstToBox = Mathf.Max(0, dstA);
+        float dstInsideBox = Mathf.Max(0, dstB - dstToBox);
+        return new RayBoxInfo(dstToBox, dstInsideBox);
+    }
+
+    private float CloudCoverage(Vector3 pos, Vector3 lightDir)
+    {
+        LightSteps = new List<Vector3>();
+        LightSamples = new List<float>();
+
+        RayBoxInfo rayBoxInfo = rayBoxDst(pos, lightDir);
+        float dstToBox = rayBoxInfo.dstToBox;
+        float dstInsideBox = rayBoxInfo.dstInsideBox;
+
+        Vector3 startPos = pos + lightDir * dstToBox;
+        Vector3 rayPos = startPos;
+
+        int shadowSteps = 20;
+        float stepSize = dstInsideBox / shadowSteps;
+
+        float shadow = 0;
+        for (int i = 0; i < shadowSteps; i++)
+        {
+            rayPos = startPos + lightDir * stepSize * i;
+            float density = cloudsPostProcess.SampleCoverage(rayPos).x * stepSize;
+            LightSteps.Add(rayPos);
+            LightSamples.Add(density);
+            shadow += density;
+        }
+        return shadow;
+    }
+
+    private Vector3Int GetGridPos()
+    {
+        Vector3Int pos = new Vector3Int((int) Math.Round(transform.position.x), (int)Math.Round(transform.position.y), (int)Math.Round(transform.position.z));
+        pos.x = pos.x % generator.Size.x;
+        if (pos.x < 0) pos.x += generator.Size.x;
+        pos.y = Math.Clamp(pos.y, 0, generator.Size.y);
+        pos.z = pos.z % generator.Size.z;
+        if (pos.z < 0) pos.z += generator.Size.z;
+        return pos;
     }
 
     void Update()
     {
         result = IsInShadow(transform.position, -directionalLight.forward);
+        resultIntensity = CloudCoverage(transform.position, -directionalLight.forward);
+        Vector3 resultDebug = cloudsPostProcess.SampleCoverage(transform.position);
+        resultIntensity = resultDebug.x;
+        resultUV = new Vector2(resultDebug.y, resultDebug.z);
+        if (Input.GetKey(KeyCode.T))
+        {
+            Vector3Int pos = GetGridPos();
+            Debug.Log(pos);
+            Color pixel = generator.WorldTexture.GetPixel(pos.x, pos.y, pos.z);
+            Debug.Log(pixel);
+            generator.WorldTexture.SetPixel(pos.x, pos.y, pos.z, Color.clear);
+            generator.WorldTexture.Apply();
+        }
+    }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.blue;
+        for (int i = 0; i < LightSteps.Count; i++)
+        {
+            Gizmos.DrawSphere(LightSteps[i], LightSamples[i]);
+        }
+        Gizmos.color = Color.green;
+        Gizmos.DrawLine(transform.position, transform.position - directionalLight.forward * 1000);
     }
 }

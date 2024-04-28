@@ -57,3 +57,17 @@ public class EnemyHasBeenHitEvent : SDD.Events.Event
 	public GameObject eEnemy;
 }
 #endregion
+
+#region Plane Event
+public class PlaneIsInShadowEvent : SDD.Events.Event
+{
+	public bool eIsInShadow;
+	public float eRayRate;
+}
+
+public class PlaneStateEvent : SDD.Events.Event
+{
+    public float eBurningRate; // in % from 0 to 100
+	public float eAltitude;
+}
+#endregion

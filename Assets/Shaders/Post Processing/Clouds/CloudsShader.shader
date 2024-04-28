@@ -57,6 +57,7 @@ Shader"Custom/CloudsPostProcess"
             float4 _BoundsMax;
             
             int _LightSteps;
+            float _CustomTime;
             float _GlobalBrightness;
             float _GlobalDensity;
             float _SunLightAbsorption;
@@ -84,7 +85,7 @@ Shader"Custom/CloudsPostProcess"
 
             float sampleCoverage(float3 pos)
             {
-                float res = length(tex2D(_CoverageMap, (pos.xz + _CoverageOffset.xz + _Time.y * _CoverageSpeed) / _CoverageScale).rgb);
+                float res = length(tex2D(_CoverageMap, (pos.xz + _CoverageOffset.xz + _CustomTime * _CoverageSpeed) / _CoverageScale).rgb);
                 res = saturate(1 - res / _Coverage);
                 return res;
             }
@@ -95,8 +96,8 @@ Shader"Custom/CloudsPostProcess"
                 float bottom = min(_BoundsMin.y, _BoundsMax.y);
 
                 float boxHeight = abs(top - bottom);
-                float maxHeight = top - tex2D(_HeightMap, (pos.xz + _Time.y * _HeightMapSpeed) / _HeightScale).r * _HeightVariation;
-	            float minHeight = bottom + tex2D(_HeightMap, (pos.xz + _Time.y * _HeightMapSpeed) / _HeightScale) * _HeightVariation;
+                float maxHeight = top - tex2D(_HeightMap, (pos.xz + _CustomTime * _HeightMapSpeed) / _HeightScale).r * _HeightVariation;
+	            float minHeight = bottom + tex2D(_HeightMap, (pos.xz + _CustomTime * _HeightMapSpeed) / _HeightScale) * _HeightVariation;
 	            float centerHeight = (minHeight + maxHeight) / 2;
 
                 float t1 = smoothstep(minHeight, centerHeight, pos.y); 
