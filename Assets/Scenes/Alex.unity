@@ -699,7 +699,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 316731717}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 383a9fa813bb6364687c131934a18fbf, type: 3}
   m_Name: 
@@ -2380,6 +2380,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   postProcessMaterial: {fileID: 2100000, guid: 89966cfc1080e924ab606cf05189f19a, type: 2}
   gBuffer: {fileID: 135120472}
+  cam: {fileID: 963194227}
   container: {fileID: 1852401001}
   heightMap: {fileID: 2800000, guid: 719aa961a7a62404f87534ef4a045a2d, type: 3}
   heightScale: 2000
@@ -2388,8 +2389,8 @@ MonoBehaviour:
   coverageMap: {fileID: 2800000, guid: e901d2f7b198e8b48a193daf31a01aa2, type: 3}
   coverageScale: 4000
   coverageOffset: {x: 0, y: 0}
-  coverageSpeed: {x: 0, y: 0}
-  coverage: 1
+  coverageSpeed: {x: 20, y: 10}
+  coverage: 0.572
   phaseParams: {x: 0.6, y: 0, z: 0.7}
   lightSteps: 3
   globalBrightness: 1
