@@ -85,8 +85,8 @@ Shader"Custom/CloudsPostProcess"
 
             float sampleCoverage(float3 pos)
             {
-                float res = length(tex2D(_CoverageMap, (pos.xz + _CoverageOffset.xz + _CustomTime * _CoverageSpeed) / _CoverageScale).rgb);
-                res = saturate(1 - res / _Coverage);
+                float res = tex2D(_CoverageMap, (pos.xz + _CoverageOffset.xz + _CustomTime * _CoverageSpeed) / _CoverageScale).r;
+                res = saturate(res - (1 - _Coverage));
                 return res;
             }
 
