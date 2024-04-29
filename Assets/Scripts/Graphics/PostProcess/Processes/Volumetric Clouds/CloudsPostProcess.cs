@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.TestTools;
 
 public class CloudsPostProcess : PostProcessBase
 {
@@ -109,12 +110,11 @@ public class CloudsPostProcess : PostProcessBase
 
         uv.x = Mathf.Repeat(uv.x, 1.0f);
         uv.y = Mathf.Repeat(uv.y, 1.0f);
+
         uv.Scale(new Vector2(coverageMap.width, coverageMap.height));
 
-        Color resColor = coverageMap.GetPixel((int) uv.x, (int) uv.y);
-        float res = resColor.r + resColor.g + resColor.b;
-
-        res = res / coverage;
+        float res = coverageMap.GetPixel((int) uv.x, (int) uv.y).r;
+        res = Mathf.Clamp01(res - (1 - coverage));
         return new Vector3(res, uv.x, uv.y);
     }
 
