@@ -186,7 +186,6 @@ public class SunBurn : MonoBehaviour
             }
             loopCount++;
         }
-
         EventManager.Instance.Raise(new PlaneIsInShadowEvent() { eIsInShadow = false, eRayRate = SunRayRate });
         return false;
     }
