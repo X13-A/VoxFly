@@ -31,6 +31,7 @@ public class SunBar : MonoBehaviour, IEventHandler
     {
         SubscribeEvents();
     }
+
     void OnDisable()
     {
         UnsubscribeEvents();
@@ -38,7 +39,6 @@ public class SunBar : MonoBehaviour, IEventHandler
 
     void IsInShadow(PlaneIsInShadowEvent e)
     {
-        Debug.Log("IsInShadow : " + e.eIsInShadow);
         if (e.eIsInShadow)
         {
             slider.value -= e.eRayRate;
