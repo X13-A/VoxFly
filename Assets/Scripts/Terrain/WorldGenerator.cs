@@ -37,7 +37,6 @@ public class WorldGenerator : MonoBehaviour
 
     public void GenerateTerrain()
     {
-        Debug.Log("Generating terrain");
         WorldTexture = new Texture3D(width, height, depth, TextureFormat.RGBA32, false);
         WorldTexture.anisoLevel = 0;
         WorldTexture.filterMode = FilterMode.Point;

@@ -82,7 +82,7 @@ Material:
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
     - _GlobalBrightness: 1
-    - _GlobalDensity: 0.15
+    - _GlobalDensity: 0.2
     - _GlobalScale1: 0
     - _GlobalScale2: 5000
     - _GlobalScale3: 1000000
@@ -101,8 +101,8 @@ Material:
     - _UVSec: 0
     - _ZWrite: 1
     m_Colors:
-    - _BoundsMax: {r: 5000, g: 350, b: 5000, a: 0}
-    - _BoundsMin: {r: -5000, g: 250, b: -5000, a: 0}
+    - _BoundsMax: {r: 5000, g: 275, b: 5000, a: 0}
+    - _BoundsMin: {r: -5000, g: 125, b: -5000, a: 0}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _GlobalSpeed1: {r: 0, g: 0, b: 0, a: 0}
