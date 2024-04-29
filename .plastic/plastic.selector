@@ -1,4 +1,0 @@
-repository "VoxFly@ESIEE@cloud"
-  path "/"
-    br "/main"
-    co "/main"

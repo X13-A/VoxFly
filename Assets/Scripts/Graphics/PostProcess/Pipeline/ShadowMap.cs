@@ -35,18 +35,13 @@ public class ShadowMap : MonoBehaviour
     [Header("Computing")]
 
     [SerializeField] private ComputeShader shadowMapCompute;
-    [SerializeField] private ComputeShader readMapCompute;
-
     public RenderTexture ShadowMapRenderTexture { get; private set; }
-    public RenderTexture ShadowMapReadTexture { get; private set; }
-    private Texture2D resultContainer;
 
     [SerializeField] private int textureWidth = 1920;
     [SerializeField] private int textureHeight = 1920;
     public int TextureWidth => textureWidth;
     public int TextureHeight => textureHeight;
     private int mapKernel;
-    private int readKernel;
 
     private bool initialized;
 
@@ -62,10 +57,8 @@ public class ShadowMap : MonoBehaviour
         if (lightRightTransform== null) return;
         
         UnityEngine.Object.Destroy(ShadowMapRenderTexture);
-        UnityEngine.Object.Destroy(ShadowMapReadTexture);
 
         mapKernel = shadowMapCompute.FindKernel("CSMain");
-        readKernel = readMapCompute.FindKernel("CSMain");
 
         // Create Render Texture
         ShadowMapRenderTexture = new RenderTexture(textureWidth, textureHeight, 0, RenderTextureFormat.ARGBFloat);
@@ -74,11 +67,6 @@ public class ShadowMap : MonoBehaviour
         ShadowMapRenderTexture.Create();
         shadowMapCompute.SetTexture(mapKernel, "_ShadowMap", ShadowMapRenderTexture);
 
-        // Create Read Texture
-        ShadowMapReadTexture = new RenderTexture(1, 1, 0, RenderTextureFormat.ARGBFloat);
-        ShadowMapReadTexture.enableRandomWrite = true;
-        ShadowMapReadTexture.Create();
-        resultContainer = new Texture2D(1, 1, TextureFormat.RGBAFloat, false);
         initialized = true;
     }
 
@@ -114,40 +102,5 @@ public class ShadowMap : MonoBehaviour
         shadowMapCompute.SetInts("_WorldTextureSize", new int[] { generator.WorldTexture.width, generator.WorldTexture.height, generator.WorldTexture.depth });
 
         shadowMapCompute.Dispatch(mapKernel, textureWidth / 8, textureHeight / 8, 1);
-    }
-
-    private Vector3 GetIntersectionWithPlane(Vector3 pos, Vector3 normal, Vector3 planePoint)
-    {
-        Vector3 v = pos - planePoint;
-        float d = Vector3.Dot(v, normal) / Vector3.Dot(normal, normal);
-        return pos - d * normal;
-    }
-
-    public float GetDepth(Vector3 intersection, Vector3 debugPos)
-    {
-        if (!initialized) return float.NegativeInfinity;
-        shadowMapCompute.SetTexture(readKernel, "_Result", ShadowMapReadTexture);
-        shadowMapCompute.SetTexture(readKernel, "_ShadowMap", ShadowMapRenderTexture);
-        shadowMapCompute.SetFloats("_ReadPos", new float[] { debugPos.x, debugPos.y, debugPos.z });
-        shadowMapCompute.Dispatch(readKernel, 1, 1, 1);
-
-        RenderTexture.active = ShadowMapReadTexture;
-        resultContainer.ReadPixels(new Rect(0, 0, 1, 1), 0, 0);
-        resultContainer.Apply();
-        Color res = resultContainer.GetPixel(0, 0);
-        Debug.Log($"{res}, {debugPos}");
-        return res.r;
-    }
-
-    public bool IsInShadow(Vector3 pos)
-    {
-        if (!initialized) return false;
-        Vector3 planeIntersection = GetIntersectionWithPlane(pos, LightDir, Origin);
-        float shadowMapDepth = GetDepth(planeIntersection, pos);
-        if (Vector3.Distance(pos, planeIntersection) < shadowMapDepth)
-        {
-            return false;
-        }
-        return true;
     }
 }
