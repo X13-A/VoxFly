@@ -232,10 +232,12 @@ public class SunBurn : MonoBehaviour
 
         if (result)
         {
+            Debug.Log($"Burning ! {resultIntensity}");
             EventManager.Instance.Raise(new PlaneIsInShadowEvent() { eIsInShadow = false, eRayRate = resultIntensity });
         }
         else
         {
+            Debug.Log($"Cooling down...");
             EventManager.Instance.Raise(new PlaneIsInShadowEvent() { eIsInShadow = true, eRayRate = resultIntensity });
         }
     }
