@@ -144,12 +144,11 @@ public class SunBurn : MonoBehaviour
         {
             // Check the position for a voxel
             Vector3 rayPos = startPos + rayDir * (dstTravelled + 0.001f);
-
             Vector3Int sampledVoxelIndex = new Vector3Int((int)Mathf.Round(rayPos.x), (int)Mathf.Round(rayPos.y), (int)Mathf.Round(rayPos.z));
-            int blockID = generator.SampleWorld(rayPos);
+            int blockID = generator.SampleWorld(sampledVoxelIndex);
 
             // Return the voxel
-            if (blockID != -1)
+            if (blockID > 0)
             {
                 return true;
             }

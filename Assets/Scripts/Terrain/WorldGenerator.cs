@@ -228,10 +228,10 @@ public class WorldGenerator : MonoBehaviour
     {
         if (!IsInWorld(pos))
         {
-            return -1;
+            return 0;
         }
         Color res = WorldTexture.GetPixel((int) pos.x, (int) pos.y, (int) pos.z);
-        if (res.a == 0) return -1;
+        if (res.a == 0) return 0;
 
         int blockID = (int) Mathf.Round(res.r * 255); 
         return blockID;
