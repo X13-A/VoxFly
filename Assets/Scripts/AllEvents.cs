@@ -71,6 +71,13 @@ public class PlaneStateEvent : SDD.Events.Event
 }
 #endregion
 
+#region Generation Events
+
+public class WorldGeneratedEvent : SDD.Events.Event
+{
+}
+
+#endregion
 public class WinningPointsEvent : SDD.Events.Event
 {
     public float ePoints;

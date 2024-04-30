@@ -1379,8 +1379,6 @@ MonoBehaviour:
   generator: {fileID: 386176206}
   cloudsPostProcess: {fileID: 1655582979}
   dstLimit: 1000
-  SunRayRate: 0.1
-  ShadowRayRate: 0.1
 --- !u!1 &339182367
 GameObject:
   m_ObjectHideFlags: 0
@@ -3080,7 +3078,7 @@ MonoBehaviour:
   lightShaftSampleCount: 50
   lightShaftRenderDistance: 50
   lightShaftFadeStart: 0.5
-  lightShaftIntensity: 0.3
+  lightShaftIntensity: 0.15
   lightShaftMaximumValue: 0.2
   blockTextures:
   - {fileID: 2800000, guid: 0aa23de320bd55446a3993797fd431b7, type: 3}
@@ -7389,8 +7387,6 @@ MonoBehaviour:
   generator: {fileID: 0}
   cloudsPostProcess: {fileID: 0}
   dstLimit: 1000
-  SunRayRate: 0.1
-  ShadowRayRate: 0.1
 --- !u!143 &1997677969
 CharacterController:
   m_ObjectHideFlags: 0

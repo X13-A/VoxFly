@@ -1,3 +1,4 @@
+using SDD.Events;
 using System.Diagnostics;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -193,6 +194,7 @@ public class WorldGenerator : MonoBehaviour
             UnityEngine.Debug.Log($"Conversion done in {conversionTime} seconds!");
             WorldRenderTexture.Release();
             WorldGenerated = true;
+            EventManager.Instance?.Raise(new WorldGeneratedEvent());
         }));
     }
 
