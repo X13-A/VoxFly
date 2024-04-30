@@ -1,4 +1,4 @@
-using JetBrains.Annotations;
+using SDD.Events;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -6,41 +6,49 @@ using UnityEngine;
 
 public class GetPoint : MonoBehaviour
 {
-    [SerializeField] List<GameObject> pointCollider;
+    [SerializeField] List<GameObject> colliders;
     [SerializeField] WorldGenerator generator;
-    [SerializeField] float colliderPrecision = 0.2f;
+    [SerializeField] float pixelDetectionPrecision = 1;
     [SerializeField] TextMeshProUGUI scoreText;
-    [SerializeField] int sizeXY;
 
     float score = 0;
-    // Récupérer size depuis worldGenerator
-
+    private int sizeX => generator.Size.x;
+    private int sizeY => generator.Size.y;
+    private int sizeZ => generator.Size.z;
     private Texture3D worldTexture => generator.WorldTexture;
+
+    private void Start()
+    {
+        updateScore(0);
+    }
 
     void Update()
     {
-        foreach (GameObject obj in pointCollider)
+        foreach (GameObject obj in colliders)
         {
-            updateScore(GetColliderPoint(obj));
+            float points = GetColliderPoint(obj);
+            if (points > 0) updateScore(points);
         }
     }
 
     float GetColliderPoint(GameObject obj)
     {
         float points = 0;
-        float volumeCollider = 0;
         BoxCollider boxCollider = obj.GetComponent<BoxCollider>();
 
         if (boxCollider != null)
         {
             Vector3 size = boxCollider.size;
-            volumeCollider = (size.x / colliderPrecision) * (size.y / colliderPrecision) * (size.z / colliderPrecision);
+            Vector3 center = boxCollider.center;
+            center = obj.transform.TransformPoint(center);
 
-            for (float x = -size.x / 2; x <= size.x / 2; x += colliderPrecision)
+            if (center.y >= sizeY) return 0;
+
+            for (float x = -size.x / 2; x <= size.x / 2; x += pixelDetectionPrecision)
             {
-                for (float y = -size.y / 2; y <= size.y / 2; y += colliderPrecision)
+                for (float y = -size.y / 2; y <= size.y / 2; y += pixelDetectionPrecision)
                 {
-                    for (float z = -size.z / 2; z <= size.z / 2; z += colliderPrecision)
+                    for (float z = -size.z / 2; z <= size.z / 2; z += pixelDetectionPrecision)
                     {
                         Vector3 point = new Vector3(x, y, z);
                         Vector3 worldPoint = obj.transform.TransformPoint(point);
@@ -58,10 +66,15 @@ public class GetPoint : MonoBehaviour
 
     bool IsInTexture(Vector3 coordinates)
     {
-        Color pixelColor = worldTexture.GetPixel(
-            (int)coordinates.x % sizeXY,
-            (int)coordinates.y % sizeXY,
-            (int)coordinates.z % sizeXY);
+        int x = ((int)coordinates.x) % sizeX;
+        int y = (int)coordinates.y;
+        int z = ((int)coordinates.z) % sizeZ;
+
+        if (x < 0) x += sizeX;
+        if (z < 0) z += sizeZ;
+
+        Color pixelColor = worldTexture.GetPixel(x, y, z);
+
         return pixelColor != Color.clear;
     }
 

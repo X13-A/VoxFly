@@ -50,7 +50,6 @@ public class NextLevelButtonClickedEvent : SDD.Events.Event
 }
 #endregion
 
-
 #region Enemy Event
 public class EnemyHasBeenHitEvent : SDD.Events.Event
 {
@@ -71,3 +70,8 @@ public class PlaneStateEvent : SDD.Events.Event
 	public float eAltitude;
 }
 #endregion
+
+public class WinningPointsEvent : SDD.Events.Event
+{
+    public float ePoints;
+}
