@@ -50,7 +50,6 @@ public class Destroy : MonoBehaviour, IEventHandler
             {
                 if (IsInTexture(obj))
                 {
-                    Debug.Log("GAME OVER");
                     EventManager.Instance.Raise(new GameOverEvent());
                 }
             }
