@@ -233,7 +233,7 @@ public class Plane : MonoBehaviour
         var dragForce = liftCoefficient * liftCoefficient;
         var dragDirection = -liftVelocity.normalized;
         var inducedDrag = dragDirection * v2 * dragForce * this.inducedDrag * inducedDragCurve.Evaluate(Mathf.Max(0, LocalVelocity.z));
-        Debug.Log(liftForce + " - " + v2 + " - " + liftCoefficient);
+        //Debug.Log(liftForce + " - " + v2 + " - " + liftCoefficient);
         return lift + inducedDrag;
     }
 
@@ -246,7 +246,7 @@ public class Plane : MonoBehaviour
 
         // Appliquer la poussée
         rigid.AddRelativeForce(Vector3.forward * currentThrust, ForceMode.Force);
-        Debug.Log("Current Thrust: " + currentThrust + " with Throttle at: " + Throttle);
+        //Debug.Log("Current Thrust: " + currentThrust + " with Throttle at: " + Throttle);
     }
 
     public void AdjustThrottle(float adjustment)
@@ -279,7 +279,7 @@ public class Plane : MonoBehaviour
         //var yawForce = CalculateLift(AngleOfAttackYaw, Vector3.up, rudderPower, rudderAOACurve, rudderInducedDragCurve);
 
         rigid.AddRelativeForce(liftForce);
-        Debug.Log("lift force : " + liftForce);
+        //Debug.Log("lift force : " + liftForce);
         //rigid.AddRelativeForce(yawForce);
     }
 
@@ -438,9 +438,9 @@ public class Plane : MonoBehaviour
         lastTurbulenceEffect = currentTurbulence;  // Update last effect
 
         // Apply torques with turbulence effects
-        rigid.AddRelativeTorque(new Vector3(turnTorque.x * (pitch + currentTurbulence.x) * pitchMult,
-                                            turnTorque.y * (yaw + currentTurbulence.y) * yawMult,
-                                            -turnTorque.z * (roll + currentTurbulence.z) * rollMult) * forceMult,
+        rigid.AddRelativeTorque(new Vector3(turnTorque.x * (pitch * pitchMult + currentTurbulence.x),
+                                            turnTorque.y * (yaw * yawMult + currentTurbulence.y),
+                                            -turnTorque.z * (roll * rollMult + currentTurbulence.z)) * forceMult,
                                 ForceMode.Force);
     }
 }
