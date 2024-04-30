@@ -140,6 +140,40 @@ float3 getNormal(float3 tMax, float3 step)
     }
 }
 
+bool intersectRaySphere(float3 rayPos, float3 rayDir, float3 sphereCenter, float sphereRadius, float maxRange, out float t)
+{
+    float3 L = sphereCenter - rayPos;
+    float a = dot(rayDir, rayDir); // Should be 1 if direction is normalized
+    float b = 2.0 * dot(rayDir, L);
+    float c = dot(L, L) - sphereRadius * sphereRadius;
+
+    float discriminant = b * b - 4 * a * c;
+
+    if (discriminant < 0) {
+        // No real roots, the ray does not intersect the sphere
+        t = -1.0;
+        return false;
+    }
+
+    // Compute the two roots of the quadratic equation
+    float sqrtDiscriminant = sqrt(discriminant);
+    float t1 = (-b - sqrtDiscriminant) / (2 * a);
+    float t2 = (-b + sqrtDiscriminant) / (2 * a);
+
+    // Find the nearest positive t value that is within the range
+    if (t1 > 0 && t1 <= maxRange) {
+        t = t1;
+        return true;
+    } else if (t2 > 0 && t2 <= maxRange) {
+        t = t2;
+        return true;
+    }
+
+    t = -1.0; // No valid intersection within the range
+    return false;
+}
+
+
 rayMarchInfo rayMarchWorld(float3 startPos, float3 rayDir)
 {
     float2 rayWorldInfo = rayWorldHit(startPos, rayDir);
@@ -180,10 +214,12 @@ rayMarchInfo rayMarchWorld(float3 startPos, float3 rayDir)
         }
     }
 
-    float dstLimit = min(_VoxelRenderDistance - dstToWorld, dstInsideWorld);
+    float dstToPlayer;
+    float dstLimit = min(_VoxelRenderDistance - dstToWorld, dstInsideWorld + 50); // TODO: +50 is a quick fix, the distInsideWorld calculation was a bit off on the edges. Will investigate when I have time.
     float dstTravelled = 0;
+
     int loopCount = 0;
-    int hardLoopLimit = (int) dstLimit * 2; // Hack that prevents convergence caused by precision issues or some dark mathematical magic
+    int hardLoopLimit = (int) dstLimit * 2; // TODO: hardLoopLimit is a hack that prevents convergence caused by precision issues or some dark mathematical magic
 
     [loop]
     while (loopCount++ < hardLoopLimit && dstTravelled < dstLimit)

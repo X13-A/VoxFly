@@ -2,7 +2,6 @@ using System.Diagnostics;
 using Unity.VisualScripting;
 using UnityEngine;
 
-[ExecuteInEditMode]
 public class WorldGenerator : MonoBehaviour
 {
     [Header("General parameters")]
@@ -35,7 +34,6 @@ public class WorldGenerator : MonoBehaviour
     [SerializeField] private Vector2 deepTerrainOffset = new Vector2();
 
     public Texture3D WorldTexture { get; private set; }
-    public Texture3D TextureVisualizer;
 
     [SerializeField] private RenderTexture WorldRenderTexture;
     [SerializeField] private Color grassColor;
@@ -123,7 +121,6 @@ public class WorldGenerator : MonoBehaviour
         UnityEngine.Debug.Log($"World generated in {generationTime} seconds (CPU).");
 
         WorldTexture.Apply();
-        TextureVisualizer = WorldTexture;
         WorldGenerated = true;
     }
 
@@ -191,7 +188,6 @@ public class WorldGenerator : MonoBehaviour
         StartCoroutine(RenderingUtils.ConvertRenderTextureToTexture3D(WorldRenderTexture, (Texture3D tex) =>
         {
             WorldTexture = tex;
-            TextureVisualizer = tex;
             stopwatch.Stop(); // Stop the timer after conversion is complete
             float conversionTime = (float)stopwatch.Elapsed.TotalSeconds;
             UnityEngine.Debug.Log($"Conversion done in {conversionTime} seconds!");

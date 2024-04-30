@@ -6,6 +6,14 @@ using UnityEngine;
 
 public class WorldPostProcess : PostProcessBase
 {
+    [Header("Player")]
+    [SerializeField] private Camera cam;
+    [SerializeField] private Transform playerLight;
+    [SerializeField][Range(0, 200f)] private float playerLightRange;
+    [SerializeField][Range(0, 5f)] private float playerLightIntensity;
+    [SerializeField][Range(0, 1f)] private float playerLightVolumetricIntensity;
+    [SerializeField][Range(0, 90f)] private float playerLightAngle;
+
     [Header("Pipeline")]
     [SerializeField] private GBuffer gBuffer;
     [SerializeField] private Material postProcessMaterial;
@@ -13,8 +21,8 @@ public class WorldPostProcess : PostProcessBase
     [SerializeField] private ShadowMap shadowMap;
 
     [Header("Volumetric Lighting Parameters")]
-    [SerializeField] [Range(0, 200)] private int lightShaftSampleCount;
-    [SerializeField] [Range(0f, 1000f)] private float lightShaftRenderDistance;
+    [SerializeField][Range(0, 200)] private int lightShaftSampleCount;
+    [SerializeField][Range(0f, 1000f)] private float lightShaftRenderDistance;
     [SerializeField][Range(0f, 1f)] private float lightShaftFadeStart;
     [SerializeField][Range(0f, 5f)] private float lightShaftIntensity;
     [SerializeField][Range(0f, 1f)] private float lightShaftMaximumValue;
@@ -25,7 +33,6 @@ public class WorldPostProcess : PostProcessBase
     [SerializeField] private Texture2D noiseTexture;
 
     [Header("Debug")]
-    [SerializeField] private bool refresh;
     [SerializeField] private bool debugToggle;
 
     public Texture3D WorldTexture => worldGenerator.WorldTexture;
@@ -93,16 +100,21 @@ public class WorldPostProcess : PostProcessBase
         postProcessMaterial.SetVector("_ShadowMapOrigin", shadowMap.Origin);
         postProcessMaterial.SetVector("_ShadowMapCoverage", new Vector2(shadowMap.MapWidth, shadowMap.MapHeight));
         postProcessMaterial.SetVector("_ShadowMapResolution", new Vector2(shadowMap.TextureWidth, shadowMap.TextureHeight));
+
+        // Camera
+        postProcessMaterial.SetVector("_CameraPos", cam.transform.position);
+
+        // Player light
+        postProcessMaterial.SetVector("_PlayerLightDir", playerLight.forward);
+        postProcessMaterial.SetVector("_PlayerLightPos", playerLight.position);
+        postProcessMaterial.SetFloat("_PlayerLightIntensity", playerLightIntensity);
+        postProcessMaterial.SetFloat("_PlayerLightVolumetricIntensity", playerLightVolumetricIntensity);
+        postProcessMaterial.SetFloat("_PlayerLightRange", playerLightRange);
+        postProcessMaterial.SetFloat("_PlayerLightAngle", playerLightAngle);
     }
 
     public override void Apply(RenderTexture source, RenderTexture dest)
     {
-        if (refresh)
-        {
-            worldGenerator.GenerateTerrain();
-            refresh = false;
-        }
-
         if (postProcessMaterial != null && WorldTexture != null && Camera.current != null)
         {
             SetUniforms();

@@ -61,6 +61,13 @@ Shader "Custom/WorldPostProcess"
             sampler2D _NoiseTexture;
 
             // Params
+            float3 _CameraPos;
+            float3 _PlayerLightPos;
+            float3 _PlayerLightDir;
+            float _PlayerLightIntensity;
+            float _PlayerLightVolumetricIntensity;
+            float _PlayerLightRange;
+            float _PlayerLightAngle;
             float _VoxelRenderDistance; 
             int _BlocksCount;
             int _DebugToggle;
@@ -150,7 +157,7 @@ Shader "Custom/WorldPostProcess"
 
             float getOutline(float3 pos)
             {
-                if (saturate(distance (pos, _WorldSpaceCameraPos) / 100) == 1)
+                if (saturate(distance (pos, _CameraPos) / 100) == 1)
                 {
                     return 1;
                 }
@@ -216,20 +223,20 @@ Shader "Custom/WorldPostProcess"
             }
 
             // Sample world using world space coordinates
-            int sampleWorld(float3 pos)
+            uint sampleWorld(float3 pos)
             {
                 if (!isInWorld(pos))
                 {
-                    return -1;
+                    return 0;
                 }
                 float4 res = tex3D(_WorldTexture, pos / _WorldTextureSize);
-                if (res.a == 0) return -1;
+                if (res.a == 0) return 0;
 
                 int blockID = round(res.r * 255); // Scale and round to nearest whole number
                 return blockID;
             }
 
-            // Define the function to compute ray directions based on a surface normal
+            // Cmputes ray directions based on a surface normal, used for occlusion
             float3 getSampleDirection(float3 normal, int sampleIndex, int numSamples) {
                 float phi = 2.61803398875 * sampleIndex; // Use the golden ratio angle increment for better distribution
                 float cosTheta = 1.0 - (float(sampleIndex) / numSamples);
@@ -248,17 +255,19 @@ Shader "Custom/WorldPostProcess"
                 return normalize(right * x + up * y + normal * z);
             }
 
-            // Main function to calculate occlusion
-            float calculateOcclusion(float3 pos, float3 normal, int numSamples, float radius) {
+            float calculateOcclusion(float3 pos, float3 normal, int numSamples, float radius) 
+            {
                 float occlusion = 0.0;
-                for (int i = 0; i < numSamples; ++i) {
+                for (int i = 0; i < numSamples; ++i) 
+                {
                     float3 rayDir = getSampleDirection(normal, i, numSamples);
                     float3 samplePos = pos + rayDir * radius;
-                    if (sampleWorld(samplePos) != -1) {  // Assuming sampleWorld() is a function that checks for geometry presence
+                    if (sampleWorld(samplePos) != 0) 
+                    { 
                         occlusion += 1.0;
                     }
                 }
-                return 1.0 - (occlusion / numSamples) * 0.5;  // Normalize occlusion
+                return 1.0 - (occlusion / numSamples) * 0.5;
             }
 
             struct rayMarchInfo
@@ -328,7 +337,7 @@ Shader "Custom/WorldPostProcess"
                     int blockID = sampleWorld(rayPos);
                     
                     // Return the voxel
-                    if (blockID != -1)
+                    if (blockID != 0)
                     {
                         return true;
                     }
@@ -427,14 +436,29 @@ Shader "Custom/WorldPostProcess"
                 return true;
             }
 
+            float getPlayerSpotLight(float3 pos, float3 normal)
+            {
+                float cosAngle = dot(normalize(_PlayerLightDir), normalize(pos - _PlayerLightPos));
+                float angle = acos(cosAngle) * (180.0 / 3.14159265);
+             
+                float dstToPlayer = distance(pos, _PlayerLightPos);
+                float light = 1;
+                light *= pow(saturate((_PlayerLightAngle - angle) / _PlayerLightAngle), 2);
+                return light * (1 - saturate(dstToPlayer / _PlayerLightRange)) * _PlayerLightIntensity;
+            }
+
             float computeLighting(float3 pos, float3 normal, float3 lightDir, bool useShadowMap)
             {
                 float light = dot(lightDir, normal); 
                 if (!useShadowMap && isInShadow_rayMarched(pos, normal, lightDir) == true) light = 0; 
                 if (useShadowMap && isInShadow(pos, normal, lightDir) == true) light = 0; 
+
+                float playerSpotLight = getPlayerSpotLight(pos, normal);
+                light += playerSpotLight;
+
                 float occlusion = calculateOcclusion(pos, normal, 9, 0.3);
-                float ambientLight = 0.075 * saturate(pos.y / _WorldTextureSize.y) * occlusion;
-                return max(ambientLight, saturate(light));
+                float ambientLight = 0.025 + 0.075 * saturate(pos.y / _WorldTextureSize.y);
+                return max(ambientLight, saturate(light)) * occlusion;
             }
 
             float getLightShaft(float3 rayStart, float3 rayDir, float3 lightDir, float depth, float offset)
@@ -451,10 +475,16 @@ Shader "Custom/WorldPostProcess"
                     {
                         float blendFactor = 1 - saturate((dstTravelled - blendStart) / (_LightShaftRenderDistance - blendStart));
                         float3 rayPos = rayStart + rayDir * dstTravelled;
+                        
+                        // Volumetric sun light
                         if (rayPos.y >= _WorldTextureSize.y || isInShadow(rayPos, float3(0, 0, 0), lightDir) == false)
                         {
                             lightScattered += 0.01 * stepSize * blendFactor * _LightShaftIntensity;
                         }
+
+                        // Volumetric spotlight
+                        float playerSpotLight = getPlayerSpotLight(rayPos, float3(0, 0, 0));
+                        lightScattered += 0.05 * playerSpotLight * blendFactor * stepSize * _PlayerLightVolumetricIntensity;
                         dstTravelled += stepSize;
                     }
                     return min(lightScattered, _LightShaftMaximumValue);
@@ -464,7 +494,7 @@ Shader "Custom/WorldPostProcess"
             fixed4 frag (v2f i : SV_Depth) : SV_Target
             {
                 // Create ray
-                float3 rayPos = _WorldSpaceCameraPos;
+                float3 rayPos = _CameraPos;
                 float viewLength = length(i.viewVector);
                 float3 rayDir = i.viewVector.xyz;
                 float3 lightDir = _WorldSpaceLightPos0;
@@ -477,6 +507,7 @@ Shader "Custom/WorldPostProcess"
                 float depth = tex2D(_DepthTexture, i.uv).r;
                 float3 normal = tex2D(_NormalTexture, i.uv);
                 uint block = round(tex2D(_BlockTexture, i.uv).r);
+
                 bool isBackground = block == 0;
                 float4 worldColor = getBlockColor(block, pos, normal);// * getOutline(pos);
 
