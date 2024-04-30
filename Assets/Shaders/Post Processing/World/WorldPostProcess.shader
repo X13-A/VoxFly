@@ -444,7 +444,7 @@ Shader "Custom/WorldPostProcess"
                 float dstToPlayer = distance(pos, _PlayerLightPos);
                 float light = 1;
                 light *= pow(saturate((_PlayerLightAngle - angle) / _PlayerLightAngle), 2);
-                return light * (1 - saturate(dstToPlayer / _PlayerLightRange)) * _PlayerLightIntensity;
+                return light * (1 - saturate(dstToPlayer / (_PlayerLightRange * 1.2 + 5))) * _PlayerLightIntensity;
             }
 
             float computeLighting(float3 pos, float3 normal, float3 lightDir, bool useShadowMap)

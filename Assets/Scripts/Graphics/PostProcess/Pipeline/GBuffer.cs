@@ -104,7 +104,8 @@ public class GBuffer : MonoBehaviour
         shader.SetMatrix("_InvViewMatrix", cam.worldToCameraMatrix.inverse);
         shader.SetTextureFromGlobal(kernelHandle, "_UnityDepthTexture", "_CameraDepthTexture");
         shader.SetInts("_UnityBufferSize", new int[] { Screen.width, Screen.height });
-        shader.Dispatch(kernelHandle, width / 8, height / 8, 1);
+        
+        shader.Dispatch(kernelHandle, (width + width % 8) / 8, (height + height % 8) / 8, 1);
     }
 
     void Update()
