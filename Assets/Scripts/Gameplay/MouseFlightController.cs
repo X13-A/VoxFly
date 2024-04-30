@@ -89,7 +89,7 @@ public class MouseFlightController : MonoBehaviour
         // rotations causing unintended rotations as it gets dragged around.
         transform.parent = null;
 
-        Cursor.lockState = CursorLockMode.Confined;
+        Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
     }
 
