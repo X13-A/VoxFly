@@ -26,7 +26,7 @@ public class GBuffer : MonoBehaviour
 
     void OnEnable()
     {
-        Application.targetFrameRate = 1000;
+        Application.targetFrameRate = 60;
         Setup();
     }
 
@@ -38,7 +38,8 @@ public class GBuffer : MonoBehaviour
 
     void Setup()
     {
-        generator.GenerateTerrain();
+        if (!generator.WorldGenerated) return;
+        
         kernelHandle = shader.FindKernel("CSMain");
         ReleaseBuffers();
         InitializeBuffers();
@@ -117,6 +118,10 @@ public class GBuffer : MonoBehaviour
         {
             Setup();
             refresh = false;
+        }
+        if (!Initialized)
+        {
+            Setup();
         }
         if (Initialized)
         {

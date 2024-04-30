@@ -225,6 +225,8 @@ public class SunBurn : MonoBehaviour
 
     void Update()
     {
+        if (!generator.WorldGenerated) return;
+
         float maxCoverage = 75;
         float resultIntensity = maxCoverage - Mathf.Clamp(CloudCoverage(transform.position, -directionalLight.forward), 0, maxCoverage);
         resultIntensity /= maxCoverage;

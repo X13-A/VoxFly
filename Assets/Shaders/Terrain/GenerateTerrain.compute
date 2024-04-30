@@ -1,0 +1,144 @@
+#pragma kernel CSMain
+
+RWTexture3D<float4> WorldTexture;
+
+// Parameters
+uint3 _WorldSize;
+
+float4 _StoneColor;
+float4 _GrassColor;
+float _GrassDepth;
+
+uint _ElevationStartY;
+uint _TerrainAmplitude;
+float2 _TerrainScale;
+float2 _TerrainOffset;
+uint _TerrainSeed;
+
+uint _DeepTerrainAmplitude;
+float2 _DeepTerrainScale;
+float2 _DeepTerrainOffset;
+uint _DeepTerrainSeed;
+
+
+float _CavesThreshold;
+float3 _CavesScale;
+float3 _CavesOffset;
+uint _CavesSeed;
+
+
+// Hash function with seed
+uint hash(uint x, uint seed) 
+{
+    x =  x ^ seed;
+    x += (x << 10u);
+    x ^= (x >> 6u);
+    x += (x << 3u);
+    x ^= (x >> 11u);
+    x += (x << 15u);
+    return x;
+}
+
+// Linear interpolation
+float lerp(float a, float b, float t)
+{
+    return a + t * (b - a);
+}
+
+// Compute the dot product of the distance and gradient vectors
+float grad(int hash, float x, float y)
+{
+    int h = hash & 15;
+    float u = h < 8 ? x : y;
+    float v = h < 4 ? y : h == 12 || h == 14 ? x : 0.0;
+    return ((h & 1) == 0 ? u : -u) + ((h & 2) == 0 ? v : -v);
+}
+
+
+// 2D Perlin noise function with seed
+float perlinNoise(float x, float y, uint seed)
+{
+    int ix = (int)floor(x) & 255;
+    int iy = (int)floor(y) & 255;
+    x -= floor(x);
+    y -= floor(y);
+    float u = x * x * x * (x * (x * 6 - 15) + 10);
+    float v = y * y * y * (y * (y * 6 - 15) + 10);
+    int a = hash(ix, seed) + iy;
+    int b = hash(ix + 1, seed) + iy;
+    float r = lerp(lerp(grad(hash(a, seed), x, y), grad(hash(b, seed), x - 1, y), u),
+                   lerp(grad(hash(a + 1, seed), x, y - 1), grad(hash(b + 1, seed), x - 1, y - 1), u), v);
+    return (r + 1.0) / 2.0;
+}
+
+float get2DNoise(float x, float z, float2 scale, float2 offset, uint seed)
+{
+    float2 adjustedScale = scale.xy / 983.3546789f; // Pour eviter les valeurs entieres
+    return perlinNoise(offset.x + x * adjustedScale.x, offset.y + z * adjustedScale.y, seed);
+}
+
+// 3D noise function that combines multiple Perlin noise calculations
+float get3DNoise(float x, float y, float z, float3 scale, float3 offset, uint seed)
+{
+    float3 adjustedScale = scale / 983.3546789f;
+    float ab = perlinNoise(offset.x + x * adjustedScale.x, offset.y + y * adjustedScale.y, seed);
+    float bc = perlinNoise(offset.y + y * adjustedScale.y, offset.z + z * adjustedScale.z, seed);
+    float ac = perlinNoise(offset.x + x * adjustedScale.x, offset.z + z * adjustedScale.z, seed);
+
+    float ba = perlinNoise(offset.y + y * adjustedScale.y, offset.x + x * adjustedScale.x, seed);
+    float cb = perlinNoise(offset.z + z * adjustedScale.z, offset.y + y * adjustedScale.y, seed);
+    float ca = perlinNoise(offset.z + z * adjustedScale.z, offset.x + x * adjustedScale.x, seed);
+
+    return (ab + bc + ac + ba + cb + ca) / 6.0f;
+}
+
+[numthreads(8, 8, 8)]
+void CSMain(uint3 id : SV_DispatchThreadID)
+{
+    // Check if in bounds
+    if (id.x >= _WorldSize.x || id.y >= _WorldSize.y || id.z >= _WorldSize.z) return;
+    
+    // Generate terrain surface
+    float terrainHeight = get2DNoise(id.x, id.z, _TerrainScale, _TerrainOffset, _TerrainSeed) * _TerrainAmplitude;
+    terrainHeight += _ElevationStartY;
+
+    // Get current block
+    float4 color;
+    if ((float) id.y >= terrainHeight)
+    {
+        color = float4(0, 0, 0, 0);
+    }
+    else
+    {
+        if (distance(terrainHeight, id.y) < _GrassDepth || distance(0, id.y) < _GrassDepth)
+        {
+            color = _GrassColor;
+        }
+        else
+        {
+            color = _StoneColor;
+        }
+    }
+
+    // Generate caves
+    if ((float) id.y < terrainHeight)
+    {
+        float noise = get3DNoise(id.x, id.y, id.z, _CavesScale, _CavesOffset, _CavesSeed);
+        if (noise <= _CavesThreshold)
+        {
+            color = float4(0, 0, 0, 0);
+        }
+    }
+
+
+    // Generate terrain surface
+    float deepTerrainHeight = get2DNoise(id.x, id.z, _DeepTerrainScale, _DeepTerrainOffset, _DeepTerrainSeed) * _DeepTerrainAmplitude;
+
+    // Generate underground terrain layer
+    if ((float) id.y < deepTerrainHeight)
+    {
+        color = _GrassColor;
+    }
+
+    WorldTexture[id] = color;
+}
