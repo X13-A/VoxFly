@@ -2866,7 +2866,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!108 &705507994
 Light:
   m_ObjectHideFlags: 0
@@ -6197,13 +6197,13 @@ MonoBehaviour:
   turnTorque: {x: 90, y: 25, z: 45}
   sensitivity: 5
   aggressiveTurnAngle: 5
-  pitch: -0.00059999997
+  pitch: 0
   yaw: 0
   roll: 0
   pitchMult: 1
   yawMult: 1
-  rollMult: 10
-  forceMult: 0.1
+  rollMult: 5
+  forceMult: 0.2
   enableTurbulence: 0
   turbulenceIntensity: 0.05
   turbulenceScale: 0.2
@@ -6431,8 +6431,8 @@ MonoBehaviour:
     m_RotationOrder: 4
   angularDrag: {x: 1, y: 1, z: 1}
   airbrakeDrag: 0
-  minThrust: 1000
-  maxThrust: 2000
+  minThrust: 0
+  maxThrust: 3000
   throttleAdjustmentRate: 0.3
 --- !u!54 &1676014074
 Rigidbody:
@@ -6456,7 +6456,7 @@ Rigidbody:
     m_Bits: 0
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
-  m_UseGravity: 0
+  m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0
   m_Constraints: 0
