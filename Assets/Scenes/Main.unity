@@ -724,7 +724,7 @@ MonoBehaviour:
   colliders: []
   generator: {fileID: 386176206}
   pixelDetectionPrecision: 1
-  scoreText: {fileID: 0}
+  scoreText: {fileID: 1434953727}
 --- !u!1 &386176205
 GameObject:
   m_ObjectHideFlags: 0
@@ -2235,6 +2235,17 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 818190231762151648, guid: 08239eca407faee40bcb7c2361bf183e, type: 3}
   m_PrefabInstance: {fileID: 1434953725}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1434953727 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 436677228964047913, guid: 08239eca407faee40bcb7c2361bf183e, type: 3}
+  m_PrefabInstance: {fileID: 1434953725}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1444497024
 GameObject:
   m_ObjectHideFlags: 0
