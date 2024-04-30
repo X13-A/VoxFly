@@ -10,6 +10,7 @@ public class CloudsPostProcess : PostProcessBase
     [Header("General parameters")]
     [SerializeField] private Material postProcessMaterial;
     [SerializeField] private GBuffer gBuffer;
+    [SerializeField] private Camera cam;
 
     [Header("Shape parameters")]
     [SerializeField] private Transform container;
@@ -61,6 +62,8 @@ public class CloudsPostProcess : PostProcessBase
 
     public void SetUniforms()
     {
+        container.transform.position = new Vector3(cam.transform.position.x, container.transform.position.y, cam.transform.position.z);
+
         if (gBuffer.Initialized)
         {
             postProcessMaterial.SetTexture("_DepthTexture", gBuffer.DepthBuffer);
