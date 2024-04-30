@@ -101,8 +101,8 @@ Material:
     - _UVSec: 0
     - _ZWrite: 1
     m_Colors:
-    - _BoundsMax: {r: 5496.951, g: 350, b: 5828.1807, a: 0}
-    - _BoundsMin: {r: -4503.049, g: 250, b: -4171.8193, a: 0}
+    - _BoundsMax: {r: 5502.2773, g: 350, b: 5855.368, a: 0}
+    - _BoundsMin: {r: -4497.7227, g: 250, b: -4144.632, a: 0}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _GlobalSpeed1: {r: 0, g: 0, b: 0, a: 0}
