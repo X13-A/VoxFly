@@ -13,7 +13,7 @@ public class WorldGenerator : MonoBehaviour
     [SerializeField] private int depth = 50;
     [SerializeField] private int height = 50;
 
-    public Vector3Int Size => new Vector3Int(width, depth, height);
+    public Vector3Int Size => new Vector3Int(width, height, depth);
 
     [Header("Terrain parameters")]
     [SerializeField] private uint terrainSeed;
