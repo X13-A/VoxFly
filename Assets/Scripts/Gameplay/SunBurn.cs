@@ -12,8 +12,6 @@ public class SunBurn : MonoBehaviour
     [SerializeField] private WorldGenerator generator;
     [SerializeField] private CloudsPostProcess cloudsPostProcess;
     [SerializeField] private float dstLimit = 1000;
-    [SerializeField] private float SunRayRate = .1f;
-    [SerializeField] private float ShadowRayRate = .1f;
 
     private struct RayWorldInfo
     {
@@ -234,11 +232,11 @@ public class SunBurn : MonoBehaviour
 
         if (result)
         {
-            EventManager.Instance.Raise(new PlaneIsInShadowEvent() { eIsInShadow = false, eRayRate = SunRayRate });
+            EventManager.Instance.Raise(new PlaneIsInShadowEvent() { eIsInShadow = false, eRayRate = resultIntensity });
         }
         else
         {
-            EventManager.Instance.Raise(new PlaneIsInShadowEvent() { eIsInShadow = true, eRayRate = ShadowRayRate });
+            EventManager.Instance.Raise(new PlaneIsInShadowEvent() { eIsInShadow = true, eRayRate = resultIntensity });
         }
     }
 }

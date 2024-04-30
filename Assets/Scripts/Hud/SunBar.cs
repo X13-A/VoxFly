@@ -9,7 +9,7 @@ public class SunBar : MonoBehaviour, IEventHandler
     [SerializeField] private Slider slider;
     [SerializeField] private Gradient gradient;
     [SerializeField] private Image fill;
-    [SerializeField] private float maxBurningRate;
+    [SerializeField] private float maxBurningRate = 500;
 
     public void Start()
     {
