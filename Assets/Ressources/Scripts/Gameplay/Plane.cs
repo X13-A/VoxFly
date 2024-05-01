@@ -216,7 +216,6 @@ public class plane : MonoBehaviour
         // Throttle varie entre 0 et 1, donc on mappe cette valeur à l'intervalle [minThrust, maxThrust]
         float currentThrust = Mathf.Lerp(minThrust, maxThrust, Throttle);
         EventManager.Instance.Raise(new PlaneStateEvent() { eThrust = currentThrust });
-
         // Appliquer la poussée
         rigid.AddRelativeForce(Vector3.forward * currentThrust, ForceMode.Force);
         //Debug.Log("Current Thrust: " + currentThrust + " with Throttle at: " + Throttle);
