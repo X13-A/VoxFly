@@ -49,6 +49,8 @@ public class GameManager : MonoBehaviour, IEventHandler
         EventManager.Instance.AddListener<ReplayButtonClickedEvent>(ReplayButtonClicked);
         EventManager.Instance.AddListener<MainMenuButtonClickedEvent>(MainMenuButtonClicked);
         EventManager.Instance.AddListener<QuitButtonClickedEvent>(QuitButtonClicked);
+        EventManager.Instance.AddListener<SettingsButtonClickedEvent>(SettingsButtonClicked);
+        EventManager.Instance.AddListener<ScoreButtonClickedEvent>(ScoreButtonClicked);
     }
 
     public void UnsubscribeEvents()
@@ -57,6 +59,8 @@ public class GameManager : MonoBehaviour, IEventHandler
         EventManager.Instance.RemoveListener<ReplayButtonClickedEvent>(ReplayButtonClicked);
         EventManager.Instance.RemoveListener<MainMenuButtonClickedEvent>(MainMenuButtonClicked);
         EventManager.Instance.RemoveListener<QuitButtonClickedEvent>(QuitButtonClicked);
+        EventManager.Instance.RemoveListener<SettingsButtonClickedEvent>(SettingsButtonClicked);
+        EventManager.Instance.RemoveListener<ScoreButtonClickedEvent>(ScoreButtonClicked);
     }
 
     void OnEnable()
@@ -158,6 +162,16 @@ public class GameManager : MonoBehaviour, IEventHandler
     void QuitButtonClicked(QuitButtonClickedEvent e)
     {
         Application.Quit();
+    }
+
+    void SettingsButtonClicked(SettingsButtonClickedEvent e)
+    {
+        EventManager.Instance.Raise(new GameSettingsEvent());
+    }
+
+    void ScoreButtonClicked(ScoreButtonClickedEvent e)
+    {
+        EventManager.Instance.Raise(new GameScoreEvent());
     }
 
     // Ball events' callbacks

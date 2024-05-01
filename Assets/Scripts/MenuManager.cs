@@ -9,6 +9,7 @@ public class MenuManager : MonoBehaviour, IEventHandler
     [SerializeField] GameObject m_VictoryPanel;
     [SerializeField] GameObject m_GameOverPanel;
     [SerializeField] GameObject m_SettingsPanel;
+    [SerializeField] GameObject m_ScorePanel;
 
     List<GameObject> m_Panels;
     void OpenPanel(GameObject panel)
@@ -23,6 +24,7 @@ public class MenuManager : MonoBehaviour, IEventHandler
         EventManager.Instance.AddListener<GameVictoryEvent>(GameVictory);
         EventManager.Instance.AddListener<GameOverEvent>(GameOver);
         EventManager.Instance.AddListener<GameSettingsEvent>(GameSettings);
+        EventManager.Instance.AddListener<GameScoreEvent>(GameScore);
     }
 
     public void UnsubscribeEvents()
@@ -32,6 +34,7 @@ public class MenuManager : MonoBehaviour, IEventHandler
         EventManager.Instance.RemoveListener<GameVictoryEvent>(GameVictory);
         EventManager.Instance.RemoveListener<GameOverEvent>(GameOver);
         EventManager.Instance.RemoveListener<GameSettingsEvent>(GameSettings);
+        EventManager.Instance.RemoveListener<GameScoreEvent>(GameScore);
     }
 
     void OnEnable()
@@ -46,7 +49,7 @@ public class MenuManager : MonoBehaviour, IEventHandler
     private void Awake()
     {
         m_Panels = new List<GameObject>(
-            new GameObject[] { m_MainMenuPanel, m_VictoryPanel, m_GameOverPanel });
+            new GameObject[] { m_MainMenuPanel, m_VictoryPanel, m_GameOverPanel, m_SettingsPanel, m_ScorePanel });
     }
 
     // GameManager events' callbacks
@@ -75,6 +78,11 @@ public class MenuManager : MonoBehaviour, IEventHandler
         OpenPanel(m_SettingsPanel);
     }
 
+    void GameScore(GameScoreEvent e)
+    {
+        OpenPanel(m_ScorePanel);
+    }
+
 
     // UI events' callbacks
     public void PlayButtonHasBeenClicked()
@@ -96,5 +104,9 @@ public class MenuManager : MonoBehaviour, IEventHandler
     public void SettingsButtonHasBeenClicked()
     {
         EventManager.Instance.Raise(new SettingsButtonClickedEvent());
+    }
+    public void ScoreButtonHasBeenClicked()
+    {
+        EventManager.Instance.Raise(new ScoreButtonClickedEvent());
     }
 }
