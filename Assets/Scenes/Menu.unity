@@ -609,7 +609,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1831852451}
         m_TargetAssemblyTypeName: MenuManager, Assembly-CSharp
-        m_MethodName: PlayButtonHasBeenClicked
+        m_MethodName: ScoreButtonHasBeenClicked
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -4239,6 +4239,7 @@ MonoBehaviour:
   m_VictoryPanel: {fileID: 1855064851}
   m_GameOverPanel: {fileID: 938614994}
   m_SettingsPanel: {fileID: 1469205660}
+  m_ScorePanel: {fileID: 2001890487}
 --- !u!1 &1855064851
 GameObject:
   m_ObjectHideFlags: 0
@@ -4736,7 +4737,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &2001890488
 RectTransform:
   m_ObjectHideFlags: 0
