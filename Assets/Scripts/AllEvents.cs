@@ -27,6 +27,7 @@ public class GameSettingsEvent : SDD.Events.Event
 }
 public class GameScoreEvent : SDD.Events.Event
 {
+	float score;
 }
 public class GameStatisticsChangedEvent : SDD.Events.Event
 {

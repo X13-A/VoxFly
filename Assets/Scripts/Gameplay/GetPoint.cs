@@ -12,12 +12,10 @@ public class GetPoint : MonoBehaviour
     [SerializeField] float pixelDetectionPrecision = 1;
     [SerializeField] TextMeshProUGUI scoreText;
 
-    float score = 0;
     bool isGenerated = false;
-    private int sizeX => generator.Size.x;
     private int sizeY => generator.Size.y;
-    private int sizeZ => generator.Size.z;
     private Texture3D worldTexture;
+    private GameManager gameManager;
 
     public void SubscribeEvents()
     {
@@ -39,15 +37,15 @@ public class GetPoint : MonoBehaviour
         UnsubscribeEvents();
     }
 
-    private void Start()
-    {
-        updateScore(0);
-    }
-
     void Generated(WorldGeneratedEvent e)
     {
         worldTexture = generator.WorldTexture;
         isGenerated = true;
+    }
+
+    void Start()
+    {
+        updateScore(0);
     }
 
     void Update()
@@ -56,15 +54,15 @@ public class GetPoint : MonoBehaviour
         {
             foreach (GameObject obj in colliders)
             {
-                float points = GetColliderPoint(obj);
+                int points = GetColliderPoint(obj);
                 if (points > 0) updateScore(points);
             }
         }
     }
 
-    float GetColliderPoint(GameObject obj)
+    int GetColliderPoint(GameObject obj)
     {
-        float points = 0;
+        int points = 0;
         BoxCollider boxCollider = obj.GetComponent<BoxCollider>();
 
         if (boxCollider != null)
@@ -95,9 +93,8 @@ public class GetPoint : MonoBehaviour
         return points;
     }
 
-    void updateScore(float points)
+    void updateScore(int points)
     {
-        score += points;
-        scoreText.text = "Score: " + score;
+        scoreText.text = "Score: " + GameManager.Instance.IncrementScore(points);
     }
 }

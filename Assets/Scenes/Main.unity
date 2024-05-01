@@ -339,10 +339,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   controller: {fileID: 1265296865}
-  thrust: 100
   turnTorque: {x: 90, y: 25, z: 45}
-  sensitivity: 5
-  aggressiveTurnAngle: 5
   pitch: 0
   yaw: 0
   roll: 0
@@ -413,24 +410,6 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  rudderPower: 0
-  rudderAOACurve:
-    serializedVersion: 2
-    m_Curve: []
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  rudderInducedDragCurve:
-    serializedVersion: 2
-    m_Curve: []
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  flapsLiftPower: 0
-  flapsAOABias: 0
-  flapsDrag: 0
-  flapsRetractSpeed: 0
-  flapsDeployed: 0
   dragForward:
     serializedVersion: 2
     m_Curve:
@@ -2524,6 +2503,51 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 23660559}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &818887156
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 818887158}
+  - component: {fileID: 818887157}
+  m_Layer: 0
+  m_Name: Manager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &818887157
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 818887156}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a563fa6ad3d5aa46b83b7bd0a7c255d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Score: 0
+--- !u!4 &818887158
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 818887156}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 500, y: 100, z: 500}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &827187446
 GameObject:
@@ -4770,7 +4794,7 @@ VideoPlayer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1380010350}
   m_Enabled: 1
-  m_VideoClip: {fileID: 32900000, guid: 2f934d1b41996484ab18460d0a1624ac, type: 3}
+  m_VideoClip: {fileID: 32900000, guid: 55e216197d30a7d42b09df5025f8cd28, type: 3}
   m_TargetCameraAlpha: 1
   m_TargetCamera3DLayout: 0
   m_TargetCamera: {fileID: 1112909378}
@@ -7265,3 +7289,4 @@ SceneRoots:
   - {fileID: 1454048172}
   - {fileID: 1205585270}
   - {fileID: 517029519}
+  - {fileID: 818887158}

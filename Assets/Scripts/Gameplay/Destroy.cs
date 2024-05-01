@@ -11,9 +11,7 @@ public class Destroy : MonoBehaviour, IEventHandler
     [SerializeField] float pixelDetectionPrecision = 1;
 
     bool isGenerated = false;
-    private int sizeX => generator.Size.x;
     private int sizeY => generator.Size.y;
-    private int sizeZ => generator.Size.z;
     private Texture3D worldTexture;
 
     public void SubscribeEvents()

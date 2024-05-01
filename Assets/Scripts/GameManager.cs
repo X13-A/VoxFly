@@ -14,34 +14,19 @@ public class GameManager : MonoBehaviour, IEventHandler
     GAMESTATE m_State;
     public bool IsPlaying => m_State == GAMESTATE.play;
 
-    //int m_Score;
-    //[SerializeField] int m_ScoreToVictory;
+    public int m_Score;
 
-    /*void SetScore(int newScore)
+    void SetScore(int newScore)
     {
         m_Score = newScore;
-        EventManager.Instance.Raise(new GameStatisticsChangedEvent() { eScore = m_Score, eCountDown = m_CountDown });
-    }*/
+        EventManager.Instance.Raise(new GameStatisticsChangedEvent() { eScore = m_Score });
+    }
 
-    /*int IncrementScore(int increment)
+    public int IncrementScore(int increment)
     {
         SetScore(m_Score + increment);
         return m_Score;
-    }*/
-
-    float m_CountDown;
-    [SerializeField] float m_GameDuration;
-    /*void SetCountdown(float newCountdown)
-    {
-        m_CountDown = newCountdown;
-        EventManager.Instance.Raise(new GameStatisticsChangedEvent() { eScore = m_Score, eCountDown = m_CountDown });
-    }*/
-
-    /*float DecrementCountdown(float decrement)
-    {
-        SetCountdown(Mathf.Max(0, m_CountDown - decrement));
-        return m_CountDown;
-    }*/
+    }
 
     public void SubscribeEvents()
     {
@@ -75,23 +60,12 @@ public class GameManager : MonoBehaviour, IEventHandler
     private void Awake()
     {
         if (!m_Instance) m_Instance = this;
-        //else Destroy(gameObject);
-    }
-    // Start is called before the first frame update
-    void Start()
-    {
-        //SetScore(0);
-        //SetCountdown(0);
-        MainMenu();
     }
 
-    void Update()
+    void Start()
     {
-        /*if (IsPlaying)
-        {
-            if (DecrementCountdown(Time.deltaTime) == 0)
-                GameOver();
-        }*/
+        SetScore(0);
+        MainMenu();
     }
 
     void SetState(GAMESTATE newState)
@@ -124,8 +98,7 @@ public class GameManager : MonoBehaviour, IEventHandler
     void InitGame()
     {
         SceneManager.LoadSceneAsync(1);
-        //SetScore(0);
-        //SetCountdown(m_GameDuration);
+        SetScore(0);
     }
 
     void Play()
@@ -173,14 +146,4 @@ public class GameManager : MonoBehaviour, IEventHandler
     {
         EventManager.Instance.Raise(new GameScoreEvent());
     }
-
-    // Ball events' callbacks
-    /*void EnemyHasBeenHit(EnemyHasBeenHitEvent e)
-    {
-        IScore score = e.eEnemy.GetComponent<IScore>();
-        if (null != score
-            && IncrementScore(score.Score) >= m_ScoreToVictory)
-            Victory();
-    }*/
-
 }
