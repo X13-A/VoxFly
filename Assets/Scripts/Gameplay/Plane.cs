@@ -37,6 +37,9 @@ public class Plane : MonoBehaviour
     private bool rollOverride = false;
     private bool pitchOverride = false;
 
+    private bool regulatorActivate;
+    public bool RegulatorActivate { set { regulatorActivate = value; } get { return regulatorActivate; } }
+
     [Header("Turbulence")]
     [SerializeField]
     public bool enableTurbulence = false;
@@ -294,13 +297,19 @@ public class Plane : MonoBehaviour
             pitchOverride = true;
             rollOverride = true;
         }
+        if (Input.GetKey(KeyCode.R))
+        {
+            if (!regulatorActivate) regulatorActivate = true;
+            Debug.Log("REGULATOR");
+        }
 
         if (Input.GetKey(KeyCode.Space))
         {
             // Augmenter le throttle
+            if(regulatorActivate)regulatorActivate = false;
             AdjustThrottle(throttleAdjustmentRate * Time.deltaTime);
         }
-        else
+        else if(!regulatorActivate)
         {
             // Diminuer le throttle
             AdjustThrottle(-throttleAdjustmentRate * Time.deltaTime);

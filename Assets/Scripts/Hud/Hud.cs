@@ -36,6 +36,9 @@ public class Hud : MonoBehaviour
     TMP_Text aoaIndicator;
     [SerializeField]
     Compass compass;
+    [SerializeField]
+    TMP_Text regulator;
+    private bool regulatorActivate;
     //[SerializeField]
     //Slider dangerBar;
 
@@ -69,6 +72,7 @@ public class Hud : MonoBehaviour
         UpdateAirspeed();
         UpdateAltitude();
         UpdateAOA();
+        UpdateRegulator();
         //UpdateTurbulenceIntensity();
     }
 
@@ -110,6 +114,25 @@ public class Hud : MonoBehaviour
         this.altitude.text = string.Format("{0:0}", planeAltitude);
         Vector3 newPosition = new Vector3(planeImage.transform.position.x, newYPosition, planeImage.transform.position.z);
         planeImage.transform.position = newPosition;
+    }
+
+    void UpdateRegulator()
+    {
+        string regulatorText = "OFF";
+        if (regulatorActivate != plane.RegulatorActivate)
+        {
+            regulatorActivate = plane.RegulatorActivate;
+            if (regulatorActivate)
+            {
+                regulatorText = "ON";
+                this.regulator.color = Color.green;
+            }
+            else
+            {
+                this.regulator.color = Color.red;
+            }
+            this.regulator.text = string.Format("regulator : " + regulatorText);
+        }
     }
 
     /*private void UpdateGraphics(MouseFlightController controller)
