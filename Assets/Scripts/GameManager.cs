@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using SDD.Events;
+using UnityEngine.SceneManagement;
 
 public enum GAMESTATE { menu, play, pause, victory, gameover }
 
@@ -47,6 +48,7 @@ public class GameManager : MonoBehaviour, IEventHandler
         EventManager.Instance.AddListener<PlayButtonClickedEvent>(PlayButtonClicked);
         EventManager.Instance.AddListener<ReplayButtonClickedEvent>(ReplayButtonClicked);
         EventManager.Instance.AddListener<MainMenuButtonClickedEvent>(MainMenuButtonClicked);
+        EventManager.Instance.AddListener<QuitButtonClickedEvent>(QuitButtonClicked);
     }
 
     public void UnsubscribeEvents()
@@ -54,6 +56,7 @@ public class GameManager : MonoBehaviour, IEventHandler
         EventManager.Instance.RemoveListener<PlayButtonClickedEvent>(PlayButtonClicked);
         EventManager.Instance.RemoveListener<ReplayButtonClickedEvent>(ReplayButtonClicked);
         EventManager.Instance.RemoveListener<MainMenuButtonClickedEvent>(MainMenuButtonClicked);
+        EventManager.Instance.RemoveListener<QuitButtonClickedEvent>(QuitButtonClicked);
     }
 
     void OnEnable()
@@ -116,6 +119,7 @@ public class GameManager : MonoBehaviour, IEventHandler
 
     void InitGame()
     {
+        SceneManager.LoadSceneAsync(1);
         //SetScore(0);
         //SetCountdown(m_GameDuration);
     }
@@ -149,6 +153,11 @@ public class GameManager : MonoBehaviour, IEventHandler
     void MainMenuButtonClicked(MainMenuButtonClickedEvent e)
     {
         MainMenu();
+    }
+
+    void QuitButtonClicked(QuitButtonClickedEvent e)
+    {
+        Application.Quit();
     }
 
     // Ball events' callbacks

@@ -22,6 +22,9 @@ public class GameOverEvent : SDD.Events.Event
 public class GameVictoryEvent : SDD.Events.Event
 {
 }
+public class GameSettingsEvent : SDD.Events.Event
+{
+}
 public class GameStatisticsChangedEvent : SDD.Events.Event
 {
 	public int eScore { get; set; }
@@ -46,6 +49,12 @@ public class MainMenuButtonClickedEvent : SDD.Events.Event
 {
 }
 public class NextLevelButtonClickedEvent : SDD.Events.Event
+{
+}
+public class QuitButtonClickedEvent: SDD.Events.Event
+{
+}
+public class SettingsButtonClickedEvent : SDD.Events.Event
 {
 }
 #endregion

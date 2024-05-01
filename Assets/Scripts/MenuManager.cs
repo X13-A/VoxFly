@@ -8,6 +8,7 @@ public class MenuManager : MonoBehaviour, IEventHandler
     [SerializeField] GameObject m_MainMenuPanel;
     [SerializeField] GameObject m_VictoryPanel;
     [SerializeField] GameObject m_GameOverPanel;
+    [SerializeField] GameObject m_SettingsPanel;
 
     List<GameObject> m_Panels;
     void OpenPanel(GameObject panel)
@@ -21,6 +22,7 @@ public class MenuManager : MonoBehaviour, IEventHandler
         EventManager.Instance.AddListener<GamePlayEvent>(GamePlay);
         EventManager.Instance.AddListener<GameVictoryEvent>(GameVictory);
         EventManager.Instance.AddListener<GameOverEvent>(GameOver);
+        EventManager.Instance.AddListener<GameSettingsEvent>(GameSettings);
     }
 
     public void UnsubscribeEvents()
@@ -29,6 +31,7 @@ public class MenuManager : MonoBehaviour, IEventHandler
         EventManager.Instance.RemoveListener<GamePlayEvent>(GamePlay);
         EventManager.Instance.RemoveListener<GameVictoryEvent>(GameVictory);
         EventManager.Instance.RemoveListener<GameOverEvent>(GameOver);
+        EventManager.Instance.RemoveListener<GameSettingsEvent>(GameSettings);
     }
 
     void OnEnable()
@@ -67,6 +70,11 @@ public class MenuManager : MonoBehaviour, IEventHandler
         OpenPanel(m_GameOverPanel);
     }
 
+    void GameSettings(GameSettingsEvent e)
+    {
+        OpenPanel(m_SettingsPanel);
+    }
+
 
     // UI events' callbacks
     public void PlayButtonHasBeenClicked()
@@ -80,5 +88,13 @@ public class MenuManager : MonoBehaviour, IEventHandler
     public void MainMenuButtonHasBeenClicked()
     {
         EventManager.Instance.Raise(new MainMenuButtonClickedEvent());
+    }
+    public void QuitButtonHasBeenClicked()
+    {
+        EventManager.Instance.Raise(new QuitButtonClickedEvent());
+    }
+    public void SettingsButtonHasBeenClicked()
+    {
+        EventManager.Instance.Raise(new SettingsButtonClickedEvent());
     }
 }
