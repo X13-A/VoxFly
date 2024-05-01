@@ -27,22 +27,32 @@ public class VideoOnGameOver : MonoBehaviour
         UnsubscribeEvents();
     }
 
+    private void Start()
+    {
+        videoPlayer.loopPointReached += EndReached;
+    }
+
     void PlayVideo(GameOverEvent e)
     {
         if (videoPlayer != null && videoPlayer.clip != null)
         {
             foreach (GameObject obj in FindObjectsOfType<GameObject>())
             {
-                if (obj != gameObject && obj.tag != "Player" && obj.tag != "MainCamera")
+                if (obj.name == "Rendering" || obj.name == "HUD")
                 {
                     obj.SetActive(false);
                 }
-            }
+            }   
             videoPlayer.Play();
         }
         else
         {
             Debug.LogError("Video player or video clip not set correctly");
         }
+    }
+
+    void EndReached(VideoPlayer vp)
+    {
+        Debug.Log("Video ended");
     }
 }
