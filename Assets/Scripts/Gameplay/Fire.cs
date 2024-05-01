@@ -6,7 +6,7 @@ using UnityEngine;
 
 public class Fire : MonoBehaviour, IEventHandler
 {
-    [SerializeField] private GameObject fire;
+    [SerializeField] private List<GameObject> fireLevel;
     public void SubscribeEvents()
     {
         EventManager.Instance.AddListener<PlaneStateEvent>(StateBurningRate);
@@ -22,9 +22,17 @@ public class Fire : MonoBehaviour, IEventHandler
         SubscribeEvents();
     }
 
+    void OnDisable()
+    {
+        UnsubscribeEvents();
+    }
+
     void Start()
     {
-        fire.SetActive(false);
+        foreach (var item in fireLevel)
+        {
+            item.SetActive(false);
+        }
     }
 
     void StateBurningRate(PlaneStateEvent e)
@@ -32,24 +40,38 @@ public class Fire : MonoBehaviour, IEventHandler
         switch (e.eBurningRate)
         { 
             case < 25:
-                fire.SetActive(false);
-                fire.transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
+                FireUpdate(0);
                 break;
 
             case < 50:
-                fire.transform.localScale = new Vector3(0.75f, 0.75f, 0.75f);
+                FireUpdate(1);
                 break;
                 
             case < 75:
-                fire.transform.localScale = new Vector3(1f, 1f, 1f);
+                FireUpdate(2);
                 break;
 
             case < 100:
-                fire.transform.localScale = new Vector3(1.25f, 1.25f, 1.25f);
+                FireUpdate(3);
                 break;
 
             default:
                 break;
+        }
+    }
+
+    void FireUpdate(int fireNumber)
+    {
+        for (int i = 0; i < fireLevel.Count; i++)
+        {
+            if (i == fireNumber)
+            {
+                fireLevel[i].SetActive(true);
+            }
+            else
+            {
+                fireLevel[i].SetActive(false);
+            }
         }
     }
 }
