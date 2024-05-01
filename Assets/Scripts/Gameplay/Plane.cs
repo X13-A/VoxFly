@@ -11,12 +11,11 @@ public class Plane : MonoBehaviour
     [SerializeField] private MouseFlightController controller = null;
 
     [Header("Physics")]
-    [Tooltip("Force to push plane forwards with")] public float thrust = 100f;
     [Tooltip("Pitch, Yaw, Roll")] public Vector3 turnTorque = new Vector3(90f, 25f, 45f);
 
-    [Header("Autopilot")]
+    /*[Header("Autopilot")]
     [Tooltip("Sensitivity for autopilot flight.")] public float sensitivity = 5f;
-    [Tooltip("Angle at which airplane banks fully into target.")] public float aggressiveTurnAngle = 10f;
+    [Tooltip("Angle at which airplane banks fully into target.")] public float aggressiveTurnAngle = 10f;*/
 
     [Header("Input")]
     [SerializeField][Range(-1f, 1f)] private float pitch = 0f;
@@ -26,6 +25,7 @@ public class Plane : MonoBehaviour
     public float Pitch { set { pitch = Mathf.Clamp(value, -1f, 1f); } get { return pitch; } }
     public float Yaw { set { yaw = Mathf.Clamp(value, -1f, 1f); } get { return yaw; } }
     public float Roll { set { roll = Mathf.Clamp(value, -1f, 1f); } get { return roll; } }
+
     public float pitchMult = 1f;
     public float yawMult = 1f;
     public float rollMult = 5f;
@@ -46,7 +46,6 @@ public class Plane : MonoBehaviour
     private float turbulenceScale = 0.2f;
     [SerializeField]
     private float dampingFactor = 0.95f;  // Damping to smooth the effects
-
     private Vector3 lastTurbulenceEffect;
 
     [Header("Lift")]
@@ -58,22 +57,6 @@ public class Plane : MonoBehaviour
     float inducedDrag;
     [SerializeField]
     AnimationCurve inducedDragCurve;
-    [SerializeField]
-    float rudderPower;
-    [SerializeField]
-    AnimationCurve rudderAOACurve;
-    [SerializeField]
-    AnimationCurve rudderInducedDragCurve;
-    [SerializeField]
-    float flapsLiftPower;
-    [SerializeField]
-    float flapsAOABias;
-    [SerializeField]
-    float flapsDrag;
-    [SerializeField]
-    float flapsRetractSpeed;
-    [SerializeField]
-    bool flapsDeployed;
 
     [Header("Drag")]
     [SerializeField]
@@ -93,16 +76,16 @@ public class Plane : MonoBehaviour
     [SerializeField]
     float airbrakeDrag;
 
+    [Header("Thrust")]
     [SerializeField]
     public float minThrust;
     [SerializeField]
     public float maxThrust;
     [SerializeField]
     private float throttleAdjustmentRate = 0.1f;
-
-    float throttleInput;
-    Vector3 lastVelocity;
     public float Throttle { get; private set; }
+
+    Vector3 lastVelocity;
     public Vector3 EffectiveInput { get; private set; }
     public Vector3 Velocity { get; private set; }
     public Vector3 LocalVelocity { get; private set; }
@@ -111,20 +94,6 @@ public class Plane : MonoBehaviour
     public float AngleOfAttack { get; private set; }
     public float AngleOfAttackYaw { get; private set; }
     public bool AirbrakeDeployed { get; private set; }
-
-    public bool FlapsDeployed
-    {
-        get
-        {
-            return flapsDeployed;
-        }
-        private set
-        {
-            flapsDeployed = value;
-
-        }
-    }
-
 
     private void Awake()
     {
@@ -191,15 +160,13 @@ public class Plane : MonoBehaviour
         var lv = LocalVelocity;
         var lv2 = lv.sqrMagnitude;  //velocity squared
 
-        //float airbrakeDrag = AirbrakeDeployed ? this.airbrakeDrag : 0;
-        //float flapsDrag = FlapsDeployed ? this.flapsDrag : 0;
 
         //calculate coefficient of drag depending on direction on velocity
         var coefficient = Scale6(
             lv.normalized,
             dragRight.Evaluate(Mathf.Abs(lv.x)), dragLeft.Evaluate(Mathf.Abs(lv.x)),
             dragTop.Evaluate(Mathf.Abs(lv.y)), dragBottom.Evaluate(Mathf.Abs(lv.y)),
-            dragForward.Evaluate(Mathf.Abs(lv.z)) + airbrakeDrag + flapsDrag,   //include extra drag for forward coefficient
+            dragForward.Evaluate(Mathf.Abs(lv.z)) + airbrakeDrag,   //include extra drag for forward coefficient
             dragBack.Evaluate(Mathf.Abs(lv.z))
         );
 
@@ -253,14 +220,6 @@ public class Plane : MonoBehaviour
     {
         // Modifier le throttle par l'ajustement, en s'assurant qu'il reste entre 0 et 1
         Throttle = Mathf.Clamp(Throttle + adjustment, 0, 1);
-    }
-
-    void UpdateFlaps()
-    {
-        if (LocalVelocity.z > flapsRetractSpeed)
-        {
-            FlapsDeployed = false;
-        }
     }
 
     void UpdateLift()
@@ -361,7 +320,7 @@ public class Plane : MonoBehaviour
         roll = (rollOverride) ? keyboardRoll : autoRoll;
     }
 
-    private void RunAutopilot(Vector3 flyTarget, out float yaw, out float pitch, out float roll)
+    /*private void RunAutopilot(Vector3 flyTarget, out float yaw, out float pitch, out float roll)
     {
         // This is my usual trick of converting the fly to position to local space.
         // You can derive a lot of information from where the target is relative to self.
@@ -404,7 +363,7 @@ public class Plane : MonoBehaviour
         // Blend between auto level and banking into the target.
         var wingsLevelInfluence = Mathf.InverseLerp(0f, aggressiveTurnAngle, angleOffTarget);
         roll = Mathf.Lerp(wingsLevelRoll, agressiveRoll, wingsLevelInfluence);
-    }
+    }*/
 
     private void FixedUpdate()
     {
@@ -416,10 +375,6 @@ public class Plane : MonoBehaviour
         //calculate at start, to capture any changes that happened externally
         CalculateState(dt);
         CalculateGForce(dt);
-        //UpdateFlaps();
-
-        //handle user input
-        //UpdateThrottle(dt);
 
         //apply updates
         UpdateThrust();
