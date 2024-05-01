@@ -31,11 +31,13 @@ public class Hud : MonoBehaviour
     GameObject cloudImage;
     [SerializeField]
     GameObject terrainImage;
-    /*TMP_Text turbulenceIntensity;
+    //TMP_Text turbulenceIntensity;
     [SerializeField]
     TMP_Text aoaIndicator;
     [SerializeField]
-    Slider dangerBar;*/
+    Compass compass;
+    //[SerializeField]
+    //Slider dangerBar;
 
     private Camera playerCam = null;
 
@@ -53,7 +55,8 @@ public class Hud : MonoBehaviour
             Debug.LogError(name + ": Hud - Mouse Flight Controller not assigned!");
 
         playerCam = Camera.main;
-
+        compass.SetPlane(plane);
+        compass.SetCamera(playerCam);
 
     }
 
@@ -65,14 +68,14 @@ public class Hud : MonoBehaviour
         //UpdateGraphics(mouseFlight);
         UpdateAirspeed();
         UpdateAltitude();
-        //UpdateAOA();
+        UpdateAOA();
         //UpdateTurbulenceIntensity();
     }
 
-    /*void UpdateAOA()
+    void UpdateAOA()
     {
         aoaIndicator.text = string.Format("{0:0.0} AOA", plane.AngleOfAttack * Mathf.Rad2Deg);
-    }*/
+    }
 
     void UpdateAirspeed()
     {
