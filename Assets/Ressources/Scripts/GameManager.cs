@@ -113,9 +113,14 @@ public class GameManager : MonoBehaviour, IEventHandler
     }
     void GameOver()
     {
+        UpdateScores();
         SetState(GAMESTATE.gameover);
     }
 
+    void UpdateScores()
+    {
+        EventManager.Instance.Raise(new UpdateScoreEvent(m_Score));
+    }
 
     // MenuManager events' callback
     void PlayButtonClicked(PlayButtonClickedEvent e)

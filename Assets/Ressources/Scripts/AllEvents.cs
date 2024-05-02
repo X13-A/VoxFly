@@ -27,7 +27,7 @@ public class GameSettingsEvent : SDD.Events.Event
 }
 public class GameScoreEvent : SDD.Events.Event
 {
-	float score;
+	public float score { get; set; }
 }
 public class GameStatisticsChangedEvent : SDD.Events.Event
 {
@@ -62,6 +62,26 @@ public class SettingsButtonClickedEvent : SDD.Events.Event
 {
 }
 public class ScoreButtonClickedEvent : SDD.Events.Event
+{
+}
+#endregion
+
+#region ScoreManager Events
+public class UpdateScoreEvent : SDD.Events.Event
+{
+	public int score;
+    public UpdateScoreEvent(int score)
+    {
+        this.score = score;
+    }
+}
+public class UpdateScoresTextEvent : SDD.Events.Event
+{
+}
+#endregion
+
+#region PauseManager Events
+public class PauseButtonClickedEvent : SDD.Events.Event
 {
 }
 #endregion

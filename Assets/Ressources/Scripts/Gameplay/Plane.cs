@@ -43,14 +43,9 @@ public class plane : MonoBehaviour
 
     [Header("Turbulence")]
     [SerializeField]
-    public bool enableTurbulence = false;
+    public float turbulenceStrength = 0f;
     [SerializeField]
-    public float turbulenceIntensity = 0.05f;
-    [SerializeField]
-    private float turbulenceScale = 0.2f;
-    [SerializeField]
-    private float dampingFactor = 0.95f;  // Damping to smooth the effects
-    private Vector3 lastTurbulenceEffect;
+    private float turbulenceScale = 0.5f;
 
     [Header("Lift")]
     [SerializeField]
@@ -98,6 +93,8 @@ public class plane : MonoBehaviour
     public float AngleOfAttack { get; private set; }
     public float AngleOfAttackYaw { get; private set; }
     public bool AirbrakeDeployed { get; private set; }
+
+    const float metersToFeet = 3.28084f;
 
     private void Awake()
     {
@@ -158,6 +155,22 @@ public class plane : MonoBehaviour
         }
 
         return result;
+    }
+
+    void SetTurbulence(float strength, float scale)
+    {
+        turbulenceStrength = strength;
+        turbulenceScale = scale;
+    }
+
+    void UpdateTurbulence()
+    {
+        float planeAltitude = rigid.position.y * metersToFeet;
+        /*
+        if(planeAltitude < ?) SetTurbulence(0,0);
+        else if(planeAltitude < ?) SetTurbulence(?,?);
+        ...
+        */
     }
 
     void UpdateDrag()
@@ -383,6 +396,7 @@ public class plane : MonoBehaviour
         // with torques to turn.
         //rigid.AddRelativeForce(Vector3.forward * thrust * forceMult, ForceMode.Force);
         float dt = Time.fixedDeltaTime;
+        float time = Time.fixedTime;
 
         //calculate at start, to capture any changes that happened externally
         CalculateState(dt);
@@ -392,22 +406,19 @@ public class plane : MonoBehaviour
         UpdateThrust();
         UpdateDrag();
         UpdateLift();
+        UpdateTurbulence();
 
         // Calculate and apply turbulence effects
         Vector3 currentTurbulence = Vector3.zero;
-        if (enableTurbulence)
-        {
-            currentTurbulence.x = (Mathf.PerlinNoise(Time.time * turbulenceScale, 0.0f) - 0.5f) * 2 * turbulenceIntensity;
-            currentTurbulence.y = (Mathf.PerlinNoise(0.0f, Time.time * turbulenceScale) - 0.5f) * 2 * turbulenceIntensity;
-            currentTurbulence.z = (Mathf.PerlinNoise(Time.time * turbulenceScale, Time.time * turbulenceScale) - 0.5f) * 2 * turbulenceIntensity;
-            currentTurbulence = Vector3.Lerp(lastTurbulenceEffect, currentTurbulence, 1 - dampingFactor);
-        }
-        lastTurbulenceEffect = currentTurbulence;  // Update last effect
+
+        currentTurbulence.x = (Mathf.PerlinNoise(time * turbulenceScale, 0.0f) * 2 - 1) * turbulenceStrength;
+        currentTurbulence.y = (Mathf.PerlinNoise(0.0f, time * turbulenceScale) * 2 - 1) * turbulenceStrength;
+        currentTurbulence.z = (Mathf.PerlinNoise(time * turbulenceScale, time * turbulenceScale) * 2 - 1) * turbulenceStrength;
 
         // Apply torques with turbulence effects
-        rigid.AddRelativeTorque(new Vector3(turnTorque.x * (pitch * pitchMult + currentTurbulence.x),
-                                            turnTorque.y * (yaw * yawMult + currentTurbulence.y),
-                                            -turnTorque.z * (roll * rollMult + currentTurbulence.z)) * forceMult,
+        rigid.AddRelativeTorque(new Vector3(turnTorque.x * pitch * pitchMult,
+                                            turnTorque.y * yaw * yawMult,
+                                            -turnTorque.z * roll * rollMult) * forceMult + currentTurbulence,
                                 ForceMode.Force);
     }
 }
