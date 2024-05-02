@@ -27,7 +27,10 @@ public class GameSettingsEvent : SDD.Events.Event
 }
 public class GameScoreEvent : SDD.Events.Event
 {
+<<<<<<< HEAD
 	public float score { get; set; }
+=======
+>>>>>>> ae5f0cdc957634a6cc0f3e3912d83caf9fbd77e2
 }
 public class GameStatisticsChangedEvent : SDD.Events.Event
 {
