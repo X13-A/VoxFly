@@ -296,6 +296,7 @@ public class plane : MonoBehaviour
 
     private void Update()
     {
+
         // When the player commands their own stick input, it should override what the
         // autopilot is trying to do.
         rollOverride = false;
@@ -316,7 +317,7 @@ public class plane : MonoBehaviour
         if (Input.GetKey(KeyCode.R))
         {
             if (!regulatorActivate) regulatorActivate = true;
-            Debug.Log("REGULATOR");
+            //Debug.Log("REGULATOR");
         }
 
         if (Input.GetKey(KeyCode.Space))

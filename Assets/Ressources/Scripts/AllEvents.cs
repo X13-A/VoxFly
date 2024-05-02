@@ -27,15 +27,15 @@ public class GameSettingsEvent : SDD.Events.Event
 }
 public class GameScoreEvent : SDD.Events.Event
 {
-<<<<<<< HEAD
 	public float score { get; set; }
-=======
->>>>>>> ae5f0cdc957634a6cc0f3e3912d83caf9fbd77e2
 }
 public class GameStatisticsChangedEvent : SDD.Events.Event
 {
 	public int eScore { get; set; }
 	public float eCountDown { get; set; }
+}
+public class DisablePlayerEvent : SDD.Events.Event
+{
 }
 #endregion
 
@@ -89,6 +89,7 @@ public class PauseButtonClickedEvent : SDD.Events.Event
 }
 #endregion
 
+
 #region Enemy Event
 public class EnemyHasBeenHitEvent : SDD.Events.Event
 {
@@ -125,4 +126,8 @@ public class WorldGeneratedEvent : SDD.Events.Event
 public class WinningPointsEvent : SDD.Events.Event
 {
     public float ePoints;
+}
+
+public class DestroyEvent : SDD.Events.Event
+{
 }

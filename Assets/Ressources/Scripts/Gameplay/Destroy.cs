@@ -48,7 +48,8 @@ public class Destroy : MonoBehaviour, IEventHandler
             {
                 if (IsInTexture(obj))
                 {
-                    EventManager.Instance.Raise(new GameOverEvent());
+                    EventManager.Instance.Raise(new DestroyEvent());
+                    break;
                 }
             }
         }

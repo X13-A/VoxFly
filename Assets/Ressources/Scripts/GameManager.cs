@@ -5,6 +5,7 @@ using SDD.Events;
 using UnityEngine.SceneManagement;
 
 public enum GAMESTATE { menu, play, pause, victory, gameover }
+public delegate void afterFunction();
 
 public class GameManager : MonoBehaviour, IEventHandler
 {
@@ -36,6 +37,7 @@ public class GameManager : MonoBehaviour, IEventHandler
         EventManager.Instance.AddListener<QuitButtonClickedEvent>(QuitButtonClicked);
         EventManager.Instance.AddListener<SettingsButtonClickedEvent>(SettingsButtonClicked);
         EventManager.Instance.AddListener<ScoreButtonClickedEvent>(ScoreButtonClicked);
+        EventManager.Instance.AddListener<DestroyEvent>(Destroy);
     }
 
     public void UnsubscribeEvents()
@@ -46,6 +48,7 @@ public class GameManager : MonoBehaviour, IEventHandler
         EventManager.Instance.RemoveListener<QuitButtonClickedEvent>(QuitButtonClicked);
         EventManager.Instance.RemoveListener<SettingsButtonClickedEvent>(SettingsButtonClicked);
         EventManager.Instance.RemoveListener<ScoreButtonClickedEvent>(ScoreButtonClicked);
+        EventManager.Instance.RemoveListener<DestroyEvent>(Destroy);
     }
 
     void OnEnable()
@@ -59,7 +62,15 @@ public class GameManager : MonoBehaviour, IEventHandler
 
     private void Awake()
     {
-        if (!m_Instance) m_Instance = this;
+        if (m_Instance == null)
+        {
+            m_Instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else if (m_Instance != this)
+        {
+            Destroy(gameObject);
+        }
     }
 
     void Start()
@@ -101,6 +112,11 @@ public class GameManager : MonoBehaviour, IEventHandler
         SetScore(0);
     }
 
+    void Update()
+    {
+        //Debug.Log("score : " + m_Score);
+    }
+
     void Play()
     {
         InitGame();
@@ -114,6 +130,7 @@ public class GameManager : MonoBehaviour, IEventHandler
     void GameOver()
     {
         UpdateScores();
+        SetScore(0);
         SetState(GAMESTATE.gameover);
     }
 
@@ -150,5 +167,24 @@ public class GameManager : MonoBehaviour, IEventHandler
     void ScoreButtonClicked(ScoreButtonClickedEvent e)
     {
         EventManager.Instance.Raise(new GameScoreEvent());
+    }
+
+    void Destroy(DestroyEvent e)
+    {
+        EventManager.Instance.Raise(new DisablePlayerEvent());
+        StartCoroutine(LoadSceneThenFunction(0, GameOver));
+    }
+
+    // Coroutine pour charger la scène de manière asynchrone et appeler la fonction spécifiée
+    private IEnumerator LoadSceneThenFunction(int sceneIndex, afterFunction function)
+    {
+        AsyncOperation asyncOperation = SceneManager.LoadSceneAsync(sceneIndex);
+        // Attendre que la scène soit chargée
+        while (!asyncOperation.isDone)
+        {
+            yield return null;
+        }
+        // La scène est chargée, appeler la fonction spécifiée
+        function.Invoke();
     }
 }

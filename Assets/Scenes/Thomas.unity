@@ -3197,10 +3197,8 @@ MonoBehaviour:
   yawMult: 1
   rollMult: 5
   forceMult: 0.2
-  enableTurbulence: 1
-  turbulenceIntensity: 1
-  turbulenceScale: 0.1
-  dampingFactor: 0.95
+  turbulenceStrength: 5
+  turbulenceScale: 0.5
   liftPower: 150
   liftAOACurve:
     serializedVersion: 2

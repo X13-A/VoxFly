@@ -7,7 +7,7 @@ using TMPro;
 public class ScoreManager : MonoBehaviour, IEventHandler
 {
     [SerializeField]
-    int nScores = 10;
+    int nScores;
     [SerializeField]
     TMP_Text scoresText;
 
@@ -68,13 +68,17 @@ public class ScoreManager : MonoBehaviour, IEventHandler
 
     void UpdateScoresText(UpdateScoresTextEvent e)
     {
+        Debug.Log(PlayerPrefs.GetString("PlayerScores", ""));
+        Debug.Log("A");
         string text = "";
         int i = 1;
         List<int> scores = ReadScores();
+
         foreach (var score in scores)
         {
             text += i + " : " + score + "\n\n";
             i++;
         }
+        scoresText.text = text;
     }
 }
