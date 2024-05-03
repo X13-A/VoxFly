@@ -89,6 +89,19 @@ public class PauseButtonClickedEvent : SDD.Events.Event
 }
 #endregion
 
+#region AudioManager Events
+public class SoundMixEvent : SDD.Events.Event
+{
+    public float eSFXVolume;
+    public float eBackgroundVolume;
+    public float ePlaneVolume;
+}
+
+public class SoundMuteEvent : SDD.Events.Event
+{
+    public bool eMute;
+}
+#endregion
 
 #region Enemy Event
 public class EnemyHasBeenHitEvent : SDD.Events.Event

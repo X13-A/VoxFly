@@ -1,13 +1,13 @@
 using SDD.Events;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class PlaneSound : MonoBehaviour, IEventHandler
 {
     [SerializeField] private AudioSource audioSource;
-    [SerializeField] float maxAudio = .5f;
-    [SerializeField] float minAudio = .2f;
+    [SerializeField] float minAudio = .08f;
+
+    AudioManager audioManager;
+    private float maxAudio => audioManager.maxPlaneVolume;
 
     float minThrust;
     float maxThrust;
@@ -16,12 +16,16 @@ public class PlaneSound : MonoBehaviour, IEventHandler
     {
         EventManager.Instance.AddListener<PlaneStateEvent>(Thrusting);
         EventManager.Instance.AddListener<PlaneInformationEvent>(PlaneInformation);
+        EventManager.Instance.AddListener<GamePlayEvent>(SwitchOn);
+        EventManager.Instance.AddListener<GameOverEvent>(SwitchOff);
     }
 
     public void UnsubscribeEvents()
     {
         EventManager.Instance.RemoveListener<PlaneStateEvent>(Thrusting);
         EventManager.Instance.RemoveListener<PlaneInformationEvent>(PlaneInformation);
+        EventManager.Instance.RemoveListener<GamePlayEvent>(SwitchOn);
+        EventManager.Instance.AddListener<GameOverEvent>(SwitchOff);
     }
 
     void OnEnable()
@@ -34,16 +38,33 @@ public class PlaneSound : MonoBehaviour, IEventHandler
         UnsubscribeEvents();
     }
 
+    void SwitchOn(GamePlayEvent e)
+    {
+        audioSource.Play();
+    }
+
+    void SwitchOff(GameOverEvent e)
+    {
+        audioSource.Stop();
+    }
+
     void PlaneInformation(PlaneInformationEvent e)
     {
         minThrust = e.eMinThrust;
         maxThrust = e.eMaxThrust;
-
-        Debug.Log(minThrust + " " + maxThrust);
     }
 
     void Thrusting(PlaneStateEvent e)
     {
-        float thrust = e.eThrust;
+        if (e.eThrust != 0) UpdateVolume(e.eThrust);
+    }
+
+    public void UpdateVolume(float currentThrust)
+    {
+        float normalizedThrust = (currentThrust - minThrust) / (maxThrust - minThrust);
+        float volume = normalizedThrust * (maxAudio - minAudio) + minAudio;
+
+        volume = Mathf.Clamp(volume, minAudio, maxAudio);
+        audioSource.volume = volume;
     }
 }
