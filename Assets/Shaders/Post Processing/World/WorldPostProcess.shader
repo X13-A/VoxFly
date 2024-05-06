@@ -468,8 +468,8 @@ Shader "Custom/WorldPostProcess"
                     float dstTravelled = offset;
                     float stepSize = dstLimit / n;
                     float blendStart = _LightShaftFadeStart * _LightShaftRenderDistance;
-                     
                     float lightScattered = 0;
+
                     [loop]
                     while (dstTravelled < dstLimit)
                     {
@@ -487,7 +487,7 @@ Shader "Custom/WorldPostProcess"
                         lightScattered += 0.05 * playerSpotLight * blendFactor * stepSize * _PlayerLightVolumetricIntensity;
                         dstTravelled += stepSize;
                     }
-                    return min(lightScattered, _LightShaftMaximumValue);
+                    return clamp(lightScattered, 0, _LightShaftMaximumValue);
             }
 
 
@@ -520,7 +520,6 @@ Shader "Custom/WorldPostProcess"
                 float lightShaft = getLightShaft(rayPos, rayDir, lightDir, depth, offset);
                 float lightShaftTimeMultiplier = saturate(dot(float3(0, 1, 0), lightDir)) * 2;
                 lightShaft *= lightShaftTimeMultiplier;
-
                 if (isBackground)
                 {
                     if (depth < 100)
@@ -533,7 +532,7 @@ Shader "Custom/WorldPostProcess"
                         }
                         return float4(backgroundColor.rgb * light + lightShaft, 1);
                     }
-                    return backgroundColor;
+                    return backgroundColor + lightShaft;
                 }
 
                 float lightIntensity = computeLighting(pos, normal, lightDir, false);
