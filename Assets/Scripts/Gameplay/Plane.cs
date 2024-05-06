@@ -8,7 +8,7 @@ using UnityEngine;
 public class Plane : MonoBehaviour
 {
     [Header("Components")]
-    [SerializeField] private MouseFlightController controller = null;
+    //[SerializeField] private MouseFlightController controller = null;
 
     [Header("Physics")]
     [Tooltip("Force to push plane forwards with")] public float thrust = 100f;
@@ -130,8 +130,8 @@ public class Plane : MonoBehaviour
     {
         rigid = GetComponent<Rigidbody>();
 
-        if (controller == null)
-            Debug.LogError(name + ": Plane - Missing reference to MouseFlightController!");
+        //if (controller == null)
+            //Debug.LogError(name + ": Plane - Missing reference to MouseFlightController!");
     }
 
     private void Start()
