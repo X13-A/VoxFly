@@ -5,7 +5,7 @@ using UnityEngine;
 public class RotateBlades : MonoBehaviour
 {
     [SerializeField] private Transform blades;
-    [SerializeField] private Plane planeCommands;
+    [SerializeField] private plane planeCommands;
     [SerializeField] private float speedMultiplier = 2000;
 
     void Update()

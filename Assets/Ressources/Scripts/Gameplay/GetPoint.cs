@@ -95,6 +95,6 @@ public class GetPoint : MonoBehaviour
 
     void updateScore(int points)
     {
-        scoreText.text = "Score: " + GameManager.Instance.IncrementScore(points);
+        scoreText.text = "Score: " + GameManager.Instance?.IncrementScore(points);
     }
 }
