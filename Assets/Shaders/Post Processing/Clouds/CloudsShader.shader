@@ -56,6 +56,7 @@ Shader"Custom/CloudsPostProcess"
             float4 _BoundsMin;
             float4 _BoundsMax;
             
+            fixed4 _LightColor0;
             int _LightSteps;
             float _CustomTime;
             float _GlobalBrightness;
@@ -122,16 +123,24 @@ Shader"Custom/CloudsPostProcess"
 	            return (1 - g2) / (4 * 3.1415 * pow(1 + g2 - 2 * g * (angle), 1.5));
             }
 
-            //TODO fix phase function not working
-            float phase(float3 rayDir, float3 lightDir)
+            float phaseHG(float3 rayDir, float3 lightDir)
             {
-	            // TODO: fix high luminance when far away
 	            float angleBottom = dot(rayDir, lightDir);
 	            float angleTop = dot(rayDir, -lightDir);
 	            float hgBottom = henyeyGreenstein(angleBottom, _PhaseParams.x);
 	            float hgTop = henyeyGreenstein(angleTop, _PhaseParams.x);
                 float hg = hgBottom + hgTop;
 	            return _PhaseParams.z + hg;
+            }
+
+            // Not used for now
+            float phaseMie(float3 rayDir, float3 lightDir)
+            {
+                float cosTheta = dot(rayDir, lightDir);
+                float mieG = _PhaseParams.x; // Asymmetry parameter
+                float phaseMie = (1.0 + mieG*mieG - 2.0*mieG*cosTheta) /
+                                 pow(1.0 + mieG*mieG - 2.0*mieG*cosTheta, 1.5);
+                return phaseMie;
             }
 
             float2 rayBoxDst(float3 rayOrigin, float3 rayDir)
@@ -180,12 +189,12 @@ Shader"Custom/CloudsPostProcess"
             {
 	            float dstTravelled = offset;
 	            float dstLimit = min(depthDist - dstToBox, dstInsideBox); // TODO: Improve far distances
-                    
+                
 	            float transmittance = 1;
 	            float lightEnergy = 0;
 	            float totalDensity = 0;
-	            float phaseVal = phase(rayDir, lightDir);
-               
+	            float phaseVal = phaseHG(rayDir, lightDir);
+                
                 [loop]
 	            while (dstTravelled < dstLimit)
 	            {
@@ -297,7 +306,7 @@ Shader"Custom/CloudsPostProcess"
                 // Add clouds
 	            if (dstInsideBox > 0)
 	            {
-		            float4 cloudColor = float4(1, 1, 1, 0);
+		            float4 cloudColor = float4(_LightColor0.rgb, 0);
 		            cloudColor *= lightEnergy * _GlobalBrightness;
 		            return float4(backgroundColor.rgb * transmittance + cloudColor.rgb, 1);
 	            }
