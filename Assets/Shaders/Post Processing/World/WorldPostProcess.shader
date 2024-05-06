@@ -531,7 +531,7 @@ Shader "Custom/WorldPostProcess"
                         {
                             light = 0.2;
                         }
-                        return float4(backgroundColor.rgb * light, 1);
+                        return float4(backgroundColor.rgb * light + lightShaft, 1);
                     }
                     return backgroundColor;
                 }

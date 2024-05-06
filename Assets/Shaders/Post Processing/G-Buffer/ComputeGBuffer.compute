@@ -302,12 +302,14 @@ void CSMain(uint3 id : SV_DispatchThreadID)
     if (unityDepth < voxelDepth)
     {
         blockID = 0;
+        normal = 0;
         combinedDepth = unityDepth;
+        pos = rayPos + rayDir * unityDepth;
     }
 
     // Fill buffers
     _BlocksBuffer[id.xy] = float4(blockID, 0, 0, 1);
     _NormalBuffer[id.xy] = float4(normal, 1);
     _DepthBuffer[id.xy] = combinedDepth;
-    _PositionBuffer[id.xy] = float4(pos, 1);  
+    _PositionBuffer[id.xy] = float4(pos, 1);
 }

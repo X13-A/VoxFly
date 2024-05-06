@@ -336,10 +336,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 052a185cf9f75f646bfdf45a1a09f2c1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  thrust: 100
   turnTorque: {x: 90, y: 25, z: 45}
-  sensitivity: 5
-  aggressiveTurnAngle: 5
   pitch: 0
   yaw: 0
   roll: 0
@@ -347,10 +344,8 @@ MonoBehaviour:
   yawMult: 1
   rollMult: 5
   forceMult: 0.15
-  enableTurbulence: 0
-  turbulenceIntensity: 0.05
+  turbulenceStrength: 0
   turbulenceScale: 0.2
-  dampingFactor: 0.95
   liftPower: 150
   liftAOACurve:
     serializedVersion: 2
@@ -410,24 +405,6 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  rudderPower: 0
-  rudderAOACurve:
-    serializedVersion: 2
-    m_Curve: []
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  rudderInducedDragCurve:
-    serializedVersion: 2
-    m_Curve: []
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  flapsLiftPower: 0
-  flapsAOABias: 0
-  flapsDrag: 0
-  flapsRetractSpeed: 0
-  flapsDeployed: 0
   dragForward:
     serializedVersion: 2
     m_Curve:
@@ -1188,7 +1165,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 84b7e8e6cece5364bbfdd7449b3036a7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  postProcessMaterial: {fileID: 2100000, guid: 89966cfc1080e924ab606cf05189f19a, type: 2}
+  postProcessMaterial: {fileID: 2100000, guid: f2c9c46882c128b49ae2f8c548122fd2, type: 2}
   gBuffer: {fileID: 853499164}
   cam: {fileID: 1112909378}
   container: {fileID: 992712315}

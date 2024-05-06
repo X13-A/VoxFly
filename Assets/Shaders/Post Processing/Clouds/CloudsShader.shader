@@ -277,7 +277,6 @@ Shader"Custom/CloudsPostProcess"
                 //float depthDist = LinearEyeDepth(nonlin_depth) * viewLength;
                 float depthDist = tex2D(_DepthTexture, i.uv);
     	        float3 worldPos = tex2D(_PositionTexture, i.uv);
-                
                 // Calculate dist inside box	
 	            float2 rayBoxInfo = rayBoxDst(rayPos, rayDir);
 	            float dstToBox = rayBoxInfo.x;
