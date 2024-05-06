@@ -43,7 +43,7 @@ rayMarchInfo newRayMarchInfo()
 
 bool isInWorld(float3 pos)
 {
-    return pos.y <= (float) _WorldTextureSize.y && pos.y >= 0;
+    return pos.y < (float) _WorldTextureSize.y && pos.y >= 0;
 }
 
 // Sample world using world space coordinates
