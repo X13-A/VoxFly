@@ -1,4 +1,6 @@
+using Palmmedia.ReportGenerator.Core;
 using SDD.Events;
+using System;
 using System.Diagnostics;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -13,7 +15,7 @@ public class WorldGenerator : MonoBehaviour
     [SerializeField] private int depth = 50;
     [SerializeField] private int height = 50;
 
-    public Vector3Int Size => new Vector3Int(width, depth, height);
+    public Vector3Int Size => new Vector3Int(width, height, depth);
 
     [Header("Terrain parameters")]
     [SerializeField] private uint terrainSeed;
@@ -66,7 +68,6 @@ public class WorldGenerator : MonoBehaviour
         WorldTexture = new Texture3D(width, height, depth, TextureFormat.R8, false); // R8 car on a besoin seulement d'un channel, et peu de valeurs différentes.
         WorldTexture.anisoLevel = 0;
         WorldTexture.filterMode = FilterMode.Point;
-
         for (int x = 0; x < width; x++)
         {
             for (int z = 0; z < depth; z++)
@@ -104,18 +105,6 @@ public class WorldGenerator : MonoBehaviour
                 WorldTexture.SetPixel(x, 2, z, stoneColor);
             }
         }
-
-        // Debug: Create tower at origin
-        //for (int y = 0; y < height - 1; y++)
-        //{
-        //    for (int x = 0; x < 2; x++)
-        //    {
-        //        for (int z = 0; z < 2; z++)
-        //        {
-        //            WorldTexture.SetPixel(x, y, z, stoneColor);
-        //        }
-        //    }
-        //}
 
         stopwatch.Stop(); // Stop the timer after compute shader dispatch
         float generationTime = (float)stopwatch.Elapsed.TotalSeconds;
@@ -245,4 +234,210 @@ public class WorldGenerator : MonoBehaviour
             refresh = false;
         }
     }
+
+    #region sample methods
+    public struct RayWorldIntersectionInfo
+    {
+        public float dstToWorld;
+        public float dstInsideWorld;
+
+        public RayWorldIntersectionInfo(float dstToWorld, float dstInsideWorld)
+        {
+            this.dstToWorld = dstToWorld;
+            this.dstInsideWorld = dstInsideWorld;
+        }
+    }
+
+    private float DstToPlane(Vector3 rayOrigin, Vector3 rayDir, float planeY)
+    {
+        // Check if the plane is parallel to the ray
+        if (rayDir.y == 0)
+        {
+            return -1.0f;
+        }
+
+        float t = (planeY - rayOrigin.y) / rayDir.y;
+
+        // Check if the plane is behind the ray's origin
+        if (t < 0)
+        {
+            return -1.0f;
+        }
+
+        return t;
+    }
+
+    public RayWorldIntersectionInfo RayWorldHit(Vector3 pos, Vector3 dir)
+    {
+        float dstTop = DstToPlane(pos, dir, WorldTexture.height);
+        float dstBottom = DstToPlane(pos, dir, 0);
+
+        float dstToWorld;
+        float dstInsideWorld;
+
+        // If inside the world
+        if (IsInWorld(pos))
+        {
+            dstToWorld = 0;
+            // Check if direction is parallel to the planes
+            if (dir.y == 0) return new RayWorldIntersectionInfo(dstToWorld, float.PositiveInfinity);
+            // Return dist inside world
+            return new RayWorldIntersectionInfo(dstToWorld, Mathf.Max(dstTop, dstBottom));
+        }
+
+        // If above the world
+        if (pos.y > WorldTexture.height)
+        {
+            // Check if looking at world
+            if (dstTop < 0) return new RayWorldIntersectionInfo(-1, -1);
+
+            dstInsideWorld = dstBottom - dstTop;
+            return new RayWorldIntersectionInfo(dstTop, dstInsideWorld);
+        }
+        // If under the world
+        else
+        {
+            // Check if looking at world
+            if (dstBottom < 0) return new RayWorldIntersectionInfo(-1, -1);
+
+            dstInsideWorld = dstTop - dstBottom;
+            return new RayWorldIntersectionInfo(dstBottom, dstInsideWorld);
+        }
+    }
+
+    // TODO: Handle normals when needed
+    public struct RayWorldInfo
+    {
+        public bool hit;
+        public int BlockID;
+        public float depth;
+        public Vector3 pos;
+    }
+
+    public RayWorldInfo RayCastWorld(Vector3 pos, Vector3 dir, float maxRange = 1000f, int maxIterations = 1000)
+    {
+        Vector3 startPos = pos;
+        Vector3 rayDir = dir;
+
+        RayWorldInfo res = new RayWorldInfo();
+
+        RayWorldIntersectionInfo rayWorldInfo = RayWorldHit(startPos, rayDir);
+        float dstToWorld = rayWorldInfo.dstToWorld;
+        float dstInsideWorld = rayWorldInfo.dstInsideWorld;
+
+        // EXIT EARLY
+        if (dstInsideWorld <= 0)
+        {
+            res.hit = false;
+            res.BlockID = 0;
+            res.depth = float.PositiveInfinity;
+            res.pos = new Vector3();
+            return res;
+        }
+        if (dstToWorld > 0)
+        {
+            startPos = startPos + rayDir * dstToWorld; // Start at intersection point
+        }
+
+        Vector3Int voxelIndex = new Vector3Int((int)Mathf.Round(startPos.x), (int)Mathf.Round(startPos.y), (int)Mathf.Round(startPos.z));
+
+        Vector3Int step = new Vector3Int((int)Mathf.Sign(rayDir.x), (int)Mathf.Sign(rayDir.y), (int)Mathf.Sign(rayDir.z));
+        Vector3 tMax = new Vector3();  // Distance to next voxel boundary
+        Vector3 tDelta = new Vector3();  // How far we travel to cross a voxel
+
+        // Calculate initial tMax and tDelta for each axis
+        for (int i = 0; i < 3; i++)
+        {
+            if (rayDir[i] == 0)
+            {
+                tMax[i] = float.PositiveInfinity;
+                tDelta[i] = float.PositiveInfinity;
+            }
+            else
+            {
+                float voxelBoundary = voxelIndex[i] + (step[i] > 0 ? 1 : 0);
+                tMax[i] = (voxelBoundary - startPos[i]) / rayDir[i];
+                tDelta[i] = Mathf.Abs(1.0f / rayDir[i]);
+            }
+        }
+
+        float dstLimit = Mathf.Min(maxRange - dstToWorld, dstInsideWorld);
+        float dstTravelled = 0;
+        int loopCount = 0;
+        int hardLoopLimit = (int) Mathf.Min(dstLimit * 2, maxIterations); // Hack that prevents convergence caused by precision issues or some dark mathematical magic
+
+        while (loopCount < hardLoopLimit && dstTravelled < dstLimit)
+        {
+            // Check the position for a voxel
+            Vector3 rayPos = startPos + rayDir * (dstTravelled + 0.001f);
+            Vector3Int sampledVoxelIndex = new Vector3Int((int)Mathf.Round(rayPos.x), (int)Mathf.Round(rayPos.y), (int)Mathf.Round(rayPos.z));
+            int blockID = SampleWorld(sampledVoxelIndex);
+
+            // Return the voxel
+            if (blockID > 0)
+            {
+                res.hit = true;
+                res.BlockID = blockID;
+                res.depth = dstTravelled;
+                res.pos = rayPos;
+                return res;
+            }
+
+            // Move to the next voxel
+            if (tMax.x < tMax.y && tMax.x < tMax.z)
+            {
+                dstTravelled = tMax.x;
+                tMax.x += tDelta.x;
+                voxelIndex.x += step.x;
+            }
+            else if (tMax.y < tMax.z)
+            {
+                dstTravelled = tMax.y;
+                tMax.y += tDelta.y;
+                voxelIndex.y += step.y;
+            }
+            else
+            {
+                dstTravelled = tMax.z;
+                tMax.z += tDelta.z;
+                voxelIndex.z += step.z;
+            }
+            loopCount++;
+        }
+        res.hit = false;
+        res.BlockID = 0;
+        res.depth = float.PositiveInfinity;
+        res.pos = new Vector3();
+        return res;
+    }
+
+    #endregion
+    #region edit
+    private Vector3Int GetGridPos(Vector3 pos)
+    {
+        Vector3Int gridPos = new Vector3Int((int)Math.Round(pos.x), (int)Math.Round(pos.y), (int)Math.Round(pos.z));
+        gridPos.x = gridPos.x % Size.x;
+        if (gridPos.x < 0) gridPos.x += Size.x;
+        gridPos.y = Math.Clamp(gridPos.y, 0, Size.y);
+        gridPos.z = gridPos.z % Size.z;
+        if (gridPos.z < 0) gridPos.z += Size.z;
+        return gridPos;
+    }
+    public bool RemoveBlock(Vector3 position)
+    {
+        Vector3Int gridPos = GetGridPos(position);
+        float pixel = WorldTexture.GetPixel(gridPos.x, gridPos.y, gridPos.z).r;
+        if (pixel <= 0)
+        {
+            return false;
+        }
+        WorldTexture.SetPixel(gridPos.x, gridPos.y, gridPos.z, Color.clear);
+        return true;
+    }
+
+    public void ApplyChanges()
+    {
+        WorldTexture.Apply();
+    }
+    #endregion
 }
