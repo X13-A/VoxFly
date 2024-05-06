@@ -1,10 +1,11 @@
+using SDD.Events;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-public class GBuffer : MonoBehaviour
+public class GBuffer : MonoBehaviour, IEventHandler
 {
     [SerializeField] private int width;
     [SerializeField] private int height;
@@ -24,15 +25,27 @@ public class GBuffer : MonoBehaviour
     public bool Initialized { get; private set; }
     private int kernelHandle;
 
+    public void SubscribeEvents()
+    {
+        EventManager.Instance.AddListener<StartPostProcessingEvent>(UpdateGBuffer);
+    }
+
+    public void UnsubscribeEvents()
+    {
+        EventManager.Instance.RemoveListener<StartPostProcessingEvent>(UpdateGBuffer);
+    }
+
     void OnEnable()
     {
         Application.targetFrameRate = 60;
         Setup();
+        SubscribeEvents();
     }
 
     private void OnDisable()
     {
         ReleaseBuffers();
+        UnsubscribeEvents();
         Initialized = false;
     }
 
@@ -108,7 +121,7 @@ public class GBuffer : MonoBehaviour
         shader.Dispatch(kernelHandle, (width + width % 8) / 8, (height + height % 8) / 8, 1);
     }
 
-    void Update()
+    public void UpdateGBuffer(StartPostProcessingEvent e)
     {
         if (cam == null)
         {

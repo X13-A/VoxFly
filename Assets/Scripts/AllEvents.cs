@@ -82,3 +82,9 @@ public class WinningPointsEvent : SDD.Events.Event
 {
     public float ePoints;
 }
+
+#region Rendering Events
+public class StartPostProcessingEvent : SDD.Events.Event
+{
+}
+#endregion

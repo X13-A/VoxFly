@@ -1,3 +1,4 @@
+using SDD.Events;
 using System.Collections;
 using System.Collections.Generic;
 using System.Security.Cryptography;
@@ -10,6 +11,7 @@ public class PostProcessStack : MonoBehaviour
 
     private void OnRenderImage(RenderTexture source, RenderTexture destination)
     {
+        EventManager.Instance.Raise(new StartPostProcessingEvent());
         if (processings.Count == 0)
         {
             Graphics.Blit(source, destination);
