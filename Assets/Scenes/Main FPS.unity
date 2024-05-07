@@ -322,7 +322,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   directionalLight: {fileID: 705507995}
-  generator: {fileID: 1493215950}
   cloudsPostProcess: {fileID: 404103033}
 --- !u!114 &152044754
 MonoBehaviour:
@@ -1166,7 +1165,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   postProcessMaterial: {fileID: 2100000, guid: f2c9c46882c128b49ae2f8c548122fd2, type: 2}
-  gBuffer: {fileID: 853499164}
   cam: {fileID: 1112909378}
   container: {fileID: 992712315}
   heightMap: {fileID: 2800000, guid: 719aa961a7a62404f87534ef4a045a2d, type: 3}
@@ -1319,9 +1317,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   postProcessMaterial: {fileID: 2100000, guid: 05b4be822ba17f84e834a7eea93588a8, type: 2}
-  gBuffer: {fileID: 853499164}
-  blurStart: 250
-  blurEnd: 800
+  blurStart: 100
+  blurEnd: 400
   blurScale: 1
 --- !u!1 &509019034
 GameObject:
@@ -2392,6 +2389,98 @@ Transform:
   m_Children: []
   m_Father: {fileID: 23660559}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &818990790
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 818990791}
+  - component: {fileID: 818990793}
+  - component: {fileID: 818990792}
+  m_Layer: 0
+  m_Name: Particle Camera
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &818990791
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 818990790}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1112909375}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!81 &818990792
+AudioListener:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 818990790}
+  m_Enabled: 1
+--- !u!20 &818990793
+Camera:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 818990790}
+  m_Enabled: 1
+  serializedVersion: 2
+  m_ClearFlags: 4
+  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
+  m_projectionMatrixMode: 1
+  m_GateFitMode: 2
+  m_FOVAxisMode: 0
+  m_Iso: 200
+  m_ShutterSpeed: 0.005
+  m_Aperture: 16
+  m_FocusDistance: 10
+  m_FocalLength: 50
+  m_BladeCount: 5
+  m_Curvature: {x: 2, y: 11}
+  m_BarrelClipping: 0.25
+  m_Anamorphism: 0
+  m_SensorSize: {x: 36, y: 24}
+  m_LensShift: {x: 0, y: 0}
+  m_NormalizedViewPortRect:
+    serializedVersion: 2
+    x: 0
+    y: 0
+    width: 1
+    height: 1
+  near clip plane: 0.3
+  far clip plane: 1000
+  field of view: 60
+  orthographic: 0
+  orthographic size: 5
+  m_Depth: -1
+  m_CullingMask:
+    serializedVersion: 2
+    m_Bits: 64
+  m_RenderingPath: 3
+  m_TargetTexture: {fileID: 0}
+  m_TargetDisplay: 0
+  m_TargetEye: 3
+  m_HDR: 1
+  m_AllowMSAA: 1
+  m_AllowDynamicResolution: 0
+  m_ForceIntoRT: 0
+  m_OcclusionCulling: 1
+  m_StereoConvergence: 10
+  m_StereoSeparation: 0.022
 --- !u!1 &827187446
 GameObject:
   m_ObjectHideFlags: 0
@@ -2622,10 +2711,8 @@ MonoBehaviour:
   width: 1600
   height: 900
   voxelViewDistance: 3000
-  generator: {fileID: 1493215950}
   shader: {fileID: 7200000, guid: 99fdae86e32fd1e4d8e00eda8bc53cef, type: 3}
   cam: {fileID: 1112909378}
-  refresh: 0
 --- !u!4 &853499165
 Transform:
   m_ObjectHideFlags: 0
@@ -3478,10 +3565,11 @@ Transform:
   m_GameObject: {fileID: 1112909374}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.5, z: 0.58}
+  m_LocalPosition: {x: 0, y: 0.69, z: -1.28}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 818990791}
   m_Father: {fileID: 152044752}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1112909376
@@ -3541,13 +3629,13 @@ Camera:
     height: 1
   near clip plane: 0.1
   far clip plane: 10000
-  field of view: 90
+  field of view: 60
   orthographic: 0
   orthographic size: 5
-  m_Depth: -1
+  m_Depth: 0
   m_CullingMask:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 55
   m_RenderingPath: 3
   m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0
@@ -4353,10 +4441,7 @@ MonoBehaviour:
   playerLightIntensity: 1
   playerLightVolumetricIntensity: 0.15
   playerLightAngle: 25
-  gBuffer: {fileID: 853499164}
   postProcessMaterial: {fileID: 2100000, guid: 86ca3387647269249bb0e0fc842ca973, type: 2}
-  worldGenerator: {fileID: 1493215950}
-  shadowMap: {fileID: 2103821577}
   lightShaftSampleCount: 50
   lightShaftRenderDistance: 50
   lightShaftFadeStart: 0.5
@@ -4798,7 +4883,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a4cf10e0caaf1124caf4bd0f2d93e2af, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  generator: {fileID: 1493215950}
   cooldown: 5
   desintegrationRadius: 5
   explosionRadius: 10
@@ -6104,7 +6188,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fb22a559d63de2540b78aceae4bab44f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  generator: {fileID: 1493215950}
   fireRate: 100
   fireSpread: 0.3
   range: 100
@@ -6170,19 +6253,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ea75a4e1eecf81f4fb9dfa5408726407, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  generator: {fileID: 1493215950}
   light: {fileID: 705507995}
   lightForwardTransform: {fileID: 286850343}
   lightUpTransform: {fileID: 1479337330}
   lightRightTransform: {fileID: 215885059}
   cam: {fileID: 1112909378}
-  mapWidth: 200
-  mapHeight: 200
+  mapWidth: 150
+  mapHeight: 150
   mapDistance: 1000
   farPlane: 500
   shadowMapCompute: {fileID: 7200000, guid: ae460d4912a4cde4fb92586736f9984c, type: 3}
-  textureWidth: 1000
-  textureHeight: 1000
+  textureWidth: 1500
+  textureHeight: 1500
 --- !u!4 &2103821578
 Transform:
   m_ObjectHideFlags: 0
