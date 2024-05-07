@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0.1737682, g: 0.21726067, b: 0.2993987, a: 1}
+  m_IndirectSpecularColor: {r: 0.17376858, g: 0.21726137, b: 0.29939994, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -323,9 +323,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   directionalLight: {fileID: 705507995}
-  generator: {fileID: 1493215950}
   cloudsPostProcess: {fileID: 404103033}
-  dstLimit: 1000
 --- !u!114 &152044754
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -338,7 +336,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 052a185cf9f75f646bfdf45a1a09f2c1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  controller: {fileID: 1265296865}
   turnTorque: {x: 90, y: 25, z: 45}
   pitch: 0
   yaw: 0
@@ -1357,8 +1354,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 84b7e8e6cece5364bbfdd7449b3036a7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  postProcessMaterial: {fileID: 2100000, guid: 89966cfc1080e924ab606cf05189f19a, type: 2}
-  gBuffer: {fileID: 853499164}
+  postProcessMaterial: {fileID: 2100000, guid: f2c9c46882c128b49ae2f8c548122fd2, type: 2}
   cam: {fileID: 1112909378}
   container: {fileID: 992712315}
   heightMap: {fileID: 2800000, guid: 719aa961a7a62404f87534ef4a045a2d, type: 3}
@@ -1369,7 +1365,7 @@ MonoBehaviour:
   coverageScale: 4000
   coverageOffset: {x: 0, y: 0}
   coverageSpeed: {x: 20, y: 10}
-  coverage: 0.572
+  coverage: 0.707
   phaseParams: {x: 0.6, y: 0, z: 0.7}
   lightSteps: 3
   globalBrightness: 1
@@ -2181,7 +2177,7 @@ Light:
   serializedVersion: 10
   m_Type: 1
   m_Shape: 0
-  m_Color: {r: 1, g: 0.95686275, b: 0.8392157, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_Intensity: 1
   m_Range: 10
   m_SpotAngle: 30
@@ -3187,10 +3183,8 @@ MonoBehaviour:
   width: 1600
   height: 900
   voxelViewDistance: 3000
-  generator: {fileID: 1493215950}
   shader: {fileID: 7200000, guid: 99fdae86e32fd1e4d8e00eda8bc53cef, type: 3}
   cam: {fileID: 1112909378}
-  refresh: 0
 --- !u!4 &853499165
 Transform:
   m_ObjectHideFlags: 0
@@ -4167,7 +4161,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   blades: {fileID: 1031025516}
-  speed: 1500
+  planeCommands: {fileID: 0}
+  speedMultiplier: 2000
 --- !u!1 &1052543737 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1253142483436318, guid: 5eb8e6551eac19c44b83715fac259019, type: 3}
@@ -4725,7 +4720,6 @@ MonoBehaviour:
   - {fileID: 535064919}
   - {fileID: 1328189669}
   - {fileID: 899123200}
-  generator: {fileID: 1493215950}
   pixelDetectionPrecision: 1
 --- !u!114 &1205585272
 MonoBehaviour:
@@ -4743,7 +4737,6 @@ MonoBehaviour:
   - {fileID: 1391797292}
   - {fileID: 1391797291}
   - {fileID: 1391797290}
-  generator: {fileID: 1493215950}
   pixelDetectionPrecision: 1
   scoreText: {fileID: 1434953727}
 --- !u!1 &1206620968
@@ -5884,10 +5877,7 @@ MonoBehaviour:
   playerLightIntensity: 1
   playerLightVolumetricIntensity: 0.3
   playerLightAngle: 25
-  gBuffer: {fileID: 853499164}
   postProcessMaterial: {fileID: 2100000, guid: 86ca3387647269249bb0e0fc842ca973, type: 2}
-  worldGenerator: {fileID: 1493215950}
-  shadowMap: {fileID: 2103821577}
   lightShaftSampleCount: 50
   lightShaftRenderDistance: 50
   lightShaftFadeStart: 0.5
@@ -8388,7 +8378,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ea75a4e1eecf81f4fb9dfa5408726407, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  generator: {fileID: 1493215950}
   light: {fileID: 705507995}
   lightForwardTransform: {fileID: 286850343}
   lightUpTransform: {fileID: 1479337330}
