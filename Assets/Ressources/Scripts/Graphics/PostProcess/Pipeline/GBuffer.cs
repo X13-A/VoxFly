@@ -20,7 +20,6 @@ public class GBuffer : MonoBehaviour, IEventHandler
     [SerializeField] private WorldGenerator generator;
     [SerializeField] private ComputeShader shader;
     [SerializeField] private Camera cam;
-    [SerializeField] private bool refresh;
 
     public bool Initialized { get; private set; }
     private int kernelHandle;
@@ -37,7 +36,7 @@ public class GBuffer : MonoBehaviour, IEventHandler
 
     void OnEnable()
     {
-        Application.targetFrameRate = 60;
+        //Application.targetFrameRate = 60;
         Setup();
         SubscribeEvents();
     }
@@ -102,8 +101,7 @@ public class GBuffer : MonoBehaviour, IEventHandler
     {
         foreach (Camera camera in Camera.allCameras)
         {
-            // Careful with this one
-            camera.depthTextureMode |= DepthTextureMode.DepthNormals;
+            camera.depthTextureMode |= DepthTextureMode.Depth;
         }
         if (Shader.GetGlobalTexture("_CameraDepthTexture") == null)
         {
@@ -127,11 +125,6 @@ public class GBuffer : MonoBehaviour, IEventHandler
         {
             Debug.Log("No camera active");
             return;
-        }
-        if (refresh || Input.GetKeyDown(KeyCode.R))
-        {
-            Setup();
-            refresh = false;
         }
         if (!Initialized)
         {
