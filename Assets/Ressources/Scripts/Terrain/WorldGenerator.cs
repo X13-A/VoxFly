@@ -183,7 +183,7 @@ public class WorldGenerator : MonoBehaviour
             UnityEngine.Debug.Log($"Conversion done in {conversionTime} seconds!");
             WorldRenderTexture.Release();
             WorldGenerated = true;
-            EventManager.Instance?.Raise(new WorldGeneratedEvent());
+            EventManager.Instance?.Raise(new WorldGeneratedEvent { generator = this });
         }));
     }
 

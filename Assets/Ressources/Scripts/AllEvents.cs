@@ -129,13 +129,6 @@ public class PlaneInformationEvent : SDD.Events.Event
 }
 #endregion
 
-#region Generation Events
-public class WorldGeneratedEvent : SDD.Events.Event
-{
-}
-
-#endregion
-
 public class WinningPointsEvent : SDD.Events.Event
 {
     public float ePoints;
@@ -150,6 +143,10 @@ public class StartPostProcessingEvent : SDD.Events.Event
 public class GBufferInitializedEvent : SDD.Events.Event
 {
     public GBuffer gbuffer;
+}
+public class WorldGeneratedEvent : SDD.Events.Event
+{
+    public WorldGenerator generator;
 }
 
 #endregion

@@ -62,7 +62,7 @@ public class CloudsPostProcess : PostProcessBase
 
     public void UnsubscribeEvents()
     {
-        EventManager.Instance.AddListener<GBufferInitializedEvent>(AttachGBuffer);
+        EventManager.Instance.RemoveListener<GBufferInitializedEvent>(AttachGBuffer);
     }
     #endregion
 

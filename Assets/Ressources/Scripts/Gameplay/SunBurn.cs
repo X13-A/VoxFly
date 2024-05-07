@@ -6,11 +6,40 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.TestTools;
 
-public class SunBurn : MonoBehaviour
+public class SunBurn : MonoBehaviour, IEventHandler
 {
     [SerializeField] private Transform directionalLight;
-    [SerializeField] private WorldGenerator generator;
     [SerializeField] private CloudsPostProcess cloudsPostProcess;
+
+    private WorldGenerator generator;
+
+    #region Events
+    private void OnWorldGenerated(WorldGeneratedEvent e)
+    {
+        generator = e.generator;
+    }
+
+    public void SubscribeEvents()
+    {
+        EventManager.Instance.AddListener<WorldGeneratedEvent>(OnWorldGenerated);
+    }
+
+    public void UnsubscribeEvents()
+    {
+        EventManager.Instance.RemoveListener<WorldGeneratedEvent>(OnWorldGenerated);
+    }
+    #endregion
+
+    private void OnEnable()
+    {
+        SubscribeEvents();
+    }
+
+    private void OnDisable()
+    {
+        UnsubscribeEvents();
+    }
+
 
     private struct RayBoxInfo
     {
@@ -69,7 +98,7 @@ public class SunBurn : MonoBehaviour
 
     void Update()
     {
-        if (!generator.WorldGenerated) return;
+        if (generator == null) return;
 
         float maxCoverage = 75;
         float resultIntensity = maxCoverage - Mathf.Clamp(CloudCoverage(transform.position, -directionalLight.forward), 0, maxCoverage);

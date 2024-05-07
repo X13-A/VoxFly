@@ -1,22 +1,49 @@
-using System.Collections;
-using System.Collections.Generic;
-using Unity.VisualScripting;
+using SDD.Events;
 using UnityEngine;
 
-public class MachineGun : MonoBehaviour
+public class MachineGun : MonoBehaviour, IEventHandler
 {
-    [SerializeField] private WorldGenerator generator;
     [SerializeField] private float fireRate;
     [SerializeField] private float fireSpread;
     [SerializeField] private float range;
     [SerializeField] private float updateDelay;
 
+    private WorldGenerator generator;
     private int changes;
     private float lastFireTime;
     private float lastUpdateTime;
 
+    #region Events
+    private void AttachGenerator(WorldGeneratedEvent e)
+    {
+        generator = e.generator;
+    }
+
+    public void SubscribeEvents()
+    {
+        EventManager.Instance.AddListener<WorldGeneratedEvent>(AttachGenerator);
+    }
+
+    public void UnsubscribeEvents()
+    {
+        EventManager.Instance.RemoveListener<WorldGeneratedEvent>(AttachGenerator);
+    }
+    #endregion
+
+    private void OnEnable()
+    {
+        SubscribeEvents();
+    }
+
+    private void OnDisable()
+    {
+        UnsubscribeEvents();
+    }
+
     private void Update()
     {
+        if (generator == null) return;
+
         if (Input.GetKey(KeyCode.LeftShift))
         {
             if (Time.time - lastFireTime > 1f / fireRate)

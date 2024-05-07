@@ -17,21 +17,29 @@ public class GBuffer : MonoBehaviour, IEventHandler
     public RenderTexture DepthBuffer { get; private set; } //  The texture to write the depth
     public RenderTexture BlockBuffer { get; private set; } // The texture to write block ID's
 
-    [SerializeField] private WorldGenerator generator;
     [SerializeField] private ComputeShader shader;
     [SerializeField] private Camera cam;
+    
 
     public bool Initialized { get; private set; }
     private int kernelHandle;
+    private WorldGenerator generator;
+
+    private void OnWorldGenerated(WorldGeneratedEvent e)
+    {
+        generator = e.generator;
+    }
 
     public void SubscribeEvents()
     {
         EventManager.Instance.AddListener<StartPostProcessingEvent>(UpdateGBuffer);
+        EventManager.Instance.AddListener<WorldGeneratedEvent>(OnWorldGenerated);
     }
 
     public void UnsubscribeEvents()
     {
         EventManager.Instance.RemoveListener<StartPostProcessingEvent>(UpdateGBuffer);
+        EventManager.Instance.RemoveListener<WorldGeneratedEvent>(OnWorldGenerated);
     }
 
     void OnEnable()
@@ -50,7 +58,7 @@ public class GBuffer : MonoBehaviour, IEventHandler
 
     void Setup()
     {
-        if (!generator.WorldGenerated) return;
+        if (generator != null && generator.WorldGenerated) return;
         
         kernelHandle = shader.FindKernel("CSMain");
         ReleaseBuffers();

@@ -6,22 +6,21 @@ using UnityEngine;
 
 public class Destroy : MonoBehaviour, IEventHandler
 {
-    [SerializeField] List<GameObject> colliders;
-    [SerializeField] WorldGenerator generator;
-    [SerializeField] float pixelDetectionPrecision = 1;
+    [SerializeField] private List<GameObject> colliders;
+    [SerializeField] private float pixelDetectionPrecision = 1;
 
     bool isGenerated = false;
-    private int sizeY => generator.Size.y;
-    private Texture3D worldTexture;
+    private int sizeY => generator.Size.y;    
+    private WorldGenerator generator;
 
     public void SubscribeEvents()
     {
-        EventManager.Instance.AddListener<WorldGeneratedEvent>(Generated);
+        EventManager.Instance.AddListener<WorldGeneratedEvent>(OnWorldGenerated);
     }
 
     public void UnsubscribeEvents()
     {
-        EventManager.Instance.RemoveListener<WorldGeneratedEvent>(Generated);
+        EventManager.Instance.RemoveListener<WorldGeneratedEvent>(OnWorldGenerated);
     }
 
     void OnEnable()
@@ -34,9 +33,9 @@ public class Destroy : MonoBehaviour, IEventHandler
         UnsubscribeEvents();
     }
 
-    void Generated(WorldGeneratedEvent e)
+    void OnWorldGenerated(WorldGeneratedEvent e)
     {
-        worldTexture = generator.WorldTexture;
+        generator = e.generator;
         isGenerated = true;
     }
 

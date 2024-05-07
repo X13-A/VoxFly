@@ -17,7 +17,6 @@ public class WorldPostProcess : PostProcessBase
 
     [Header("Pipeline")]
     [SerializeField] private Material postProcessMaterial;
-    [SerializeField] private WorldGenerator worldGenerator;
     [SerializeField] private ShadowMap shadowMap;
 
     [Header("Volumetric Lighting Parameters")]
@@ -34,12 +33,19 @@ public class WorldPostProcess : PostProcessBase
 
     [Header("Debug")]
     [SerializeField] private bool debugToggle;
-
-    public Texture3D WorldTexture => worldGenerator.WorldTexture;
+    
+    public Texture3D WorldTexture => generator.WorldTexture;
 
     private GBuffer gBuffer;
+    private WorldGenerator generator;
 
     #region Events
+
+    private void OnWorldGenerated(WorldGeneratedEvent e)
+    {
+        generator = e.generator;
+    }
+
     private void AttachGBuffer(GBufferInitializedEvent e)
     {
         gBuffer = e.gbuffer;
@@ -48,11 +54,14 @@ public class WorldPostProcess : PostProcessBase
     public void SubscribeEvents()
     {
         EventManager.Instance.AddListener<GBufferInitializedEvent>(AttachGBuffer);
+        EventManager.Instance.AddListener<WorldGeneratedEvent>(OnWorldGenerated);
     }
 
     public void UnsubscribeEvents()
     {
-        EventManager.Instance.AddListener<GBufferInitializedEvent>(AttachGBuffer);
+        EventManager.Instance.RemoveListener<GBufferInitializedEvent>(AttachGBuffer);
+        EventManager.Instance.RemoveListener<WorldGeneratedEvent>(OnWorldGenerated);
+
     }
     #endregion
 
@@ -144,7 +153,7 @@ public class WorldPostProcess : PostProcessBase
 
     public override void Apply(RenderTexture source, RenderTexture dest)
     {
-        if (gBuffer != null && postProcessMaterial != null && WorldTexture != null && Camera.current != null)
+        if (gBuffer != null && generator != null && postProcessMaterial != null && Camera.current != null)
         {
             SetUniforms();
             Graphics.Blit(source, dest, postProcessMaterial);

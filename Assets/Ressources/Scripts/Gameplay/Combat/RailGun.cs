@@ -1,21 +1,52 @@
+using SDD.Events;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 
-public class RailGun : MonoBehaviour
+public class RailGun : MonoBehaviour, IEventHandler
 {
-    [SerializeField] private WorldGenerator generator;
     [SerializeField] private float cooldown = 1;
     [SerializeField] private int desintegrationRadius = 5;
     [SerializeField] private int explosionRadius = 10;
     [SerializeField] private int explosionIntensity = 50;
     [SerializeField] private float range;
 
+    private WorldGenerator generator;
     private float lastFireTime;
+
+    #region Events
+    private void AttachGenerator(WorldGeneratedEvent e)
+    {
+        generator = e.generator;
+    }
+
+    public void SubscribeEvents()
+    {
+        EventManager.Instance.AddListener<WorldGeneratedEvent>(AttachGenerator);
+    }
+
+    public void UnsubscribeEvents()
+    {
+        EventManager.Instance.RemoveListener<WorldGeneratedEvent>(AttachGenerator);
+    }
+    #endregion
+
+    private void OnEnable()
+    {
+        SubscribeEvents();
+    }
+
+    private void OnDisable()
+    {
+        UnsubscribeEvents();
+    }
+
 
     private void Update()
     {
+        if (generator == null) return;
+
         if (Input.GetKey(KeyCode.LeftShift))
         {
             if (Time.time - lastFireTime > cooldown)

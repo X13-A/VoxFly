@@ -5,26 +5,24 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
-public class GetPoint : MonoBehaviour
+public class GetPoint : MonoBehaviour, IEventHandler
 {
-    [SerializeField] List<GameObject> colliders;
-    [SerializeField] WorldGenerator generator;
-    [SerializeField] float pixelDetectionPrecision = 1;
-    [SerializeField] TextMeshProUGUI scoreText;
+    [SerializeField] private List<GameObject> colliders;
+    [SerializeField] private float pixelDetectionPrecision = 1;
+    [SerializeField] private TextMeshProUGUI scoreText;
 
-    bool isGenerated = false;
+    private bool isGenerated = false;
     private int sizeY => generator.Size.y;
-    private Texture3D worldTexture;
-    private GameManager gameManager;
+    private WorldGenerator generator;
 
     public void SubscribeEvents()
     {
-        EventManager.Instance.AddListener<WorldGeneratedEvent>(Generated);
+        EventManager.Instance.AddListener<WorldGeneratedEvent>(OnGenerated);
     }
 
     public void UnsubscribeEvents()
     {
-        EventManager.Instance.RemoveListener<WorldGeneratedEvent>(Generated);
+        EventManager.Instance.RemoveListener<WorldGeneratedEvent>(OnGenerated);
     }
 
     void OnEnable()
@@ -37,9 +35,9 @@ public class GetPoint : MonoBehaviour
         UnsubscribeEvents();
     }
 
-    void Generated(WorldGeneratedEvent e)
+    void OnGenerated(WorldGeneratedEvent e)
     {
-        worldTexture = generator.WorldTexture;
+        generator = e.generator;
         isGenerated = true;
     }
 
@@ -50,13 +48,12 @@ public class GetPoint : MonoBehaviour
 
     void Update()
     {
-        if (isGenerated)
+        if (!isGenerated) return;
+        
+        foreach (GameObject obj in colliders)
         {
-            foreach (GameObject obj in colliders)
-            {
-                int points = GetColliderPoint(obj);
-                if (points > 0) updateScore(points);
-            }
+            int points = GetColliderPoint(obj);
+            if (points > 0) updateScore(points);
         }
     }
 

@@ -25,7 +25,7 @@ public class PlaneSound : MonoBehaviour, IEventHandler
         EventManager.Instance.RemoveListener<PlaneStateEvent>(Thrusting);
         EventManager.Instance.RemoveListener<PlaneInformationEvent>(PlaneInformation);
         EventManager.Instance.RemoveListener<GamePlayEvent>(SwitchOn);
-        EventManager.Instance.AddListener<GameOverEvent>(SwitchOff);
+        EventManager.Instance.RemoveListener<GameOverEvent>(SwitchOff);
     }
 
     void OnEnable()

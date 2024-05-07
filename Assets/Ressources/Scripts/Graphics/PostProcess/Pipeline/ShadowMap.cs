@@ -1,4 +1,5 @@
 using Palmmedia.ReportGenerator.Core;
+using SDD.Events;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
@@ -8,7 +9,6 @@ using UnityEngine.Rendering;
 
 public class ShadowMap : MonoBehaviour
 {
-    [SerializeField] private WorldGenerator generator;
     [SerializeField] private new Transform light;
     [SerializeField] private Transform lightForwardTransform;
     [SerializeField] private Transform lightUpTransform;
@@ -43,14 +43,39 @@ public class ShadowMap : MonoBehaviour
     private int mapKernel;
 
     private bool initialized;
+    private WorldGenerator generator;
 
-    private void Start()
+    #region Events
+    private void OnWorldGenerated(WorldGeneratedEvent e)
     {
+        generator = e.generator;
         Setup();
+    }
+
+    public void SubscribeEvents()
+    {
+        EventManager.Instance.AddListener<WorldGeneratedEvent>(OnWorldGenerated);
+    }
+
+    public void UnsubscribeEvents()
+    {
+        EventManager.Instance.RemoveListener<WorldGeneratedEvent>(OnWorldGenerated);
+    }
+    #endregion
+
+    private void OnEnable()
+    {
+        SubscribeEvents();
+    }
+
+    private void OnDisable()
+    {
+        UnsubscribeEvents();
     }
 
     private void Setup()
     {
+        if (generator == null) return;
         if (lightForwardTransform == null) return;
         if (lightUpTransform == null) return;
         if (lightRightTransform== null) return;
@@ -77,11 +102,6 @@ public class ShadowMap : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.R))
-        {
-            Setup();
-        }
-
         if (!initialized) return;
         if (generator.WorldTexture == null) return;
 
