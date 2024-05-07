@@ -18,8 +18,6 @@ Shader "Custom/WorldPostProcess"
             #pragma require 2darray
             #include "UnityCG.cginc"
 
-            fixed4 _OverlayColor;
-
             struct appdata
             {
                 float4 vertex : POSITION;

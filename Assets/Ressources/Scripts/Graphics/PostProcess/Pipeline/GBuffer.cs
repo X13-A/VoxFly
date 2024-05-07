@@ -67,7 +67,7 @@ public class GBuffer : MonoBehaviour, IEventHandler
 
         NormalBuffer = new RenderTexture(width, height, 0, RenderTextureFormat.ARGBFloat);
         NormalBuffer.enableRandomWrite = true;
-        NormalBuffer.filterMode = FilterMode.Point;
+        NormalBuffer.filterMode = FilterMode.Bilinear; // Can act as free anti aliasing
         NormalBuffer.Create();
 
         DepthBuffer = new RenderTexture(width, height, 0, RenderTextureFormat.ARGBFloat);
