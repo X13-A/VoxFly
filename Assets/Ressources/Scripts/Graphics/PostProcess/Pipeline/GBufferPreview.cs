@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using SDD.Events;
 
-public class GBufferPreview : MonoBehaviour
+public class GBufferPreview : MonoBehaviour, IEventHandler
 {
-    [SerializeField] private GBuffer gBuffer;
+    private GBuffer gBuffer;
     [SerializeField] private ShadowMap shadowMap;
 
     [SerializeField] private RawImage blockPreview;
@@ -15,8 +16,36 @@ public class GBufferPreview : MonoBehaviour
     [SerializeField] private RawImage positionPreview;
     [SerializeField] private RawImage shadowMapPreview;
     [SerializeField] private TextMeshProUGUI FPS;
+
+    private void AttachGBuffer(GBufferInitializedEvent e)
+    {
+        gBuffer = e.gbuffer;
+    }
+
+    public void SubscribeEvents()
+    {
+        EventManager.Instance.AddListener<GBufferInitializedEvent>(AttachGBuffer);
+    }
+
+    public void UnsubscribeEvents()
+    {
+        EventManager.Instance.AddListener<GBufferInitializedEvent>(AttachGBuffer);
+    }
+
+    private void OnEnable()
+    {
+        SubscribeEvents();
+    }
+
+    private void OnDisable()
+    {
+        UnsubscribeEvents();
+    }
+
     public void Update()
     {
+        if (gBuffer == null) return;
+
         FPS.text = $"FPS: { (int) (100 / Time.smoothDeltaTime) / 100.0f}";
         blockPreview.texture = gBuffer.BlockBuffer;
         normalPreview.texture = gBuffer.NormalBuffer;

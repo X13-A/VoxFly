@@ -142,9 +142,16 @@ public class WinningPointsEvent : SDD.Events.Event
 }
 
 #region Rendering Events
+// Called every frame before the custom post processing starts
 public class StartPostProcessingEvent : SDD.Events.Event
 {
 }
+
+public class GBufferInitializedEvent : SDD.Events.Event
+{
+    public GBuffer gbuffer;
+}
+
 #endregion
 public class DestroyEvent : SDD.Events.Event
 {

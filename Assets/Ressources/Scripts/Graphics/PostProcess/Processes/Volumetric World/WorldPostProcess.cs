@@ -1,3 +1,4 @@
+using SDD.Events;
 using System.Collections;
 using System.Collections.Generic;
 using TreeEditor;
@@ -15,7 +16,6 @@ public class WorldPostProcess : PostProcessBase
     [SerializeField][Range(0, 90f)] private float playerLightAngle;
 
     [Header("Pipeline")]
-    [SerializeField] private GBuffer gBuffer;
     [SerializeField] private Material postProcessMaterial;
     [SerializeField] private WorldGenerator worldGenerator;
     [SerializeField] private ShadowMap shadowMap;
@@ -36,6 +36,35 @@ public class WorldPostProcess : PostProcessBase
     [SerializeField] private bool debugToggle;
 
     public Texture3D WorldTexture => worldGenerator.WorldTexture;
+
+    private GBuffer gBuffer;
+
+    #region Events
+    private void AttachGBuffer(GBufferInitializedEvent e)
+    {
+        gBuffer = e.gbuffer;
+    }
+
+    public void SubscribeEvents()
+    {
+        EventManager.Instance.AddListener<GBufferInitializedEvent>(AttachGBuffer);
+    }
+
+    public void UnsubscribeEvents()
+    {
+        EventManager.Instance.AddListener<GBufferInitializedEvent>(AttachGBuffer);
+    }
+    #endregion
+
+    private void OnEnable()
+    {
+        SubscribeEvents();
+    }
+
+    private void OnDisable()
+    {
+        UnsubscribeEvents();
+    }
 
     private void Start()
     {
@@ -115,7 +144,7 @@ public class WorldPostProcess : PostProcessBase
 
     public override void Apply(RenderTexture source, RenderTexture dest)
     {
-        if (postProcessMaterial != null && WorldTexture != null && Camera.current != null)
+        if (gBuffer != null && postProcessMaterial != null && WorldTexture != null && Camera.current != null)
         {
             SetUniforms();
             Graphics.Blit(source, dest, postProcessMaterial);

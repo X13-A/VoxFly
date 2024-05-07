@@ -1,3 +1,4 @@
+using SDD.Events;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -9,7 +10,6 @@ public class CloudsPostProcess : PostProcessBase
 {
     [Header("General parameters")]
     [SerializeField] private Material postProcessMaterial;
-    [SerializeField] private GBuffer gBuffer;
     [SerializeField] private Camera cam;
 
     [Header("Shape parameters")]
@@ -46,6 +46,35 @@ public class CloudsPostProcess : PostProcessBase
 
     public Vector3 BoundsMin => container.position - container.localScale / 2;
     public Vector3 BoundsMax => container.position + container.localScale / 2;
+
+    private GBuffer gBuffer;
+
+    #region Events
+    private void AttachGBuffer(GBufferInitializedEvent e)
+    {
+        gBuffer = e.gbuffer;
+    }
+
+    public void SubscribeEvents()
+    {
+        EventManager.Instance.AddListener<GBufferInitializedEvent>(AttachGBuffer);
+    }
+
+    public void UnsubscribeEvents()
+    {
+        EventManager.Instance.AddListener<GBufferInitializedEvent>(AttachGBuffer);
+    }
+    #endregion
+
+    private void OnEnable()
+    {
+        SubscribeEvents();
+    }
+
+    private void OnDisable()
+    {
+        UnsubscribeEvents();
+    }
 
     private float GetStepSize()
     {
@@ -123,7 +152,7 @@ public class CloudsPostProcess : PostProcessBase
 
     public override void Apply(RenderTexture source, RenderTexture dest)
     {
-        if (postProcessMaterial != null && Camera.current != null)
+        if (gBuffer != null && postProcessMaterial != null && Camera.current != null)
         {
             SetUniforms();
             Graphics.Blit(source, dest, postProcessMaterial);

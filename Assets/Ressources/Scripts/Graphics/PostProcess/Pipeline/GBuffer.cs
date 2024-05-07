@@ -87,6 +87,7 @@ public class GBuffer : MonoBehaviour, IEventHandler
         shader.SetInts("_GBufferSize", new int[] { width, height });
         shader.SetInts("_WorldTextureSize", new int[] { generator.WorldTexture.width, generator.WorldTexture.height, generator.WorldTexture.depth });
         Initialized = true;
+        EventManager.Instance.Raise(new GBufferInitializedEvent { gbuffer = this });
     }
 
     public void ReleaseBuffers()
