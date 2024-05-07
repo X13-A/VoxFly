@@ -92,6 +92,7 @@ public class ShadowMap : MonoBehaviour
         shadowMapCompute.SetTexture(mapKernel, "_ShadowMap", ShadowMapRenderTexture);
 
         initialized = true;
+        EventManager.Instance.Raise(new ShadowMapInitializedEvent { shadowMap = this });
     }
 
     private void ComputeShadowMapOrigin()

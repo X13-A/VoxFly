@@ -8,7 +8,7 @@ using SDD.Events;
 public class GBufferPreview : MonoBehaviour, IEventHandler
 {
     private GBuffer gBuffer;
-    [SerializeField] private ShadowMap shadowMap;
+    private ShadowMap shadowMap;
 
     [SerializeField] private RawImage blockPreview;
     [SerializeField] private RawImage normalPreview;
@@ -21,15 +21,21 @@ public class GBufferPreview : MonoBehaviour, IEventHandler
     {
         gBuffer = e.gbuffer;
     }
+    private void AttachShadowMap(ShadowMapInitializedEvent e)
+    {
+        shadowMap = e.shadowMap;
+    }
 
     public void SubscribeEvents()
     {
         EventManager.Instance.AddListener<GBufferInitializedEvent>(AttachGBuffer);
+        EventManager.Instance.AddListener<ShadowMapInitializedEvent>(AttachShadowMap);
     }
 
     public void UnsubscribeEvents()
     {
         EventManager.Instance.RemoveListener<GBufferInitializedEvent>(AttachGBuffer);
+        EventManager.Instance.RemoveListener<ShadowMapInitializedEvent>(AttachShadowMap);
     }
 
     private void OnEnable()
@@ -45,6 +51,7 @@ public class GBufferPreview : MonoBehaviour, IEventHandler
     public void Update()
     {
         if (gBuffer == null) return;
+        if (shadowMap == null) return;
 
         FPS.text = $"FPS: { (int) (100 / Time.smoothDeltaTime) / 100.0f}";
         blockPreview.texture = gBuffer.BlockBuffer;

@@ -58,7 +58,7 @@ public class GBuffer : MonoBehaviour, IEventHandler
 
     void Setup()
     {
-        if (generator != null && generator.WorldGenerated) return;
+        if (generator == null) return;
         
         kernelHandle = shader.FindKernel("CSMain");
         ReleaseBuffers();

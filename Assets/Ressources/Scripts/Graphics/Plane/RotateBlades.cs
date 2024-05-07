@@ -10,6 +10,13 @@ public class RotateBlades : MonoBehaviour
 
     void Update()
     {
-        blades.rotation *= Quaternion.Euler(0, 0, (0.1f + planeCommands.Throttle) * speedMultiplier * Time.deltaTime); 
+        if (planeCommands == null)
+        {
+            blades.rotation *= Quaternion.Euler(0, 0, speedMultiplier * Time.deltaTime);
+        }
+        else
+        {
+            blades.rotation *= Quaternion.Euler(0, 0, (0.1f + planeCommands.Throttle) * speedMultiplier * Time.deltaTime); 
+        }
     }
 }

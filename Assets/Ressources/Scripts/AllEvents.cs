@@ -149,6 +149,11 @@ public class WorldGeneratedEvent : SDD.Events.Event
     public WorldGenerator generator;
 }
 
+public class ShadowMapInitializedEvent : SDD.Events.Event
+{
+    public ShadowMap shadowMap;
+}
+
 #endregion
 public class DestroyEvent : SDD.Events.Event
 {
