@@ -5,9 +5,7 @@ public class PlaneSound : MonoBehaviour, IEventHandler
 {
     [SerializeField] private AudioSource audioSource;
     [SerializeField] float minAudio = .08f;
-
-    AudioManager audioManager;
-    private float maxAudio => audioManager.maxPlaneVolume;
+    [SerializeField] float maxAudio = .8f;
 
     float minThrust;
     float maxThrust;
@@ -16,7 +14,7 @@ public class PlaneSound : MonoBehaviour, IEventHandler
     {
         EventManager.Instance.AddListener<PlaneStateEvent>(Thrusting);
         EventManager.Instance.AddListener<PlaneInformationEvent>(PlaneInformation);
-        EventManager.Instance.AddListener<GamePlayEvent>(SwitchOn);
+        EventManager.Instance.AddListener<SoundMixEvent>(SoundMix);
         EventManager.Instance.AddListener<GameOverEvent>(SwitchOff);
     }
 
@@ -24,7 +22,7 @@ public class PlaneSound : MonoBehaviour, IEventHandler
     {
         EventManager.Instance.RemoveListener<PlaneStateEvent>(Thrusting);
         EventManager.Instance.RemoveListener<PlaneInformationEvent>(PlaneInformation);
-        EventManager.Instance.RemoveListener<GamePlayEvent>(SwitchOn);
+        EventManager.Instance.RemoveListener<SoundMixEvent>(SoundMix);
         EventManager.Instance.RemoveListener<GameOverEvent>(SwitchOff);
     }
 
@@ -38,14 +36,14 @@ public class PlaneSound : MonoBehaviour, IEventHandler
         UnsubscribeEvents();
     }
 
-    void SwitchOn(GamePlayEvent e)
+    void Start()
     {
-        audioSource.Play();
+        audioSource.volume = minAudio;
     }
 
-    void SwitchOff(GameOverEvent e)
+    void SoundMix(SoundMixEvent e)
     {
-        audioSource.Stop();
+        maxAudio = e.eGameplayVolume;
     }
 
     void PlaneInformation(PlaneInformationEvent e)
@@ -66,5 +64,10 @@ public class PlaneSound : MonoBehaviour, IEventHandler
 
         volume = Mathf.Clamp(volume, minAudio, maxAudio);
         audioSource.volume = volume;
+    }
+
+    void SwitchOff(GameOverEvent e)
+    {
+        EventManager.Instance.Raise(new StopSoundAllEvent());
     }
 }
