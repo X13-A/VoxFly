@@ -164,7 +164,7 @@ public class plane : MonoBehaviour
         turbulenceScale = scale;
     }
 
-    /*void UpdateTurbulence()
+    void UpdateTurbulence()
     {
         float planeAltitude = rigid.position.y * metersToFeet;
         /*
@@ -172,7 +172,7 @@ public class plane : MonoBehaviour
         else if(planeAltitude < ?) SetTurbulence(?,?);
         ...
         */
-    }*/
+    }
 
     void UpdateDrag()
     {
