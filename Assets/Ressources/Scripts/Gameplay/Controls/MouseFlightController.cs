@@ -87,10 +87,16 @@ public class MouseFlightController : MonoBehaviour
         // To work correctly, the entire rig must not be parented to anything.
         // When parented to something (such as an aircraft) it will inherit those
         // rotations causing unintended rotations as it gets dragged around.
-        transform.parent = null;
+        //transform.parent = null;
 
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+    }
+
+    private void OnDisable()
+    {
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
     }
 
     private void Update()

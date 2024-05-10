@@ -9,7 +9,7 @@ using UnityEngine;
 public class plane : MonoBehaviour
 {
     [Header("Components")]
-    //[SerializeField] private MouseFlightController controller = null;
+    [SerializeField] private MouseFlightController controller = null;
 
     [Header("Physics")]
     [Tooltip("Pitch, Yaw, Roll")] public Vector3 turnTorque = new Vector3(90f, 25f, 45f);
@@ -100,14 +100,15 @@ public class plane : MonoBehaviour
     {
         rigid = GetComponent<Rigidbody>();
 
-        //if (controller == null)
-            //Debug.LogError(name + ": Plane - Missing reference to MouseFlightController!");
+        if (controller == null)
+            Debug.LogError(name + ": Plane - Missing reference to MouseFlightController!");
     }
 
     private void Start()
     {
         //rigid.velocity = rigid.rotation * new Vector3(0, 0, initialSpeed);
-        EventManager.Instance.Raise(new PlaneInformationEvent() { eMinThrust = minThrust, eMaxThrust = maxThrust }); ;
+        EventManager.Instance.Raise(new PlaneInformationEvent() { eMinThrust = minThrust, eMaxThrust = maxThrust });
+        EventManager.Instance.Raise(new PlaneInitializedEvent() { plane = this });
     }
 
     public static float MoveTo(float value, float target, float speed, float deltaTime, float min = 0, float max = 1)
@@ -163,7 +164,7 @@ public class plane : MonoBehaviour
         turbulenceScale = scale;
     }
 
-    void UpdateTurbulence()
+    /*void UpdateTurbulence()
     {
         float planeAltitude = rigid.position.y * metersToFeet;
         /*
@@ -171,7 +172,7 @@ public class plane : MonoBehaviour
         else if(planeAltitude < ?) SetTurbulence(?,?);
         ...
         */
-    }
+    }*/
 
     void UpdateDrag()
     {
@@ -232,7 +233,6 @@ public class plane : MonoBehaviour
 
         // Appliquer la poussée
         rigid.AddRelativeForce(Vector3.forward * currentThrust, ForceMode.Force);
-        //Debug.Log("Current Thrust: " + currentThrust + " with Throttle at: " + Throttle);
     }
 
     public void AdjustThrottle(float adjustment)
@@ -245,8 +245,6 @@ public class plane : MonoBehaviour
     {
         if (LocalVelocity.sqrMagnitude < 1f) return;
 
-        //float flapsLiftPower = FlapsDeployed ? this.flapsLiftPower : 0;
-        //float flapsAOABias = FlapsDeployed ? this.flapsAOABias : 0;
         var liftForce = CalculateLift(
             AngleOfAttack, Vector3.right,
             liftPower,
@@ -254,11 +252,7 @@ public class plane : MonoBehaviour
             inducedDragCurve
         );
 
-        //var yawForce = CalculateLift(AngleOfAttackYaw, Vector3.up, rudderPower, rudderAOACurve, rudderInducedDragCurve);
-
         rigid.AddRelativeForce(liftForce);
-        //Debug.Log("lift force : " + liftForce);
-        //rigid.AddRelativeForce(yawForce);
     }
 
     void CalculateAngleOfAttack()
@@ -271,8 +265,6 @@ public class plane : MonoBehaviour
         }
 
         AngleOfAttack = Mathf.Atan2(-LocalVelocity.y, LocalVelocity.z);
-        //Debug.Log("LOCAL : " + LocalVelocity);
-        //Debug.Log(Mathf.Atan2(-LocalVelocity.y, LocalVelocity.z) * Mathf.Rad2Deg);
         AngleOfAttackYaw = Mathf.Atan2(LocalVelocity.x, LocalVelocity.z);
     }
 
@@ -317,16 +309,15 @@ public class plane : MonoBehaviour
         if (Input.GetKey(KeyCode.R))
         {
             if (!regulatorActivate) regulatorActivate = true;
-            //Debug.Log("REGULATOR");
         }
 
         if (Input.GetKey(KeyCode.Space))
         {
             // Augmenter le throttle
-            if(regulatorActivate)regulatorActivate = false;
+            if (regulatorActivate) regulatorActivate = false;
             AdjustThrottle(throttleAdjustmentRate * Time.deltaTime);
         }
-        else if(!regulatorActivate)
+        else if (!regulatorActivate)
         {
             // Diminuer le throttle
             AdjustThrottle(-throttleAdjustmentRate * Time.deltaTime);
@@ -337,10 +328,12 @@ public class plane : MonoBehaviour
         float autoYaw = 0f;
         float autoPitch = 0f;
         float autoRoll = 0f;
+
         //if (controller != null)
         //    RunAutopilot(controller.MouseAimPos, out autoYaw, out autoPitch, out autoRoll);
 
         // Use either keyboard or autopilot input.
+
         yaw = autoYaw;
         pitch = (pitchOverride) ? keyboardPitch : autoPitch;
         roll = (rollOverride) ? keyboardRoll : autoRoll;

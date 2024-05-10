@@ -20,7 +20,7 @@ public class GameManager : MonoBehaviour, IEventHandler
     void SetScore(int newScore)
     {
         m_Score = newScore;
-        EventManager.Instance.Raise(new GameStatisticsChangedEvent() { eScore = m_Score });
+        EventManager.Instance.Raise(new UpdateGameScoreEvent() { score = m_Score });
     }
 
     public int IncrementScore(int increment)
@@ -38,6 +38,7 @@ public class GameManager : MonoBehaviour, IEventHandler
         EventManager.Instance.AddListener<SettingsButtonClickedEvent>(SettingsButtonClicked);
         EventManager.Instance.AddListener<ScoreButtonClickedEvent>(ScoreButtonClicked);
         EventManager.Instance.AddListener<DestroyEvent>(Destroy);
+        EventManager.Instance.AddListener<PauseButtonClickedEvent>(PauseButtonClicked);
     }
 
     public void UnsubscribeEvents()
@@ -49,6 +50,7 @@ public class GameManager : MonoBehaviour, IEventHandler
         EventManager.Instance.RemoveListener<SettingsButtonClickedEvent>(SettingsButtonClicked);
         EventManager.Instance.RemoveListener<ScoreButtonClickedEvent>(ScoreButtonClicked);
         EventManager.Instance.RemoveListener<DestroyEvent>(Destroy);
+        EventManager.Instance.RemoveListener<PauseButtonClickedEvent>(PauseButtonClicked);
     }
 
     void OnEnable()
@@ -126,6 +128,18 @@ public class GameManager : MonoBehaviour, IEventHandler
         EventManager.Instance.Raise(new UpdateScoreEvent(m_Score));
     }
 
+    void Pause()
+    {
+        EventManager.Instance.Raise(new GamePauseEvent());
+        SetState(GAMESTATE.pause);
+    }
+
+    void Resume()
+    {
+        EventManager.Instance.Raise(new GameResumeEvent());
+        SetState(GAMESTATE.play);
+    }
+
     // MenuManager events' callback
     void PlayButtonClicked(PlayButtonClickedEvent e)
     {
@@ -154,6 +168,18 @@ public class GameManager : MonoBehaviour, IEventHandler
     void ScoreButtonClicked(ScoreButtonClickedEvent e)
     {
         EventManager.Instance.Raise(new GameScoreEvent());
+    }
+
+    void PauseButtonClicked(PauseButtonClickedEvent e)
+    {
+        if (m_State == GAMESTATE.pause)
+        {
+            Resume();
+        }
+        else
+        {
+            Pause();
+        }
     }
 
     void Destroy(DestroyEvent e)

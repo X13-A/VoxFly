@@ -37,6 +37,10 @@ public class GameStatisticsChangedEvent : SDD.Events.Event
 public class DisablePlayerEvent : SDD.Events.Event
 {
 }
+public class UpdateGameScoreEvent : SDD.Events.Event
+{
+    public float score { get; set; }
+}
 #endregion
 
 #region MenuManager Events
@@ -85,6 +89,12 @@ public class UpdateScoresTextEvent : SDD.Events.Event
 
 #region PauseManager Events
 public class PauseButtonClickedEvent : SDD.Events.Event
+{
+}
+public class PausePlayerEvent : SDD.Events.Event
+{
+}
+public class ResumePlayerEvent : SDD.Events.Event
 {
 }
 #endregion
@@ -138,6 +148,10 @@ public class PlaneInformationEvent : SDD.Events.Event
 {
     public float eMinThrust;
     public float eMaxThrust;
+}
+public class PlaneInitializedEvent : SDD.Events.Event
+{
+    public plane plane;
 }
 #endregion
 
