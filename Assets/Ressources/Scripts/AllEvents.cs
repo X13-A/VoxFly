@@ -41,6 +41,11 @@ public class UpdateGameScoreEvent : SDD.Events.Event
 {
     public float score { get; set; }
 }
+
+public class GamePlayStartEvent : SDD.Events.Event
+{
+}
+
 #endregion
 
 #region MenuManager Events
@@ -95,6 +100,12 @@ public class PausePlayerEvent : SDD.Events.Event
 {
 }
 public class ResumePlayerEvent : SDD.Events.Event
+{
+}
+#endregion
+
+#region BeginTimer Events
+public class FinishTimerEvent : SDD.Events.Event
 {
 }
 #endregion

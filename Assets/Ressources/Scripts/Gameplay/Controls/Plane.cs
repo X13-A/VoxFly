@@ -99,6 +99,7 @@ public class plane : MonoBehaviour
     private void Awake()
     {
         rigid = GetComponent<Rigidbody>();
+        EventManager.Instance.Raise(new PlaneInitializedEvent() { plane = this });
 
         if (controller == null)
             Debug.LogError(name + ": Plane - Missing reference to MouseFlightController!");
@@ -108,7 +109,6 @@ public class plane : MonoBehaviour
     {
         //rigid.velocity = rigid.rotation * new Vector3(0, 0, initialSpeed);
         EventManager.Instance.Raise(new PlaneInformationEvent() { eMinThrust = minThrust, eMaxThrust = maxThrust });
-        EventManager.Instance.Raise(new PlaneInitializedEvent() { plane = this });
     }
 
     public static float MoveTo(float value, float target, float speed, float deltaTime, float min = 0, float max = 1)

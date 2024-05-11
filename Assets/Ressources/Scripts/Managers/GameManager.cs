@@ -39,6 +39,7 @@ public class GameManager : MonoBehaviour, IEventHandler
         EventManager.Instance.AddListener<ScoreButtonClickedEvent>(ScoreButtonClicked);
         EventManager.Instance.AddListener<DestroyEvent>(Destroy);
         EventManager.Instance.AddListener<PauseButtonClickedEvent>(PauseButtonClicked);
+        EventManager.Instance.AddListener<FinishTimerEvent>(FinishTimer);
     }
 
     public void UnsubscribeEvents()
@@ -51,6 +52,7 @@ public class GameManager : MonoBehaviour, IEventHandler
         EventManager.Instance.RemoveListener<ScoreButtonClickedEvent>(ScoreButtonClicked);
         EventManager.Instance.RemoveListener<DestroyEvent>(Destroy);
         EventManager.Instance.RemoveListener<PauseButtonClickedEvent>(PauseButtonClicked);
+        EventManager.Instance.RemoveListener<FinishTimerEvent>(FinishTimer);
     }
 
     void OnEnable()
@@ -99,6 +101,11 @@ public class GameManager : MonoBehaviour, IEventHandler
     {
         SceneManager.LoadSceneAsync(1);
         SetScore(0);
+    }
+
+    void StartGame()
+    {
+        EventManager.Instance.Raise(new GamePlayStartEvent());
     }
 
     void Update()
@@ -180,6 +187,11 @@ public class GameManager : MonoBehaviour, IEventHandler
         {
             Pause();
         }
+    }
+
+    void FinishTimer(FinishTimerEvent e)
+    {
+        StartGame();
     }
 
     void Destroy(DestroyEvent e)

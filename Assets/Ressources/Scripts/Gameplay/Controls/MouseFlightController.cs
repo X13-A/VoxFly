@@ -91,6 +91,9 @@ public class MouseFlightController : MonoBehaviour
 
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+
+        UpdateCameraPos();
+        LateUpdate();
     }
 
     private void OnDisable()

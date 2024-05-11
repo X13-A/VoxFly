@@ -10,14 +10,15 @@ public class PlayerManager : MonoBehaviour, IEventHandler
     [SerializeField]
     GameObject m_HudObject;
 
-    public void Awake()
+    public void Start()
     {
+        m_PlayerObject.SetActive(false);
     }
 
     public void SubscribeEvents()
     {
         EventManager.Instance.AddListener<DisablePlayerEvent>(DisablePlayer);
-        EventManager.Instance.AddListener<WorldGeneratedEvent>(EnablePlayer);
+        EventManager.Instance.AddListener<GamePlayStartEvent>(EnablePlayer);
         EventManager.Instance.AddListener<PausePlayerEvent>(PausePlayer);
         EventManager.Instance.AddListener<ResumePlayerEvent>(ResumePlayer);
     }
@@ -25,7 +26,7 @@ public class PlayerManager : MonoBehaviour, IEventHandler
     public void UnsubscribeEvents()
     {
         EventManager.Instance.RemoveListener<DisablePlayerEvent>(DisablePlayer);
-        EventManager.Instance.RemoveListener<WorldGeneratedEvent>(EnablePlayer);
+        EventManager.Instance.RemoveListener<GamePlayStartEvent>(EnablePlayer);
         EventManager.Instance.RemoveListener<PausePlayerEvent>(PausePlayer);
         EventManager.Instance.RemoveListener<ResumePlayerEvent>(ResumePlayer);
     }
@@ -45,7 +46,12 @@ public class PlayerManager : MonoBehaviour, IEventHandler
         m_HudObject.SetActive(false);
     }
 
-    void EnablePlayer(WorldGeneratedEvent e)
+    void InitPlayer(WorldGeneratedEvent e)
+    {
+        m_PlayerObject.SetActive(false);
+    }
+
+    void EnablePlayer(GamePlayStartEvent e)
     {
         m_PlayerObject.SetActive(true);
         m_HudObject.SetActive(true);
