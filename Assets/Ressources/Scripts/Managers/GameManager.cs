@@ -17,6 +17,14 @@ public class GameManager : MonoBehaviour, IEventHandler
 
     public int m_Score;
 
+    void Awake()
+    {
+        if (m_Instance == null)
+        {
+            m_Instance = this;
+        }
+    }
+
     void SetScore(int newScore)
     {
         m_Score = newScore;

@@ -6,13 +6,11 @@ using SDD.Events;
 public class PlayerManager : MonoBehaviour, IEventHandler
 {
     [SerializeField]
-    GameObject m_PlayerObject;
-    [SerializeField]
-    GameObject m_HudObject;
+    List<GameObject> m_PlayerObjects;
 
     public void Start()
     {
-        m_PlayerObject.SetActive(false);
+        SetActiveObjects(false);
     }
 
     public void SubscribeEvents()
@@ -40,32 +38,32 @@ public class PlayerManager : MonoBehaviour, IEventHandler
         UnsubscribeEvents();
     }
 
-    void DisablePlayer(DisablePlayerEvent e)
+    void SetActiveObjects(bool b)
     {
-        m_PlayerObject.SetActive(false);
-        m_HudObject.SetActive(false);
+        foreach (var obj in m_PlayerObjects)
+        {
+            obj.SetActive(b);
+        }
     }
 
-    void InitPlayer(WorldGeneratedEvent e)
+    void DisablePlayer(DisablePlayerEvent e)
     {
-        m_PlayerObject.SetActive(false);
+        SetActiveObjects(false);
     }
+
 
     void EnablePlayer(GamePlayStartEvent e)
     {
-        m_PlayerObject.SetActive(true);
-        m_HudObject.SetActive(true);
+        SetActiveObjects(true);
     }
 
     void PausePlayer(PausePlayerEvent e)
     {
-        m_PlayerObject.SetActive(false);
-        m_HudObject.SetActive(false);
+        SetActiveObjects(false);
     }
 
     void ResumePlayer(ResumePlayerEvent e)
     {
-        m_PlayerObject.SetActive(true);
-        m_HudObject.SetActive(true);
+        SetActiveObjects(true);
     }
 }
