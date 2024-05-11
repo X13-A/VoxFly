@@ -133,6 +133,11 @@ public class StopSoundAllEvent : SDD.Events.Event
 {
     public bool eMute;
 }
+
+public class StopSoundByTypeEvent : SDD.Events.Event
+{
+    public string eType; // Check audioTypes list in AudioManager
+}
 #endregion
 #endregion
 

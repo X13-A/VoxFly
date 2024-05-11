@@ -15,7 +15,6 @@ public class PlaneSound : MonoBehaviour, IEventHandler
         EventManager.Instance.AddListener<PlaneStateEvent>(Thrusting);
         EventManager.Instance.AddListener<PlaneInformationEvent>(PlaneInformation);
         EventManager.Instance.AddListener<SoundMixEvent>(SoundMix);
-        EventManager.Instance.AddListener<GameOverEvent>(SwitchOff);
     }
 
     public void UnsubscribeEvents()
@@ -23,7 +22,6 @@ public class PlaneSound : MonoBehaviour, IEventHandler
         EventManager.Instance.RemoveListener<PlaneStateEvent>(Thrusting);
         EventManager.Instance.RemoveListener<PlaneInformationEvent>(PlaneInformation);
         EventManager.Instance.RemoveListener<SoundMixEvent>(SoundMix);
-        EventManager.Instance.RemoveListener<GameOverEvent>(SwitchOff);
     }
 
     void OnEnable()
@@ -64,10 +62,5 @@ public class PlaneSound : MonoBehaviour, IEventHandler
 
         volume = Mathf.Clamp(volume, minAudio, maxAudio);
         audioSource.volume = volume;
-    }
-
-    void SwitchOff(GameOverEvent e)
-    {
-        EventManager.Instance.Raise(new StopSoundAllEvent());
     }
 }

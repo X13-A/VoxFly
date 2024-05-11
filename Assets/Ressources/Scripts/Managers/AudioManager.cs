@@ -1,5 +1,6 @@
 using SDD.Events;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEditor;
@@ -22,12 +23,37 @@ public class AudioManager : MonoBehaviour, IEventHandler
     [SerializeField] private float maxMenuVolume = 1;
     [SerializeField] private AudioClip menu;
 
+    Dictionary<string, Tuple<AudioClip, string>> audioClips;
+    List<Tuple<string, float>> audioTypes;
+
+    void Awake()
+    {
+        /* /!\ Add all audio clips to the dictionary /!\ */
+        audioClips = new Dictionary<string, Tuple<AudioClip, string>>()
+        {
+            { "click", Tuple.Create(click, "sfx") },
+            { "wind", Tuple.Create(wind, "gameplay") },
+            { "thunder", Tuple.Create(thunder, "gameplay") },
+            { "rain", Tuple.Create(rain, "gameplay") },
+            { "menu", Tuple.Create(menu, "menu") }
+        };
+
+        /* /!\ Add all audio types to the lists /!\ */
+        audioTypes = new List<Tuple<string, float>>()
+        {
+            Tuple.Create("sfx", maxSFXVolume),
+            Tuple.Create("gameplay", maxGameplayVolume),
+            Tuple.Create("menu", maxMenuVolume)
+        };
+    }
+
     public void SubscribeEvents()
     {
         EventManager.Instance.AddListener<PlaySoundEvent>(PlaySound);
         EventManager.Instance.AddListener<StopSoundEvent>(StopSound);
         EventManager.Instance.AddListener<StopSoundAllEvent>(StopAllSound);
         EventManager.Instance.AddListener<SoundMixEvent>(MixSFX);
+        EventManager.Instance.AddListener<StopSoundByTypeEvent>(StopSoundByType);
     }
 
     public void UnsubscribeEvents()
@@ -36,6 +62,7 @@ public class AudioManager : MonoBehaviour, IEventHandler
         EventManager.Instance.RemoveListener<StopSoundEvent>(StopSound);
         EventManager.Instance.RemoveListener<StopSoundAllEvent>(StopAllSound);
         EventManager.Instance.RemoveListener<SoundMixEvent>(MixSFX);
+        EventManager.Instance.RemoveListener<StopSoundByTypeEvent>(StopSoundByType);
     }
 
     void OnEnable()
@@ -46,11 +73,6 @@ public class AudioManager : MonoBehaviour, IEventHandler
     void OnDisable()
     {
         UnsubscribeEvents();
-    }
-
-    void Start()
-    {
-        EventManager.Instance.Raise(new PlaySoundEvent() { eNameClip = "rain", eLoop = true });
     }
 
     void MixSFX(SoundMixEvent e)
@@ -66,9 +88,9 @@ public class AudioManager : MonoBehaviour, IEventHandler
         GameObject childObject = new GameObject(e.eNameClip);
         childObject.transform.parent = transform;
         AudioSource audioSource = childObject.AddComponent<AudioSource>();
-        Tuple<AudioClip, float> audioClip = findAudioClip(e.eNameClip);
+        audioClips.TryGetValue(e.eNameClip, out Tuple<AudioClip, string> audioClip);
         audioSource.clip = audioClip.Item1;
-        audioSource.volume = audioClip.Item2;
+        audioSource.volume = getVolume(audioClip.Item2);
         audioSource.loop = e.eLoop;
         audioSource.Play();
     }
@@ -79,6 +101,18 @@ public class AudioManager : MonoBehaviour, IEventHandler
         Destroy(childObject);
     }
 
+    void StopSoundByType(StopSoundByTypeEvent e)
+    {
+        foreach (Transform child in transform)
+        {
+            audioClips.TryGetValue(child.name, out Tuple<AudioClip, string> audioClip);
+            if (audioClip.Item2 == e.eType)
+            {
+                Destroy(child.gameObject);
+            }
+        }
+    }
+
     void StopAllSound(StopSoundAllEvent e)
     {
         foreach (Transform child in transform)
@@ -87,49 +121,26 @@ public class AudioManager : MonoBehaviour, IEventHandler
         }
     }
 
-    Tuple<AudioClip, float> findAudioClip(string clip)
-    {
-        AudioClip audioClip;
-        float volume;
-
-        switch (clip)
-        {
-            case "click":
-                audioClip = click;
-                volume = maxSFXVolume;
-                break;
-            case "wind":
-                audioClip = wind;
-                volume = maxGameplayVolume;
-                break;
-            case "thunder":
-                audioClip = thunder;
-                volume = maxGameplayVolume;
-                break;
-            case "rain":
-                audioClip = rain;
-                volume = maxGameplayVolume;
-                break;
-            case "menu":
-                audioClip = menu;
-                volume = maxMenuVolume;
-                break;
-            default:
-                audioClip = null;
-                volume = 0;
-                break;
-        }
-
-        return new Tuple<AudioClip, float>(audioClip, volume);
-    }
-
     void UpdateSound()
     {
         foreach (Transform child in transform)
         {
             AudioSource audioSource = child.GetComponent<AudioSource>();
-            Tuple<AudioClip, float> audioClip = findAudioClip(child.name);
-            audioSource.volume = audioClip.Item2;
+            audioClips.TryGetValue(child.name, out Tuple<AudioClip, string> audioClip);
+            audioSource.volume = getVolume(audioClip.Item2);
         }
     }
+
+    float getVolume(string type)
+    {
+        foreach (Tuple<string, float> audioType in audioTypes)
+        {
+            if (audioType.Item1 == type)
+            {
+                return audioType.Item2;
+            }
+        }
+
+        return 0;
+    }   
 }

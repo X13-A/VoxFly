@@ -60,6 +60,5 @@ public class BeginTimer : MonoBehaviour
         m_Commentary.enabled = false;
         m_Time = 0;
         EventManager.Instance.Raise(new FinishTimerEvent());
-
     }
 }
