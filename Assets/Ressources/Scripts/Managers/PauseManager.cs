@@ -47,7 +47,7 @@ public class PauseManager : MonoBehaviour, IEventHandler
         EventManager.Instance.Raise(new ResumePlayerEvent());
     }
 
-    void Update()
+    void FixedUpdate()
     {
         if (Input.GetKey(KeyCode.P))
         {
