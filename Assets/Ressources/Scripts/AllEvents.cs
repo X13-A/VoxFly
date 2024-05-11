@@ -48,6 +48,12 @@ public class GamePlayStartEvent : SDD.Events.Event
 
 #endregion
 
+#region PlayerManager Events
+public class PlayerWorldGeneratorEvent : SDD.Events.Event
+{
+}
+#endregion
+
 #region MenuManager Events
 public class EscapeButtonClickedEvent : SDD.Events.Event
 {
@@ -157,7 +163,7 @@ public class PlaneIsInShadowEvent : SDD.Events.Event
 
 public class PlaneStateEvent : SDD.Events.Event
 {
-    public float eBurningRate; // in % from 0 to 100
+    public float eBurningPercent; // in % from 0 to 100
     public float eThrust;
 }
 public class PlaneInformationEvent : SDD.Events.Event
@@ -187,6 +193,11 @@ public class GBufferInitializedEvent : SDD.Events.Event
     public GBuffer gbuffer;
 }
 public class WorldGeneratedEvent : SDD.Events.Event
+{
+    public WorldGenerator generator;
+}
+
+public class GiveWorldGeneratorEvent : SDD.Events.Event
 {
     public WorldGenerator generator;
 }

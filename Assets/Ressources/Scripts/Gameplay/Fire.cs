@@ -10,15 +10,23 @@ public class Fire : MonoBehaviour, IEventHandler
     [SerializeField] private List<GameObject> fireLevel;
 
     bool flag = false;
+    [SerializeField] private float maxBurningRate;
+    private float burningRate;
+
+    void Awake()
+    {
+        maxBurningRate = 500;
+        burningRate = 0;
+    }
 
     public void SubscribeEvents()
     {
-        EventManager.Instance.AddListener<PlaneStateEvent>(StateBurningRate);
+        EventManager.Instance.AddListener<PlaneIsInShadowEvent>(IsInShadow);
     }
 
     public void UnsubscribeEvents()
     {
-        EventManager.Instance.RemoveListener<PlaneStateEvent>(StateBurningRate);
+        EventManager.Instance.RemoveListener<PlaneIsInShadowEvent>(IsInShadow);
     }
 
     void OnEnable()
@@ -39,9 +47,9 @@ public class Fire : MonoBehaviour, IEventHandler
         }
     }
 
-    void StateBurningRate(PlaneStateEvent e)
+    void StateBurningRate(float burningPercent)
     {
-        switch (e.eBurningRate)
+        switch (burningPercent)
         {
             case < 8:
                 break;
@@ -62,9 +70,31 @@ public class Fire : MonoBehaviour, IEventHandler
                 FireUpdate(3);
                 break;
 
+            case >= 100:
+                EventManager.Instance.Raise(new DestroyEvent());
+                break;
+
             default:
                 break;
         }
+    }
+
+    void IsInShadow(PlaneIsInShadowEvent e)
+    {
+        if (e.eIsInShadow)
+        {
+            burningRate -= e.eRayRate;
+        }
+        else
+        {
+            burningRate += e.eRayRate;
+        }
+
+        float burningPercent = (burningRate / maxBurningRate) * 100;
+
+        StateBurningRate(burningPercent);
+
+        EventManager.Instance.Raise(new PlaneStateEvent() { eBurningPercent = burningPercent });
     }
 
     void FireUpdate(int fireNumber)

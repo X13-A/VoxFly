@@ -19,12 +19,12 @@ public class SunBar : MonoBehaviour, IEventHandler
 
     public void SubscribeEvents()
     {
-        EventManager.Instance.AddListener<PlaneIsInShadowEvent>(IsInShadow);
+        EventManager.Instance.AddListener<PlaneStateEvent>(UpdateSlider);
     }
 
     public void UnsubscribeEvents()
     {
-        EventManager.Instance.RemoveListener<PlaneIsInShadowEvent>(IsInShadow);
+        EventManager.Instance.AddListener<PlaneStateEvent>(UpdateSlider);
     }
 
     void OnEnable()
@@ -37,27 +37,10 @@ public class SunBar : MonoBehaviour, IEventHandler
         UnsubscribeEvents();
     }
 
-    void IsInShadow(PlaneIsInShadowEvent e)
+    void UpdateSlider(PlaneStateEvent e)
     {
-        if (e.eIsInShadow)
-        {
-            slider.value -= e.eRayRate;
-        }
-        else
-        {
-            slider.value += e.eRayRate;
-        }
-
+        slider.value = (e.eBurningPercent/100)*slider.maxValue;
         gradient.Evaluate(1f);
         fill.color = gradient.Evaluate(slider.normalizedValue);
-
-        if (slider.value >= maxBurningRate)
-        {
-            EventManager.Instance.Raise(new GameOverEvent());
-        }
-        else
-        {
-            EventManager.Instance.Raise(new PlaneStateEvent() { eBurningRate = slider.value * 100 / slider.maxValue });
-        }
     }   
 }

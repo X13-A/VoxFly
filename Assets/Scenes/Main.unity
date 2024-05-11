@@ -386,7 +386,6 @@ GameObject:
   - component: {fileID: 152044756}
   - component: {fileID: 152044758}
   - component: {fileID: 152044757}
-  - component: {fileID: 152044759}
   m_Layer: 0
   m_Name: Plane
   m_TagString: Untagged
@@ -407,7 +406,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 1309609729}
+  - {fileID: 1399108381}
   - {fileID: 1008087108}
   - {fileID: 1249006721}
   - {fileID: 1391797289}
@@ -814,19 +813,6 @@ MonoBehaviour:
   audioSource: {fileID: 152044757}
   minAudio: 0.08
   maxAudio: 0.55
---- !u!114 &152044759
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 152044751}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8f8e869e680259a45a72b75d330f995c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  PlaneMesh: {fileID: 1399108380}
 --- !u!1 &156264149
 GameObject:
   m_ObjectHideFlags: 0
@@ -4962,7 +4948,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   blades: {fileID: 1031025516}
-  planeCommands: {fileID: 0}
   speedMultiplier: 2000
 --- !u!1 &1052543737 stripped
 GameObject:
@@ -5357,6 +5342,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1205585270}
+  - component: {fileID: 1205585271}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -5383,6 +5369,19 @@ Transform:
   - {fileID: 1265296866}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1205585271
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1205585269}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8f8e869e680259a45a72b75d330f995c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  PlaneMesh: {fileID: 1399108380}
 --- !u!1 &1206620968
 GameObject:
   m_ObjectHideFlags: 0
@@ -5697,8 +5696,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_PlayerObjects:
-  - {fileID: 152044751}
-  - {fileID: 1265296864}
+  - {fileID: 1205585269}
   - {fileID: 798263715}
 --- !u!4 &1249006721 stripped
 Transform:
@@ -5765,7 +5763,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 046d45ea0f0d5b846a6ff7ece8a6a04c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  aircraft: {fileID: 1309609729}
+  aircraft: {fileID: 152044752}
   mouseAim: {fileID: 2100007499}
   cameraRig: {fileID: 358846958}
   cam: {fileID: 1112909375}
@@ -6073,38 +6071,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1177039468}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1309609728
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1309609729}
-  m_Layer: 0
-  m_Name: plane
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1309609729
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1309609728}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: 1, z: -0, w: 0}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 25, y: 25, z: 25}
-  m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 1399108381}
-  m_Father: {fileID: 152044752}
-  m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
 --- !u!1 &1328189669 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 6799697959986224071, guid: 5fe492c3df62d0343aac5ff6d943b69c, type: 3}
@@ -6460,15 +6426,15 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1399108380}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalRotation: {x: -0, y: 1, z: -0, w: 0}
+  m_LocalPosition: {x: 0, y: -0, z: 0}
+  m_LocalScale: {x: 25, y: 25, z: 25}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 806829203}
   - {fileID: 1031025516}
   - {fileID: 598307115}
-  m_Father: {fileID: 1309609729}
+  m_Father: {fileID: 152044752}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1411226937
 GameObject:

@@ -15,12 +15,12 @@ public class Destroy : MonoBehaviour, IEventHandler
 
     public void SubscribeEvents()
     {
-        EventManager.Instance.AddListener<WorldGeneratedEvent>(OnWorldGenerated);
+        EventManager.Instance.AddListener<GiveWorldGeneratorEvent>(OnWorldGenerated);
     }
 
     public void UnsubscribeEvents()
     {
-        EventManager.Instance.RemoveListener<WorldGeneratedEvent>(OnWorldGenerated);
+        EventManager.Instance.RemoveListener<GiveWorldGeneratorEvent>(OnWorldGenerated);
     }
 
     void OnEnable()
@@ -33,7 +33,7 @@ public class Destroy : MonoBehaviour, IEventHandler
         UnsubscribeEvents();
     }
 
-    void OnWorldGenerated(WorldGeneratedEvent e)
+    void OnWorldGenerated(GiveWorldGeneratorEvent e)
     {
         generator = e.generator;
         isGenerated = true;

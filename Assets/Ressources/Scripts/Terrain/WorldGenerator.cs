@@ -45,8 +45,35 @@ public class WorldGenerator : MonoBehaviour
     [SerializeField] private ComputeShader compute;
     private int computeKernel;
 
-
     public bool WorldGenerated { get; private set; }
+
+    #region Events
+    public void SubscribeEvents()
+    {
+        EventManager.Instance.AddListener<PlayerWorldGeneratorEvent>(GiveWorldGenerator);
+    }
+
+    public void UnsubscribeEvents()
+    {
+        EventManager.Instance.RemoveListener<PlayerWorldGeneratorEvent>(GiveWorldGenerator);
+    }
+
+    public void GiveWorldGenerator(PlayerWorldGeneratorEvent e)
+    {
+        EventManager.Instance?.Raise(new GiveWorldGeneratorEvent { generator = this });
+    }
+    #endregion
+
+    private void OnEnable()
+    {
+        SubscribeEvents();
+    }
+
+    private void OnDisable()
+    {
+        UnsubscribeEvents();
+    }
+
     void Start()
     {
         computeKernel = compute.FindKernel("CSMain");

@@ -17,12 +17,12 @@ public class GetPoint : MonoBehaviour, IEventHandler
 
     public void SubscribeEvents()
     {
-        EventManager.Instance.AddListener<WorldGeneratedEvent>(OnGenerated);
+        EventManager.Instance.AddListener<GiveWorldGeneratorEvent>(OnGenerated);
     }
 
     public void UnsubscribeEvents()
     {
-        EventManager.Instance.RemoveListener<WorldGeneratedEvent>(OnGenerated);
+        EventManager.Instance.RemoveListener<GiveWorldGeneratorEvent>(OnGenerated);
     }
 
     void OnEnable()
@@ -35,7 +35,7 @@ public class GetPoint : MonoBehaviour, IEventHandler
         UnsubscribeEvents();
     }
 
-    void OnGenerated(WorldGeneratedEvent e)
+    void OnGenerated(GiveWorldGeneratorEvent e)
     {
         generator = e.generator;
         isGenerated = true;
