@@ -73,7 +73,6 @@ public class WorldGenerator : MonoBehaviour, IEventHandler
         EventManager.Instance.AddListener<RequestWorldGeneratorEvent>(GiveWorldGenerator);
         EventManager.Instance.AddListener<SceneLoadedEvent>(RaiseGeneratedEvent);
     }
-
     public void UnsubscribeEvents()
     {
         EventManager.Instance.RemoveListener<RequestWorldGeneratorEvent>(GiveWorldGenerator);
@@ -83,6 +82,14 @@ public class WorldGenerator : MonoBehaviour, IEventHandler
     public void GiveWorldGenerator(RequestWorldGeneratorEvent e)
     {
         EventManager.Instance?.Raise(new GiveWorldGeneratorEvent { generator = this });
+    }
+    public void RaiseGeneratedEvent()
+    {
+        EventManager.Instance.Raise(new WorldGeneratedEvent { generator = this });
+    }
+    public void RaiseGeneratedEvent(SceneLoadedEvent e)
+    {
+        EventManager.Instance.Raise(new WorldGeneratedEvent { generator = this });
     }
     #endregion
 
@@ -99,6 +106,7 @@ public class WorldGenerator : MonoBehaviour, IEventHandler
     void Start()
     {
         computeKernel = compute.FindKernel("CSMain");
+        RandomizeSeeds();
 
         if (WorldPreset != null && BrickMapPreset != null)
         {
@@ -114,14 +122,16 @@ public class WorldGenerator : MonoBehaviour, IEventHandler
         }
     }
 
-    public void RaiseGeneratedEvent()
+    public void RandomizeSeeds()
     {
-        EventManager.Instance.Raise(new WorldGeneratedEvent { generator = this });
-    }
-
-    public void RaiseGeneratedEvent(SceneLoadedEvent e)
-    {
-        EventManager.Instance.Raise(new WorldGeneratedEvent { generator = this });
+        cavesSeed = (uint)UnityEngine.Random.Range(0, int.MaxValue);
+        coverageSeed = (uint)UnityEngine.Random.Range(0, int.MaxValue);
+        deepTerrainSeed = (uint)UnityEngine.Random.Range(0, int.MaxValue);
+        terrainSeed = (uint)UnityEngine.Random.Range(0, int.MaxValue);
+        UnityEngine.Debug.Log(cavesSeed);
+        UnityEngine.Debug.Log(coverageSeed);
+        UnityEngine.Debug.Log(deepTerrainSeed);
+        UnityEngine.Debug.Log(terrainSeed);
     }
 
     // 50x faster than GenerateTerrain_CPU (RTX 4050, 60W - R9 7940HS, 35W)
