@@ -1317,8 +1317,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   postProcessMaterial: {fileID: 2100000, guid: 05b4be822ba17f84e834a7eea93588a8, type: 2}
-  blurStart: 100
-  blurEnd: 400
+  blurStart: 400
+  blurEnd: 800
   blurScale: 1
 --- !u!1 &509019034
 GameObject:
@@ -1818,6 +1818,161 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 638048928}
   m_Mesh: {fileID: -7921253226492155276, guid: 9b0ca0d3f93a5434ca3bd710fea28190, type: 3}
+--- !u!1 &656928005
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 656928006}
+  - component: {fileID: 656928007}
+  m_Layer: 0
+  m_Name: Water Post Process
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &656928006
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 656928005}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1659971759}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &656928007
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 656928005}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9da9fe60e48d7ad4aadbcd1f9670a6a2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cam: {fileID: 1112909378}
+  postProcessMaterial: {fileID: 2100000, guid: 1759a57d80d643d41925f91b992670eb, type: 2}
+  waterLevel: 9.8
+  waterDensity: 0.25
+  waterColor: {r: 0.14509805, g: 0.38431373, b: 1, a: 1}
+--- !u!1 &666416650
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 666416654}
+  - component: {fileID: 666416653}
+  - component: {fileID: 666416652}
+  - component: {fileID: 666416651}
+  m_Layer: 0
+  m_Name: Ocean
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!64 &666416651
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 666416650}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!23 &666416652
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 666416650}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: 9c49e480aee112e42bad4a3b4b5c5846, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
+--- !u!33 &666416653
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 666416650}
+  m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!4 &666416654
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 666416650}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 100000, y: 100000, z: 100000}
+  m_ConstrainProportionsScale: 1
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &700642253
 GameObject:
   m_ObjectHideFlags: 0
@@ -2399,8 +2554,7 @@ GameObject:
   m_Component:
   - component: {fileID: 818990791}
   - component: {fileID: 818990793}
-  - component: {fileID: 818990792}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Particle Camera
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2422,14 +2576,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1112909375}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!81 &818990792
-AudioListener:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 818990790}
-  m_Enabled: 1
 --- !u!20 &818990793
 Camera:
   m_ObjectHideFlags: 0
@@ -2466,7 +2612,7 @@ Camera:
   field of view: 60
   orthographic: 0
   orthographic size: 5
-  m_Depth: -1
+  m_Depth: 0
   m_CullingMask:
     serializedVersion: 2
     m_Bits: 64
@@ -3326,7 +3472,7 @@ Transform:
   m_GameObject: {fileID: 992712314}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 500, y: 300, z: 502.58}
+  m_LocalPosition: {x: 0, y: 300, z: 2.25}
   m_LocalScale: {x: 10000, y: 100, z: 10000}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3565,7 +3711,7 @@ Transform:
   m_GameObject: {fileID: 1112909374}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.69, z: -1.28}
+  m_LocalPosition: {x: 0, y: 0.5, z: 0.25}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -3587,6 +3733,7 @@ MonoBehaviour:
   processings:
   - {fileID: 1428198782}
   - {fileID: 404103033}
+  - {fileID: 656928007}
   - {fileID: 465660641}
 --- !u!81 &1112909377
 AudioListener:
@@ -3632,7 +3779,7 @@ Camera:
   field of view: 60
   orthographic: 0
   orthographic size: 5
-  m_Depth: 0
+  m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
     m_Bits: 55
@@ -3798,7 +3945,7 @@ Transform:
   m_GameObject: {fileID: 1205585269}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 500, y: 100, z: 500}
+  m_LocalPosition: {x: 0, y: 100, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -4721,23 +4868,31 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   grassDepth: 15
   refresh: 0
-  width: 1000
-  depth: 1000
-  height: 100
+  width: 1024
+  depth: 1024
+  height: 128
+  brickSize: 8
   terrainSeed: 0
-  terrainAmplitude: 20
+  terrainAmplitude: 48
   terrainStartY: 80
-  terrainScale: {x: 50, y: 50}
+  terrainScale: {x: 25, y: 25}
   terrainOffset: {x: 0, y: 0}
   cavesSeed: 0
   offset: {x: 1820, y: -25, z: 0}
   scale: {x: 40, y: 15, z: 40}
-  threshold: 0.5
+  threshold: 0.45
   deepTerrainSeed: 0
-  deepTerrainAmplitude: 20
+  deepTerrainAmplitude: 10
   deepTerrainScale: {x: 20, y: 20}
   deepTerrainOffset: {x: 0, y: 0}
+  coverageSeed: 0
+  coverageScale: {x: 5, y: 5}
+  coverageOffset: {x: 0, y: 0}
+  coverage: 5
+  BrickMapViz: {fileID: 0}
+  WorldViz: {fileID: 0}
   WorldRenderTexture: {fileID: 0}
+  BrickMapRenderTexture: {fileID: 0}
   grassColor: {r: 0.003921569, g: 0, b: 0, a: 1}
   stoneColor: {r: 0.007843138, g: 0, b: 0, a: 1}
   compute: {fileID: 7200000, guid: 59e9808d211cde0459cf13b6080d8a74, type: 3}
@@ -5266,6 +5421,7 @@ Transform:
   - {fileID: 404103032}
   - {fileID: 992712315}
   - {fileID: 465660640}
+  - {fileID: 656928006}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1670558249
@@ -6402,3 +6558,4 @@ SceneRoots:
   - {fileID: 705507995}
   - {fileID: 1454048172}
   - {fileID: 1205585270}
+  - {fileID: 666416654}

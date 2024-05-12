@@ -13,6 +13,7 @@ Shader "Custom/WorldPostProcess"
         {
             ZWrite On
             CGPROGRAM
+            #pragma target 3.0
             #pragma vertex vert
             #pragma fragment frag
             #pragma require 2darray
@@ -234,9 +235,9 @@ Shader "Custom/WorldPostProcess"
                 return blockID;
             }
 
-            // Cmputes ray directions based on a surface normal, used for occlusion
+            // Computes ray directions based on a surface normal, used for occlusion
             float3 getSampleDirection(float3 normal, int sampleIndex, int numSamples) {
-                float phi = 2.61803398875 * sampleIndex; // Use the golden ratio angle increment for better distribution
+                float phi = 2.61803398875 * sampleIndex;
                 float cosTheta = 1.0 - (float(sampleIndex) / numSamples);
                 float sinTheta = sqrt(1.0 - cosTheta * cosTheta);
 
@@ -245,7 +246,7 @@ Shader "Custom/WorldPostProcess"
                 float y = sin(phi) * sinTheta;
                 float z = cosTheta;
 
-                // Align the z-axis with the normal using a simple rotation
+                // Align the z-axis with the normal
                 float3 up = abs(normal.z) < 0.999 ? float3(0, 0, 1) : float3(0, 1, 0);
                 float3 right = normalize(cross(up, normal));
                 up = cross(normal, right);
@@ -277,7 +278,6 @@ Shader "Custom/WorldPostProcess"
                 float3 normal;
             };
 
-            // DEPRECATED
             bool isInShadow_rayMarched(float3 pos, float3 normal, float3 lightDir)
             {
                 float3 startPos = pos;
@@ -388,7 +388,7 @@ Shader "Custom/WorldPostProcess"
                     return lightScattered;
             }
 
-            // This function projects a point onto a plane defined by a normal and a point on the plane
+            // Projects a point onto a plane defined by a normal and a point on the plane
             float3 getIntersectionWithPlane(float3 pos, float3 normal, float3 planePoint)
             {
                 float3 v = pos - planePoint;
@@ -488,8 +488,7 @@ Shader "Custom/WorldPostProcess"
                     return clamp(lightScattered, 0, _LightShaftMaximumValue);
             }
 
-
-            fixed4 frag (v2f i : SV_Depth) : SV_Target
+            float4 frag (v2f i) : SV_Target
             {
                 // Create ray
                 float3 rayPos = _CameraPos;
@@ -505,7 +504,6 @@ Shader "Custom/WorldPostProcess"
                 float depth = tex2D(_DepthTexture, i.uv).r;
                 float3 normal = tex2D(_NormalTexture, i.uv);
                 uint block = round(tex2D(_BlockTexture, i.uv).r);
-
                 bool isBackground = block == 0;
                 float4 worldColor = getBlockColor(block, pos, normal);// * getOutline(pos);
 
@@ -531,10 +529,10 @@ Shader "Custom/WorldPostProcess"
                         return float4(backgroundColor.rgb * light + lightShaft, 1);
                     }
                     return backgroundColor + lightShaft;
-                }
+                } 
 
                 float lightIntensity = computeLighting(pos, normal, lightDir, false);
-                return float4(worldColor.rgb * lightIntensity + lightShaft, worldColor.a) + fogColor * fog;
+                return float4((worldColor.rgb) * lightIntensity + lightShaft, worldColor.a) + fogColor * fog;
             }
 
             ENDCG

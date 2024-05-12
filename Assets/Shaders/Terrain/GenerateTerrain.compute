@@ -28,8 +28,8 @@ float3 _CavesOffset;
 uint _CavesSeed;
 
 float _Coverage;
-float3 _CoverageScale;
-float3 _CoverageOffset;
+float2 _CoverageScale;
+float2 _CoverageOffset;
 uint _CoverageSeed;
 
 // Hash function with seed
@@ -104,6 +104,13 @@ float sampleCoverage(int3 id)
     return res;
 }
 
+float dstFromBorder(float3 pos)
+{
+    float dstX = min(pos.x, abs(_WorldSize.x - pos.x));
+    float dstZ = min(pos.z, abs(_WorldSize.z - pos.z));
+    return min(dstX, dstZ);
+}
+
 [numthreads(8, 8, 8)]
 void CSMain(uint3 id : SV_DispatchThreadID)
 {
@@ -112,23 +119,18 @@ void CSMain(uint3 id : SV_DispatchThreadID)
     
     uint3 brickMapId = id / _BrickSize;
 
-    float islandRadius = 50;
-    float distFromCenter = distance((float2) _WorldSize.xz / 2.0, id.xz);
-
     // Generate terrain surface
     float terrainHeight = get2DNoise(id.x, id.z, _TerrainScale, _TerrainOffset, _TerrainSeed) * _TerrainAmplitude;
     terrainHeight += _ElevationStartY;
 
+    // Sample coverage
     float coverage = sampleCoverage(id) * 3;
     terrainHeight *= coverage;
-    // Lower on the edges of island
-    //terrainHeight *= 1 - saturate(distFromCenter / islandRadius);
-    // Make it a cylinder
-    //if (distFromCenter > islandRadius)
-    //{
-    //    WorldTexture[id] = float4(0, 0, 0, 0);
-    //    return;
-    //}
+
+    // Lower height on edge of map
+    float borderDist = dstFromBorder((float3) id);
+    float borderGradient = pow(saturate(borderDist / 100.0), 4);
+    terrainHeight *= borderGradient;
 
     if (terrainHeight > (float) _WorldSize.y)
     {
@@ -164,13 +166,20 @@ void CSMain(uint3 id : SV_DispatchThreadID)
         }
     }
 
-
     // Generate terrain surface
     float deepTerrainHeight = get2DNoise(id.x, id.z, _DeepTerrainScale, _DeepTerrainOffset, _DeepTerrainSeed) * _DeepTerrainAmplitude;
     deepTerrainHeight *= coverage;
+    deepTerrainHeight *= borderGradient;
 
     // Generate underground terrain layer
     if ((float) id.y < deepTerrainHeight)
+    {
+        color = _GrassColor;
+        BrickMap[brickMapId] = 1;
+    }
+
+    // Fill bottom
+    if ((float) id.y == 0)
     {
         color = _GrassColor;
         BrickMap[brickMapId] = 1;
