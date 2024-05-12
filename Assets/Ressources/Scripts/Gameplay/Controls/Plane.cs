@@ -10,6 +10,7 @@ public class plane : MonoBehaviour
 {
     [Header("Components")]
     [SerializeField] private MouseFlightController controller = null;
+    [SerializeField] private WaterPostProcess waterPostProcess;
 
     [Header("Physics")]
     [Tooltip("Pitch, Yaw, Roll")] public Vector3 turnTorque = new Vector3(90f, 25f, 45f);
@@ -321,6 +322,12 @@ public class plane : MonoBehaviour
         {
             // Diminuer le throttle
             AdjustThrottle(-throttleAdjustmentRate * Time.deltaTime);
+        }
+
+        // Slow down in water
+        if (transform.position.y <= waterPostProcess.WaterLevel)
+        {
+            Throttle = Mathf.Min(Throttle, 0.01f);
         }
 
 
