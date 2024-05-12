@@ -12,10 +12,13 @@ RWTexture2D<float4> _DepthBuffer; // The texture to write the depth
 RWTexture2D<float4> _BlocksBuffer; // The texture to write block ID's
 
 Texture3D<float4> _WorldTexture;
+Texture3D<float4> _BrickMapTexture;
 uint3 _WorldTextureSize;
+uint3 _BrickMapTextureSize;
 
 Texture2D<float> _UnityDepthTexture;
 
+uint _BrickSize;
 float _VoxelRenderDistance;
 float4x4 _InvProjectionMatrix;
 float4x4 _InvViewMatrix;
@@ -43,7 +46,10 @@ rayMarchInfo newRayMarchInfo()
 
 bool isInWorld(float3 pos)
 {
-    return pos.y < (float) _WorldTextureSize.y && pos.y >= 0;
+    bool x = pos.x < (float) _WorldTextureSize.x && pos.x >= 0;
+    bool y = pos.y < (float) _WorldTextureSize.y && pos.y >= 0;
+    bool z = pos.z < (float) _WorldTextureSize.z && pos.z >= 0;
+    return y;
 }
 
 // Sample world using world space coordinates
@@ -58,6 +64,19 @@ uint sampleWorld(float3 pos)
     float4 color = _WorldTexture.Load(float4(texelCoords, 0));
     uint blockID = round(color.r * 255);
     return blockID;
+}
+
+float4 sampleBrickMap(float3 pos)
+{
+    if (!isInWorld(pos))
+    {
+        return 0;
+    }
+
+    float3 uvw = frac(pos / _WorldTextureSize); 
+    uint3 texelCoords = (uint3)(uvw * float3(_BrickMapTextureSize));
+    float4 color = _BrickMapTexture.Load(int4(texelCoords, 0));
+    return color;
 }
 
 float dstToPlane(float3 rayOrigin, float3 rayDir, float planeY)
@@ -140,40 +159,6 @@ float3 getNormal(float3 tMax, float3 step)
     }
 }
 
-bool intersectRaySphere(float3 rayPos, float3 rayDir, float3 sphereCenter, float sphereRadius, float maxRange, out float t)
-{
-    float3 L = sphereCenter - rayPos;
-    float a = dot(rayDir, rayDir); // Should be 1 if direction is normalized
-    float b = 2.0 * dot(rayDir, L);
-    float c = dot(L, L) - sphereRadius * sphereRadius;
-
-    float discriminant = b * b - 4 * a * c;
-
-    if (discriminant < 0) {
-        // No real roots, the ray does not intersect the sphere
-        t = -1.0;
-        return false;
-    }
-
-    // Compute the two roots of the quadratic equation
-    float sqrtDiscriminant = sqrt(discriminant);
-    float t1 = (-b - sqrtDiscriminant) / (2 * a);
-    float t2 = (-b + sqrtDiscriminant) / (2 * a);
-
-    // Find the nearest positive t value that is within the range
-    if (t1 > 0 && t1 <= maxRange) {
-        t = t1;
-        return true;
-    } else if (t2 > 0 && t2 <= maxRange) {
-        t = t2;
-        return true;
-    }
-
-    t = -1.0; // No valid intersection within the range
-    return false;
-}
-
-
 rayMarchInfo rayMarchWorld(float3 startPos, float3 rayDir)
 {
     float2 rayWorldInfo = rayWorldHit(startPos, rayDir);
@@ -189,7 +174,7 @@ rayMarchInfo rayMarchWorld(float3 startPos, float3 rayDir)
     }
     if (dstToWorld > 0)
     {
-        startPos = startPos + rayDir * dstToWorld; // Start at intersection point
+        startPos += rayDir * dstToWorld; // Start at intersection point
     }
     int3 voxelIndex = voxelPos(startPos);
     float3 step = sign(rayDir);
@@ -209,12 +194,101 @@ rayMarchInfo rayMarchWorld(float3 startPos, float3 rayDir)
         else
         {
             float voxelBoundary = voxelIndex[i] + (step[i] > 0 ? 1 : 0);
-            tMax[i] = (voxelBoundary - startPos[i]) / rayDir[i]; 
+            tMax[i] = (voxelBoundary - startPos[i]) / rayDir[i];
             tDelta[i] = abs(1.0 / rayDir[i]);
         }
     }
 
-    float dstToPlayer;
+    float dstLimit = min(_VoxelRenderDistance - dstToWorld, dstInsideWorld + 50); // TODO: +50 is a quick fix, the distInsideWorld calculation was a bit off on the edges. Will investigate when I have time.
+    float dstTravelled = 0;
+
+    int loopCount = 0;
+
+    [loop]
+    while (dstTravelled < dstLimit)
+    {
+        // Check the position for a voxel
+        float epsilon = 0.0001f;  // Smaller, more precise offset
+        float3 rayPos = startPos + rayDir * (dstTravelled) + epsilon * sign(rayDir);    
+        uint blockID = sampleWorld(rayPos);
+
+        // Return the voxel
+        if (blockID > 0)
+        {
+            res.blockID = blockID;
+            res.complexity = loopCount;
+            res.depth = dstToWorld + dstTravelled;
+            res.normal = -getNormal(tMax_old, step);
+            res.pos = rayPos;
+            return res;
+        }
+
+        // Move to the next voxel
+        tMax_old = tMax;
+        if (tMax.x < tMax.y && tMax.x < tMax.z) // Move along x axis
+        {
+            dstTravelled = tMax.x;
+            tMax.x += tDelta.x;
+            voxelIndex.x += step.x;
+        }
+        else if (tMax.y < tMax.z) // Move along y axis
+        {
+            dstTravelled = tMax.y;
+            tMax.y += tDelta.y;
+            voxelIndex.y += step.y;
+        }
+        else
+        {
+            dstTravelled = tMax.z; // Move along z axis
+            tMax.z += tDelta.z;
+            voxelIndex.z += step.z;
+        }
+    }
+
+    res.depth = 1e10;
+    return res;
+}
+
+rayMarchInfo rayMarchBrickMap(float3 startPos, float3 rayDir)
+{
+    float2 rayWorldInfo = rayWorldHit(startPos, rayDir);
+    float dstToWorld = rayWorldInfo.x;
+    float dstInsideWorld = rayWorldInfo.y;
+    rayMarchInfo res = newRayMarchInfo();
+
+    // EXIT EARLY
+    if (dstInsideWorld <= 0) 
+    {
+        res.depth = 1e10;
+        return res;
+    }
+    if (dstToWorld > 0)
+    {
+        startPos += rayDir * dstToWorld; // Start at intersection point
+    }
+    int3 voxelIndex = floor(startPos);
+    float3 step = sign(rayDir);
+    float3 tMax;  // Distance to next voxel boundary
+    float3 tMax_old; // Used to get the normals
+    float3 tDelta;  // How far we travel to cross a voxel
+
+    // Calculate initial tMax and tDelta for each axis
+    [unroll(3)]
+    for (int i = 0; i < 3; i++)
+    { 
+        if (rayDir[i] == 0)
+        {
+            tMax[i] = 1e10;
+            tDelta[i] = 1e10;
+        }
+        else
+        {
+            float voxelBoundary = (floor(voxelIndex[i] / (float) _BrickSize) * _BrickSize + (step[i] > 0 ? _BrickSize : 0));
+            tMax[i] = (voxelBoundary - startPos[i]) / rayDir[i]; 
+            tDelta[i] = abs(1.0 / rayDir[i]) * _BrickSize;
+        }
+    }
+
     float dstLimit = min(_VoxelRenderDistance - dstToWorld, dstInsideWorld + 50); // TODO: +50 is a quick fix, the distInsideWorld calculation was a bit off on the edges. Will investigate when I have time.
     float dstTravelled = 0;
 
@@ -225,13 +299,23 @@ rayMarchInfo rayMarchWorld(float3 startPos, float3 rayDir)
     while (loopCount++ < hardLoopLimit && dstTravelled < dstLimit)
     {
         // Check the position for a voxel
-        float3 rayPos = startPos + rayDir * (dstTravelled + 0.001);
-        uint blockID = sampleWorld(rayPos);
-                    
-        // Return the voxel
-        if (blockID > 0)
+        float epsilon = 0.0001f;  // Smaller, more precise offset
+        float3 rayPos = startPos + rayDir * (dstTravelled) + epsilon * sign(rayDir);    
+        float brickDensity = sampleBrickMap(rayPos).r;
+        
+        //if (dstTravelled > 1)
+        //{
+        //    res.blockID = 1;
+        //    res.complexity = loopCount;
+        //    res.depth = dstToWorld + dstTravelled;
+        //    res.normal = 0;
+        //    res.pos = rayPos;
+        //    return res;
+        //}
+
+        if (brickDensity > 0)
         {
-            res.blockID = blockID;
+            res.blockID = 1;
             res.complexity = loopCount;
             res.depth = dstToWorld + dstTravelled;
             res.normal = -getNormal(tMax_old, step);
@@ -245,19 +329,19 @@ rayMarchInfo rayMarchWorld(float3 startPos, float3 rayDir)
         {
             dstTravelled = tMax.x;
             tMax.x += tDelta.x;
-            voxelIndex.x += step.x;
+            voxelIndex.x += step.x *_BrickSize;
         }
         else if (tMax.y < tMax.z)
         {
             dstTravelled = tMax.y;
             tMax.y += tDelta.y;
-            voxelIndex.y += step.y;
+            voxelIndex.y += step.y *_BrickSize;
         }
         else
         {
             dstTravelled = tMax.z;
             tMax.z += tDelta.z;
-            voxelIndex.z += step.z;
+            voxelIndex.z += step.z *_BrickSize;
         }
     }
 
@@ -265,6 +349,148 @@ rayMarchInfo rayMarchWorld(float3 startPos, float3 rayDir)
     return res;
 }
 
+rayMarchInfo rayMarchWorld_Brickmap(float3 startPos, float3 rayDir)
+{
+    float2 rayWorldInfo = rayWorldHit(startPos, rayDir);
+    float dstToWorld = rayWorldInfo.x;
+    float dstInsideWorld = rayWorldInfo.y;
+    rayMarchInfo res = newRayMarchInfo();
+
+    // EXIT EARLY
+    if (dstInsideWorld <= 0) 
+    {
+        res.depth = 1e10;
+        return res;
+    }
+    if (dstToWorld > 0)
+    {
+        startPos += rayDir * dstToWorld; // Start at intersection point
+    }
+
+    int3 voxelIndex = voxelPos(startPos);
+    float3 step = sign(rayDir);
+    float3 tMax;  // Distance to next voxel or brick boundary
+    float3 tDelta;  // How far we travel to cross a voxel or brick
+    bool isInBrick = false;
+
+    // Initialize tMax and tDelta
+    [unroll(3)]
+    for (int i = 0; i < 3; i++)
+    { 
+        if (rayDir[i] == 0)
+        {
+            tMax[i] = 1e10;
+            tDelta[i] = 1e10;
+        }
+        else
+        {
+            if (sampleBrickMap(startPos).r > 0)
+            {
+                isInBrick = true;
+                float voxelBoundary = floor(voxelIndex[i]) + (step[i] > 0 ? 1 : 0);
+                tMax[i] = (voxelBoundary - startPos[i]) / rayDir[i]; 
+                tDelta[i] = abs(1.0 / rayDir[i]);
+            }
+            else
+            {
+                // Calculate boundaries considering brick size
+                isInBrick = false;
+                float voxelBoundary = floor(voxelIndex[i] / (float) _BrickSize) * _BrickSize + (step[i] > 0 ? _BrickSize : 0);
+                tMax[i] = (voxelBoundary - startPos[i]) / rayDir[i]; 
+                tDelta[i] = abs(1.0 / rayDir[i]) * _BrickSize;
+            }
+        }
+    }
+
+    float3 tMax_old = tMax; // Used for calculating the normals
+    float dstTravelled = 0;
+    float dstLimit = min(_VoxelRenderDistance - dstToWorld, dstInsideWorld + 50);
+    int loopCount = 0;
+    int hardLoopLimit = (int)dstLimit * 2;
+
+    [loop]
+    while (loopCount++ < hardLoopLimit && dstTravelled < dstLimit)
+    {
+        float3 rayPos = startPos + rayDir * (dstTravelled + 0.001);
+        float brickDensity = sampleBrickMap(rayPos).r;
+
+        // Switch to voxel traversal
+        if (brickDensity > 0 && !isInBrick)
+        {
+            isInBrick = true;
+            [unroll(3)]
+            for (int i = 0; i < 3; i++)
+            {
+                tDelta[i] = abs(1.0 / rayDir[i]);
+                float nextBoundary = floor((startPos[i] + rayDir[i] * dstTravelled) / 1.0) + (step[i] > 0 ? 1 : 0);
+                tMax[i] = (nextBoundary - startPos[i]) / rayDir[i];
+            }
+        }
+
+        // Switch to brick traversal
+        else if (brickDensity == 0 && isInBrick)
+        {
+            isInBrick = false;
+            [unroll(3)]
+            for (int i = 0; i < 3; i++)
+            {
+                tDelta[i] = abs(1.0 / rayDir[i]) * _BrickSize;
+                float brickBoundary = floor((startPos[i] + rayDir[i] * dstTravelled) / _BrickSize) * _BrickSize + (step[i] > 0 ? _BrickSize : 0);
+                tMax[i] = (brickBoundary - startPos[i]) / rayDir[i];
+            }
+        }
+
+        // Sample only inside filled bricks
+        if (isInBrick)
+        {
+            uint blockID = sampleWorld(rayPos);
+            if (blockID > 0)
+            {
+                res.blockID = blockID;
+                res.complexity = loopCount;
+                res.depth = dstToWorld + dstTravelled;
+                res.normal = -getNormal(tMax_old, step);
+                res.pos = rayPos;
+                return res; 
+            }
+        }
+
+
+        // Move to the next voxel or brick boundary
+        float minTMax = min(tMax.x, min(tMax.y, tMax.z));
+        dstTravelled += minTMax;
+
+        int multiplier = 1;
+        if (!isInBrick) multiplier = _BrickSize;
+
+        // Determine which axis has the minimum tMax and advance the ray to the next boundary in that axis
+        tMax_old = tMax;
+        if (tMax.x <= tMax.y && tMax.x <= tMax.z)
+        {
+            // Move along the x-axis
+            dstTravelled = tMax.x;
+            tMax.x += tDelta.x;
+            voxelIndex.x += step.x * multiplier;
+        }
+        else if (tMax.y <= tMax.z)
+        {
+            // Move along the y-axis
+            dstTravelled = tMax.y;
+            tMax.y += tDelta.y;
+            voxelIndex.y += step.y * multiplier;
+        }
+        else
+        {
+            // Move along the z-axis
+            dstTravelled = tMax.z;
+            tMax.z += tDelta.z;
+            voxelIndex.z += step.z * multiplier;
+        }
+    }
+
+    res.depth = 1e10;
+    return res;
+}
 
 float3 computeRayDir(float2 uv)
 {    
@@ -289,7 +515,7 @@ void CSMain(uint3 id : SV_DispatchThreadID)
 
     // Raymarch world
     float2 rayWorldInfo = rayWorldHit(rayPos, rayDir);
-    rayMarchInfo rayMarchRes = rayMarchWorld(rayPos, rayDir); 
+    rayMarchInfo rayMarchRes = rayMarchWorld_Brickmap(rayPos, rayDir); 
 
     float unityDepth = computeUnityDepth(id);
     float voxelDepth = rayMarchRes.depth;
@@ -309,7 +535,7 @@ void CSMain(uint3 id : SV_DispatchThreadID)
 
     // Fill buffers
     _BlocksBuffer[id.xy] = float4(blockID, 0, 0, 1);
-    _NormalBuffer[id.xy] = float4(normal, 1);
+    _NormalBuffer[id.xy] = float4(normal, 0);
     _DepthBuffer[id.xy] = combinedDepth;
     _PositionBuffer[id.xy] = float4(pos, 1);
 }

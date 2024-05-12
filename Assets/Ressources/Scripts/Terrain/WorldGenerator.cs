@@ -15,6 +15,9 @@ public class WorldGenerator : MonoBehaviour
     [SerializeField] private int depth = 50;
     [SerializeField] private int height = 50;
 
+    [Header("Optimization parameters")]
+    [SerializeField] private int brickSize = 8;
+
     public Vector3Int Size => new Vector3Int(width, height, depth);
 
     [Header("Terrain parameters")]
@@ -36,26 +39,33 @@ public class WorldGenerator : MonoBehaviour
     [SerializeField] private Vector2 deepTerrainScale = new Vector2(3.33f, 3.33f);
     [SerializeField] private Vector2 deepTerrainOffset = new Vector2();
 
+    [Header("Land coverage parameters")]
+    [SerializeField] private uint coverageSeed;
+    [SerializeField] private Vector2 coverageScale = new Vector2(3.33f, 3.33f);
+    [SerializeField] private Vector2 coverageOffset = new Vector2();
+    [SerializeField] private float coverage = 0.5f;
+
+
     public Texture3D WorldTexture { get; private set; }
+    public Texture3D BrickMapTexture { get; private set; }
+    public int BrickSize => brickSize;
+
+    [SerializeField] private Texture3D BrickMapViz;
+    [SerializeField] private Texture3D WorldViz;
 
     [SerializeField] private RenderTexture WorldRenderTexture;
+    [SerializeField] private RenderTexture BrickMapRenderTexture;
     [SerializeField] private Color grassColor;
     [SerializeField] private Color stoneColor;
 
     [SerializeField] private ComputeShader compute;
     private int computeKernel;
-
-
     public bool WorldGenerated { get; private set; }
+
     void Start()
     {
         computeKernel = compute.FindKernel("CSMain");
         GenerateTerrain_GPU();
-    }
-
-    public void Refresh()
-    {
-        refresh = true;
     }
 
     public void GenerateTerrain_CPU()
@@ -68,6 +78,8 @@ public class WorldGenerator : MonoBehaviour
         WorldTexture = new Texture3D(width, height, depth, TextureFormat.R8, false); // R8 car on a besoin seulement d'un channel, et peu de valeurs différentes.
         WorldTexture.anisoLevel = 0;
         WorldTexture.filterMode = FilterMode.Point;
+        WorldTexture.wrapMode = TextureWrapMode.Clamp;
+
         for (int x = 0; x < width; x++)
         {
             for (int z = 0; z < depth; z++)
@@ -123,7 +135,7 @@ public class WorldGenerator : MonoBehaviour
         stopwatch.Start();
 
         // Create a RenderTexture with 3D support and enable random write
-        RenderTextureDescriptor desc = new RenderTextureDescriptor
+        RenderTextureDescriptor worldDesc = new RenderTextureDescriptor
         {
             width = width,
             height = height,
@@ -136,14 +148,30 @@ public class WorldGenerator : MonoBehaviour
 
         // Create the new texture based on the descriptor
         if (WorldRenderTexture != null) WorldRenderTexture.Release();
-        WorldRenderTexture = new RenderTexture(desc);
+        WorldRenderTexture = new RenderTexture(worldDesc);
         WorldRenderTexture.Create();
+
+        RenderTextureDescriptor brickMapDesc = new RenderTextureDescriptor
+        {
+            width = width / brickSize,
+            height = height / brickSize,
+            volumeDepth = depth / brickSize,
+            dimension = UnityEngine.Rendering.TextureDimension.Tex3D,
+            enableRandomWrite = true,
+            graphicsFormat = UnityEngine.Experimental.Rendering.GraphicsFormat.R8_UNorm,
+            msaaSamples = 1
+        };
+        BrickMapRenderTexture = new RenderTexture(brickMapDesc);
+        BrickMapRenderTexture.Create();
 
         // Bind the texture to the compute shader
         compute.SetTexture(computeKernel, "WorldTexture", WorldRenderTexture);
+        compute.SetTexture(computeKernel, "BrickMap", BrickMapRenderTexture);
 
         // Set uniforms
-        compute.SetInts("_WorldSize", width, height, depth);
+        //int[] worldSize = new int[] { width, height, depth };
+        compute.SetInts("_WorldSize", new int[] { WorldRenderTexture.width, WorldRenderTexture.height, WorldRenderTexture.volumeDepth });
+        compute.SetInts("_BrickSize", brickSize);
         compute.SetFloat("_TerrainAmplitude", terrainAmplitude);
         compute.SetFloat("_ElevationStartY", terrainStartY);
         compute.SetVector("_TerrainScale", new Vector4(terrainScale.x, terrainScale.y, 0, 0));
@@ -163,6 +191,12 @@ public class WorldGenerator : MonoBehaviour
         compute.SetVector("_CavesOffset", offset);
         compute.SetInt("_CavesSeed", (int) cavesSeed);
 
+        // Coverage
+        compute.SetFloat("_Coverage", coverage);
+        compute.SetVector("_CoverageScale", coverageScale);
+        compute.SetVector("_CoverageOffset", coverageOffset);
+        compute.SetInt("_CoverageSeed", (int) coverageSeed);
+
         // Dispatch the compute shader
         int threadGroupsX = Mathf.CeilToInt(width / 8.0f);
         int threadGroupsY = Mathf.CeilToInt(height / 8.0f);
@@ -178,12 +212,20 @@ public class WorldGenerator : MonoBehaviour
         StartCoroutine(RenderingUtils.ConvertRenderTextureToTexture3D(WorldRenderTexture, (Texture3D tex) =>
         {
             WorldTexture = tex;
-            stopwatch.Stop(); // Stop the timer after conversion is complete
-            float conversionTime = (float)stopwatch.Elapsed.TotalSeconds;
-            UnityEngine.Debug.Log($"Conversion done in {conversionTime} seconds!");
+            WorldViz = tex;
             WorldRenderTexture.Release();
-            WorldGenerated = true;
-            EventManager.Instance?.Raise(new WorldGeneratedEvent { generator = this });
+            
+            StartCoroutine(RenderingUtils.ConvertRenderTextureToTexture3D(BrickMapRenderTexture, (Texture3D tex) =>
+            {
+                BrickMapTexture = tex;
+                BrickMapViz = tex;
+                BrickMapRenderTexture.Release();
+                WorldGenerated = true;
+                stopwatch.Stop();
+                float conversionTime = (float)stopwatch.Elapsed.TotalSeconds;
+                UnityEngine.Debug.Log($"Conversion done in {conversionTime} seconds!");
+                EventManager.Instance?.Raise(new WorldGeneratedEvent { generator = this });
+            }));
         }));
     }
 

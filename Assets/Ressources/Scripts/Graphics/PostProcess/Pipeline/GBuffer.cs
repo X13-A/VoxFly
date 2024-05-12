@@ -92,8 +92,11 @@ public class GBuffer : MonoBehaviour, IEventHandler
         shader.SetTexture(kernelHandle, "_DepthBuffer", DepthBuffer);
         shader.SetTexture(kernelHandle, "_BlocksBuffer", BlockBuffer);
         shader.SetTexture(kernelHandle, "_WorldTexture", generator.WorldTexture);
+        shader.SetTexture(kernelHandle, "_BrickMapTexture", generator.BrickMapTexture);
+        shader.SetInt("_BrickSize", generator.BrickSize);
         shader.SetInts("_GBufferSize", new int[] { width, height });
         shader.SetInts("_WorldTextureSize", new int[] { generator.WorldTexture.width, generator.WorldTexture.height, generator.WorldTexture.depth });
+        shader.SetInts("_BrickMapTextureSize", new int[] { generator.BrickMapTexture.width, generator.BrickMapTexture.height, generator.BrickMapTexture.depth });
         Initialized = true;
         EventManager.Instance.Raise(new GBufferInitializedEvent { gbuffer = this });
     }

@@ -1,9 +1,11 @@
 #pragma kernel CSMain
 
 RWTexture3D<float4> WorldTexture;
+RWTexture3D<float4> BrickMap;
 
 // Parameters
 uint3 _WorldSize;
+uint _BrickSize;
 
 float4 _StoneColor;
 float4 _GrassColor;
@@ -20,12 +22,15 @@ float2 _DeepTerrainScale;
 float2 _DeepTerrainOffset;
 uint _DeepTerrainSeed;
 
-
 float _CavesThreshold;
 float3 _CavesScale;
 float3 _CavesOffset;
 uint _CavesSeed;
 
+float _Coverage;
+float3 _CoverageScale;
+float3 _CoverageOffset;
+uint _CoverageSeed;
 
 // Hash function with seed
 uint hash(uint x, uint seed) 
@@ -92,15 +97,43 @@ float get3DNoise(float x, float y, float z, float3 scale, float3 offset, uint se
     return (ab + bc + ac + ba + cb + ca) / 6.0f;
 }
 
+float sampleCoverage(int3 id)
+{
+    float res = get2DNoise((float) id.x, (float) id.z, _CoverageScale, _CoverageOffset, _CoverageSeed);
+    res = saturate(res - (1 - _Coverage));
+    return res;
+}
+
 [numthreads(8, 8, 8)]
 void CSMain(uint3 id : SV_DispatchThreadID)
 {
     // Check if in bounds
     if (id.x >= _WorldSize.x || id.y >= _WorldSize.y || id.z >= _WorldSize.z) return;
     
+    uint3 brickMapId = id / _BrickSize;
+
+    float islandRadius = 50;
+    float distFromCenter = distance((float2) _WorldSize.xz / 2.0, id.xz);
+
     // Generate terrain surface
     float terrainHeight = get2DNoise(id.x, id.z, _TerrainScale, _TerrainOffset, _TerrainSeed) * _TerrainAmplitude;
     terrainHeight += _ElevationStartY;
+
+    float coverage = sampleCoverage(id) * 3;
+    terrainHeight *= coverage;
+    // Lower on the edges of island
+    //terrainHeight *= 1 - saturate(distFromCenter / islandRadius);
+    // Make it a cylinder
+    //if (distFromCenter > islandRadius)
+    //{
+    //    WorldTexture[id] = float4(0, 0, 0, 0);
+    //    return;
+    //}
+
+    if (terrainHeight > (float) _WorldSize.y)
+    {
+        terrainHeight = _WorldSize.y - terrainHeight % _WorldSize.y;
+    }
 
     // Get current block
     float4 color;
@@ -118,6 +151,7 @@ void CSMain(uint3 id : SV_DispatchThreadID)
         {
             color = _StoneColor;
         }
+        BrickMap[brickMapId] = 1;
     }
 
     // Generate caves
@@ -133,12 +167,14 @@ void CSMain(uint3 id : SV_DispatchThreadID)
 
     // Generate terrain surface
     float deepTerrainHeight = get2DNoise(id.x, id.z, _DeepTerrainScale, _DeepTerrainOffset, _DeepTerrainSeed) * _DeepTerrainAmplitude;
+    deepTerrainHeight *= coverage;
 
     // Generate underground terrain layer
     if ((float) id.y < deepTerrainHeight)
     {
         color = _GrassColor;
+        BrickMap[brickMapId] = 1;
     }
 
     WorldTexture[id] = color;
-}
+} 

@@ -46,7 +46,11 @@ Shader"Custom/CloudsPostProcess"
                 return o;
             }
 
-            sampler2D _MainTex;
+            sampler2D _CameraDepthTexture; // Unity depth
+            sampler2D _MainTex; // Background
+            
+            // G-Buffer
+            int _UseGBuffer;
             sampler2D _DepthTexture;
             sampler2D _PositionTexture;
 
@@ -273,10 +277,17 @@ Shader"Custom/CloudsPostProcess"
 
                 // Compute depth
                 // Depth and cloud container intersection info:
-                //float nonlin_depth = SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, i.uv);
-                //float depthDist = LinearEyeDepth(nonlin_depth) * viewLength;
-                float depthDist = tex2D(_DepthTexture, i.uv);
-    	        float3 worldPos = tex2D(_PositionTexture, i.uv);
+                float depthDist;
+                if (_UseGBuffer == 1)
+                {
+                    depthDist = tex2D(_DepthTexture, i.uv);
+                }
+                else
+                {
+                    depthDist = SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, i.uv);
+                    depthDist = LinearEyeDepth(depthDist) * viewLength;
+                }
+
                 // Calculate dist inside box	
 	            float2 rayBoxInfo = rayBoxDst(rayPos, rayDir);
 	            float dstToBox = rayBoxInfo.x;
@@ -292,6 +303,7 @@ Shader"Custom/CloudsPostProcess"
                 float shadow = 1;
                 if (depthDist < _ShadowDist)
                 {
+    	            float3 worldPos = tex2D(_PositionTexture, i.uv);
                     shadow = sampleShadow(worldPos, lightDir);
                     shadow /= 50;
                     shadow *= _ShadowIntensity;

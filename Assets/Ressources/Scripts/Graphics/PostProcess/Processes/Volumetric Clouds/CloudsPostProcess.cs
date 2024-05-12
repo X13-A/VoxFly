@@ -24,6 +24,7 @@ public class CloudsPostProcess : PostProcessBase
     [SerializeField] private Vector2 coverageOffset = new Vector2();
     [SerializeField] private Vector2 coverageSpeed= new Vector2();
     [SerializeField] [Range(0, 1)] private float coverage = 1;
+    public float Coverage { get { return coverage; } set { coverage = value; } }
 
     [Header("Lighting paramaters")]
     [SerializeField] private Vector3 phaseParams = new Vector3(0.8f, 0, 0.7f); // Y parameter useless right now
@@ -93,10 +94,15 @@ public class CloudsPostProcess : PostProcessBase
     {
         container.transform.position = new Vector3(cam.transform.position.x, container.transform.position.y, cam.transform.position.z);
 
-        if (gBuffer.Initialized)
+        if (gBuffer != null && gBuffer.Initialized)
         {
             postProcessMaterial.SetTexture("_DepthTexture", gBuffer.DepthBuffer);
             postProcessMaterial.SetTexture("_PositionTexture", gBuffer.PositionBuffer);
+            postProcessMaterial.SetInt("_UseGBuffer", 1);
+        }
+        else
+        {
+            postProcessMaterial.SetInt("_UseGBuffer", 0);
         }
 
         postProcessMaterial.SetFloat("_CustomTime", Time.time);
@@ -152,7 +158,7 @@ public class CloudsPostProcess : PostProcessBase
 
     public override void Apply(RenderTexture source, RenderTexture dest)
     {
-        if (gBuffer != null && postProcessMaterial != null && Camera.current != null)
+        if (postProcessMaterial != null && Camera.current != null)
         {
             SetUniforms();
             Graphics.Blit(source, dest, postProcessMaterial);
