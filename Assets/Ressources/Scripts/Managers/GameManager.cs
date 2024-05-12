@@ -16,6 +16,7 @@ public class GameManager : MonoBehaviour, IEventHandler
     public bool IsPlaying => m_State == GAMESTATE.play;
 
     public int m_Score;
+    public int Score {  get { return m_Score; } }
 
     void Awake()
     {
@@ -138,7 +139,6 @@ public class GameManager : MonoBehaviour, IEventHandler
     void GameOver()
     {
         UpdateScores();
-        SetScore(0);
         SetState(GAMESTATE.gameover);
     }
 

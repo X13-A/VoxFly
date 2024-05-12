@@ -4885,6 +4885,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   loseObjects: {fileID: 742070451}
+  scoreText: {fileID: 508139703}
 --- !u!1 &949541539
 GameObject:
   m_ObjectHideFlags: 0
