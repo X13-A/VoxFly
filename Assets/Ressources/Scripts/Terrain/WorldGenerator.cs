@@ -155,12 +155,16 @@ public class WorldGenerator : MonoBehaviour
     }
 
     // 50x faster than GenerateTerrain_CPU (RTX 4050, 60W - R9 7940HS, 35W)
-    public void GenerateTerrain_GPU()
+    public void GenerateTerrain_GPU(bool log = false)
     {
         WorldGenerated = false;
-        UnityEngine.Debug.Log("Starting world generation (GPU)...");
+
         Stopwatch stopwatch = new Stopwatch();
         stopwatch.Start();
+        if (log)
+        {
+            UnityEngine.Debug.Log("Starting world generation (GPU)...");
+        }
 
         // Create a RenderTexture with 3D support and enable random write
         RenderTextureDescriptor worldDesc = new RenderTextureDescriptor
@@ -231,11 +235,14 @@ public class WorldGenerator : MonoBehaviour
         int threadGroupsZ = Mathf.CeilToInt(depth / 8.0f);
         compute.Dispatch(computeKernel, threadGroupsX, threadGroupsY, threadGroupsZ);
 
-        stopwatch.Stop(); // Stop the timer after compute shader dispatch
-        float generationTime = (float)stopwatch.Elapsed.TotalSeconds;
-        UnityEngine.Debug.Log($"World generated in {generationTime} seconds, converting it to readable Texture3D...");
-
+        stopwatch.Stop();
+        if (log)
+        {
+            float generationTime = (float)stopwatch.Elapsed.TotalSeconds;
+            UnityEngine.Debug.Log($"World generated in {generationTime} seconds, converting it to readable Texture3D...");
+        }
         stopwatch.Restart();
+
         // Convert RenderTexture to Texture3D.
         StartCoroutine(RenderingUtils.ConvertRenderTextureToTexture3D(WorldRenderTexture, (Texture3D tex) =>
         {
@@ -250,8 +257,11 @@ public class WorldGenerator : MonoBehaviour
                 BrickMapRenderTexture.Release();
                 WorldGenerated = true;
                 stopwatch.Stop();
-                float conversionTime = (float)stopwatch.Elapsed.TotalSeconds;
-                UnityEngine.Debug.Log($"Conversion done in {conversionTime} seconds!");
+                if (log)
+                {
+                    float conversionTime = (float)stopwatch.Elapsed.TotalSeconds;
+                    UnityEngine.Debug.Log($"Conversion done in {conversionTime} seconds!");
+                }
                 EventManager.Instance?.Raise(new WorldGeneratedEvent { generator = this });
             }));
         }));

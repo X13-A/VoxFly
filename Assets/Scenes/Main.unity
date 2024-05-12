@@ -427,6 +427,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   directionalLight: {fileID: 705507995}
   cloudsPostProcess: {fileID: 404103033}
+  waterPostProcess: {fileID: 488864615}
 --- !u!114 &152044754
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -702,6 +703,7 @@ MonoBehaviour:
   - {fileID: 1052543737}
   - {fileID: 1539549525}
   - {fileID: 1359353134}
+  maxBurningRate: 0
 --- !u!82 &152044757
 AudioSource:
   m_ObjectHideFlags: 0
@@ -1821,6 +1823,55 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 414240361}
   m_Mesh: {fileID: -8517211419980355960, guid: 9b0ca0d3f93a5434ca3bd710fea28190, type: 3}
+--- !u!1 &488864613
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 488864614}
+  - component: {fileID: 488864615}
+  m_Layer: 0
+  m_Name: Water Post Process
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &488864614
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 488864613}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1659971759}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &488864615
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 488864613}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9da9fe60e48d7ad4aadbcd1f9670a6a2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cam: {fileID: 1112909378}
+  postProcessMaterial: {fileID: 2100000, guid: 1759a57d80d643d41925f91b992670eb, type: 2}
+  waterLevel: 19.8
+  waterDensity: 0.25
+  waterColor: {r: 0.14509805, g: 0.38431373, b: 1, a: 1}
 --- !u!1 &509019034
 GameObject:
   m_ObjectHideFlags: 0
@@ -5071,6 +5122,8 @@ MonoBehaviour:
   processings:
   - {fileID: 1428198782}
   - {fileID: 404103033}
+  - {fileID: 488864615}
+  - {fileID: 1224701480}
 --- !u!20 &1112909378
 Camera:
   m_ObjectHideFlags: 0
@@ -5359,7 +5412,7 @@ Transform:
   m_GameObject: {fileID: 1205585269}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 500, y: 100, z: 500}
+  m_LocalPosition: {x: 500, y: 50, z: 500}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -5519,6 +5572,54 @@ Canvas:
   m_SortingLayerID: 0
   m_SortingOrder: 0
   m_TargetDisplay: 0
+--- !u!1 &1224701478
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1224701479}
+  - component: {fileID: 1224701480}
+  m_Layer: 0
+  m_Name: Depth Of Field Post Process
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1224701479
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1224701478}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1659971759}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1224701480
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1224701478}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7cf330812e8a69b4b9b6e26b36369d40, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  postProcessMaterial: {fileID: 2100000, guid: 05b4be822ba17f84e834a7eea93588a8, type: 2}
+  blurStart: 400
+  blurEnd: 800
+  blurScale: 1
 --- !u!1 &1235045771
 GameObject:
   m_ObjectHideFlags: 0
@@ -6776,23 +6877,31 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   grassDepth: 15
   refresh: 0
-  width: 1000
-  depth: 1000
-  height: 100
+  width: 1024
+  depth: 1024
+  height: 128
+  brickSize: 8
   terrainSeed: 0
-  terrainAmplitude: 20
-  terrainStartY: 80
-  terrainScale: {x: 50, y: 50}
+  terrainAmplitude: 50
+  terrainStartY: 100
+  terrainScale: {x: 25, y: 25}
   terrainOffset: {x: 0, y: 0}
   cavesSeed: 0
   offset: {x: 1820, y: -25, z: 0}
-  scale: {x: 20, y: 20, z: 20}
-  threshold: 0.5
+  scale: {x: 40, y: 15, z: 40}
+  threshold: 0.45
   deepTerrainSeed: 0
-  deepTerrainAmplitude: 20
+  deepTerrainAmplitude: 10
   deepTerrainScale: {x: 20, y: 20}
   deepTerrainOffset: {x: 0, y: 0}
+  coverageSeed: 0
+  coverageScale: {x: 5, y: 5}
+  coverageOffset: {x: 0, y: 0}
+  coverage: 0.5
+  BrickMapViz: {fileID: 0}
+  WorldViz: {fileID: 0}
   WorldRenderTexture: {fileID: 0}
+  BrickMapRenderTexture: {fileID: 0}
   grassColor: {r: 0.003921569, g: 0, b: 0, a: 1}
   stoneColor: {r: 0.007843138, g: 0, b: 0, a: 1}
   compute: {fileID: 7200000, guid: 59e9808d211cde0459cf13b6080d8a74, type: 3}
@@ -7462,6 +7571,8 @@ Transform:
   - {fileID: 1493215951}
   - {fileID: 404103032}
   - {fileID: 992712315}
+  - {fileID: 488864614}
+  - {fileID: 1224701479}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1670558249
