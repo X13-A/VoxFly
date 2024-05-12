@@ -46,6 +46,11 @@ public class GamePlayStartEvent : SDD.Events.Event
 {
 }
 
+public class SceneLoadedEvent : SDD.Events.Event
+{
+    public int scene;
+}
+
 #endregion
 
 #region PlayerManager Events

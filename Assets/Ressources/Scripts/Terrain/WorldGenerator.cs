@@ -1,15 +1,16 @@
 using Palmmedia.ReportGenerator.Core;
 using SDD.Events;
 using System;
+using System.Collections;
 using System.Diagnostics;
 using Unity.VisualScripting;
+using UnityEditor;
 using UnityEngine;
 
-public class WorldGenerator : MonoBehaviour
+public class WorldGenerator : MonoBehaviour, IEventHandler
 {
     [Header("General parameters")]
     [SerializeField] private float grassDepth = 3;
-    [SerializeField] private bool refresh;
 
     [SerializeField] private int width = 50;
     [SerializeField] private int depth = 50;
@@ -50,11 +51,14 @@ public class WorldGenerator : MonoBehaviour
     public Texture3D BrickMapTexture { get; private set; }
     public int BrickSize => brickSize;
 
+    [SerializeField] private Texture3D BrickMapPreset;
+    [SerializeField] private Texture3D WorldPreset;
+
     [SerializeField] private Texture3D BrickMapViz;
     [SerializeField] private Texture3D WorldViz;
 
-    [SerializeField] private RenderTexture WorldRenderTexture;
-    [SerializeField] private RenderTexture BrickMapRenderTexture;
+    private RenderTexture WorldRenderTexture;
+    private RenderTexture BrickMapRenderTexture;
     [SerializeField] private Color grassColor;
     [SerializeField] private Color stoneColor;
 
@@ -67,11 +71,13 @@ public class WorldGenerator : MonoBehaviour
     public void SubscribeEvents()
     {
         EventManager.Instance.AddListener<PlayerWorldGeneratorEvent>(GiveWorldGenerator);
+        EventManager.Instance.AddListener<SceneLoadedEvent>(RaiseGeneratedEvent);
     }
 
     public void UnsubscribeEvents()
     {
         EventManager.Instance.RemoveListener<PlayerWorldGeneratorEvent>(GiveWorldGenerator);
+        EventManager.Instance.RemoveListener<SceneLoadedEvent>(RaiseGeneratedEvent);
     }
 
     public void GiveWorldGenerator(PlayerWorldGeneratorEvent e)
@@ -93,69 +99,33 @@ public class WorldGenerator : MonoBehaviour
     void Start()
     {
         computeKernel = compute.FindKernel("CSMain");
-        GenerateTerrain_GPU();
+
+        if (WorldPreset != null && BrickMapPreset != null)
+        {
+            WorldTexture = WorldPreset;
+            BrickMapTexture = BrickMapPreset;
+            WorldViz = WorldPreset;
+            BrickMapViz = BrickMapPreset;
+            RaiseGeneratedEvent();
+        }
+        else
+        {
+            StartCoroutine(GenerateTerrain_GPU());
+        }
     }
 
-    public void GenerateTerrain_CPU()
+    public void RaiseGeneratedEvent()
     {
-        WorldGenerated = false;
-        UnityEngine.Debug.Log("Starting world generation (CPU)...");
-        Stopwatch stopwatch = new Stopwatch();
-        stopwatch.Start();
+        EventManager.Instance.Raise(new WorldGeneratedEvent { generator = this });
+    }
 
-        WorldTexture = new Texture3D(width, height, depth, TextureFormat.R8, false); // R8 car on a besoin seulement d'un channel, et peu de valeurs diff�rentes.
-        WorldTexture.anisoLevel = 0;
-        WorldTexture.filterMode = FilterMode.Point;
-        WorldTexture.wrapMode = TextureWrapMode.Clamp;
-
-        for (int x = 0; x < width; x++)
-        {
-            for (int z = 0; z < depth; z++)
-            {
-                float currentHeight = terrainStartY + Get2DNoise(x, z, terrainScale, terrainOffset) * terrainAmplitude;
-
-                // S'arr�te d�s qu'on atteint la hauteur actuelle pour ne pas g�n�rer des grottes au dessus du terrain
-                for (int y = 0; y < height; y++)
-                {
-                    if (y >= currentHeight)
-                    {
-                        WorldTexture.SetPixel(x, y, z, Color.clear);
-                        continue;
-                    }
-
-                    float noise = Get3DNoise(x, y, z, scale, offset);
-                    Color colorUsed = Mathf.Abs(currentHeight - y) < grassDepth ? grassColor : stoneColor;
-                    if (noise > threshold)
-                    {
-                        WorldTexture.SetPixel(x, y, z, colorUsed);
-                        continue;
-                    }
-                    WorldTexture.SetPixel(x, y, z, Color.clear);
-                }
-            }
-        }
-
-        // Fill bottom
-        for (int x = 0; x < width; x++)
-        {
-            for (int z = 0; z < depth; z++)
-            {
-                WorldTexture.SetPixel(x, 0, z, stoneColor);
-                WorldTexture.SetPixel(x, 1, z, stoneColor);
-                WorldTexture.SetPixel(x, 2, z, stoneColor);
-            }
-        }
-
-        stopwatch.Stop(); // Stop the timer after compute shader dispatch
-        float generationTime = (float)stopwatch.Elapsed.TotalSeconds;
-        UnityEngine.Debug.Log($"World generated in {generationTime} seconds (CPU).");
-
-        WorldTexture.Apply();
-        WorldGenerated = true;
+    public void RaiseGeneratedEvent(SceneLoadedEvent e)
+    {
+        EventManager.Instance.Raise(new WorldGeneratedEvent { generator = this });
     }
 
     // 50x faster than GenerateTerrain_CPU (RTX 4050, 60W - R9 7940HS, 35W)
-    public void GenerateTerrain_GPU(bool log = false)
+    public IEnumerator GenerateTerrain_GPU(Action callback = null, bool log = false)
     {
         WorldGenerated = false;
 
@@ -249,6 +219,7 @@ public class WorldGenerator : MonoBehaviour
             WorldTexture = tex;
             WorldViz = tex;
             WorldRenderTexture.Release();
+            //AssetDatabase.CreateAsset(tex, "Assets/IslandWorld.asset");
             
             StartCoroutine(RenderingUtils.ConvertRenderTextureToTexture3D(BrickMapRenderTexture, (Texture3D tex) =>
             {
@@ -256,17 +227,26 @@ public class WorldGenerator : MonoBehaviour
                 BrickMapViz = tex;
                 BrickMapRenderTexture.Release();
                 WorldGenerated = true;
-                stopwatch.Stop();
-                if (log)
-                {
-                    float conversionTime = (float)stopwatch.Elapsed.TotalSeconds;
-                    UnityEngine.Debug.Log($"Conversion done in {conversionTime} seconds!");
-                }
-                EventManager.Instance?.Raise(new WorldGeneratedEvent { generator = this });
+                //AssetDatabase.CreateAsset(tex, "Assets/IslandWorld_BrickMap.asset");
             }));
         }));
+        
+        while (!WorldGenerated)
+        {
+            yield return null;
+        }
+
+        stopwatch.Stop();
+        if (log)
+        {
+            float conversionTime = (float)stopwatch.Elapsed.TotalSeconds;
+            UnityEngine.Debug.Log($"Conversion done in {conversionTime} seconds!");
+        }
+        RaiseGeneratedEvent();
+        callback?.Invoke();
     }
 
+    #region CPU generation
     public static float Get2DNoise(float x, float z, Vector2 scale, Vector2 offset)
     {
         Vector2 adjustedScale = new Vector3(scale.x, scale.y) / 983.3546789f; // Pour �viter les valeurs enti�res qui sont toujours les m�mes avec Mathf.PerlinNoise
@@ -288,6 +268,68 @@ public class WorldGenerator : MonoBehaviour
         return abc / 6f;
     }
 
+    public void GenerateTerrain_CPU()
+    {
+        WorldGenerated = false;
+        UnityEngine.Debug.Log("Starting world generation (CPU)...");
+        Stopwatch stopwatch = new Stopwatch();
+        stopwatch.Start();
+
+        WorldTexture = new Texture3D(width, height, depth, TextureFormat.R8, false); // R8 car on a besoin seulement d'un channel, et peu de valeurs diff�rentes.
+        WorldTexture.anisoLevel = 0;
+        WorldTexture.filterMode = FilterMode.Point;
+        WorldTexture.wrapMode = TextureWrapMode.Clamp;
+
+        for (int x = 0; x < width; x++)
+        {
+            for (int z = 0; z < depth; z++)
+            {
+                float currentHeight = terrainStartY + Get2DNoise(x, z, terrainScale, terrainOffset) * terrainAmplitude;
+
+                // S'arr�te d�s qu'on atteint la hauteur actuelle pour ne pas g�n�rer des grottes au dessus du terrain
+                for (int y = 0; y < height; y++)
+                {
+                    if (y >= currentHeight)
+                    {
+                        WorldTexture.SetPixel(x, y, z, Color.clear);
+                        continue;
+                    }
+
+                    float noise = Get3DNoise(x, y, z, scale, offset);
+                    Color colorUsed = Mathf.Abs(currentHeight - y) < grassDepth ? grassColor : stoneColor;
+                    if (noise > threshold)
+                    {
+                        WorldTexture.SetPixel(x, y, z, colorUsed);
+                        continue;
+                    }
+                    WorldTexture.SetPixel(x, y, z, Color.clear);
+                }
+            }
+        }
+
+        // Fill bottom
+        for (int x = 0; x < width; x++)
+        {
+            for (int z = 0; z < depth; z++)
+            {
+                WorldTexture.SetPixel(x, 0, z, stoneColor);
+                WorldTexture.SetPixel(x, 1, z, stoneColor);
+                WorldTexture.SetPixel(x, 2, z, stoneColor);
+            }
+        }
+
+        stopwatch.Stop(); // Stop the timer after compute shader dispatch
+        float generationTime = (float)stopwatch.Elapsed.TotalSeconds;
+        UnityEngine.Debug.Log($"World generated in {generationTime} seconds (CPU).");
+
+        WorldTexture.Apply();
+        WorldGenerated = true;
+        RaiseGeneratedEvent();
+    }
+
+    #endregion
+    
+    #region sample
     public bool IsInWorld(Vector3 pos)
     {
         return pos.y < WorldTexture.height && pos.y >= 0;
@@ -299,23 +341,13 @@ public class WorldGenerator : MonoBehaviour
         {
             return 0;
         }
-        Color res = WorldTexture.GetPixel((int) pos.x, (int) pos.y, (int) pos.z);
+        Color res = WorldTexture.GetPixel((int)pos.x, (int)pos.y, (int)pos.z);
         if (res.a == 0) return 0;
 
-        int blockID = (int) Mathf.Round(res.r * 255); 
+        int blockID = (int)Mathf.Round(res.r * 255);
         return blockID;
     }
 
-    private void Update()
-    {
-        if (refresh || Input.GetKeyDown(KeyCode.R))
-        {
-            GenerateTerrain_GPU();
-            refresh = false;
-        }
-    }
-
-    #region sample methods
     public struct RayWorldIntersectionInfo
     {
         public float dstToWorld;
@@ -492,6 +524,7 @@ public class WorldGenerator : MonoBehaviour
     }
 
     #endregion
+    
     #region edit
     private Vector3Int GetGridPos(Vector3 pos)
     {

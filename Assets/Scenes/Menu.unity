@@ -1175,7 +1175,7 @@ MonoBehaviour:
   m_Transition: 1
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_HighlightedColor: {r: 0.6117647, g: 0.5882353, b: 0.5882353, a: 1}
     m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
     m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
     m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
@@ -1514,6 +1514,79 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 440460680}
   m_CullTransparentMesh: 1
+--- !u!1 &467814380
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 467814381}
+  - component: {fileID: 467814382}
+  m_Layer: 0
+  m_Name: World Generator
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &467814381
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 467814380}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -542.8544, y: -268.46494, z: 0.54138184}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 582978744}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &467814382
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 467814380}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 58df6255bdca75f4f81b37a64a0ec18c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  grassDepth: 15
+  width: 1024
+  depth: 1024
+  height: 128
+  brickSize: 8
+  terrainSeed: 0
+  terrainAmplitude: 50
+  terrainStartY: 100
+  terrainScale: {x: 25, y: 25}
+  terrainOffset: {x: 0, y: 0}
+  cavesSeed: 0
+  offset: {x: 1820, y: -25, z: 0}
+  scale: {x: 40, y: 15, z: 40}
+  threshold: 0.45
+  deepTerrainSeed: 0
+  deepTerrainAmplitude: 10
+  deepTerrainScale: {x: 20, y: 20}
+  deepTerrainOffset: {x: 0, y: 0}
+  coverageSeed: 0
+  coverageScale: {x: 5, y: 5}
+  coverageOffset: {x: 0, y: 0}
+  coverage: 0.5
+  BrickMapPreset: {fileID: 0}
+  WorldPreset: {fileID: 0}
+  BrickMapViz: {fileID: 0}
+  WorldViz: {fileID: 0}
+  grassColor: {r: 0.003921569, g: 0, b: 0, a: 1}
+  stoneColor: {r: 0.007843138, g: 0, b: 0, a: 1}
+  compute: {fileID: 7200000, guid: 59e9808d211cde0459cf13b6080d8a74, type: 3}
 --- !u!1 &482300687
 GameObject:
   m_ObjectHideFlags: 0
@@ -2269,6 +2342,7 @@ Transform:
   - {fileID: 1427798643}
   - {fileID: 1822449106}
   - {fileID: 841268512}
+  - {fileID: 467814381}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &601178088

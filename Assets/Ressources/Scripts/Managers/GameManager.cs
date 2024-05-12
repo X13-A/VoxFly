@@ -107,7 +107,11 @@ public class GameManager : MonoBehaviour, IEventHandler
 
     void InitGame()
     {
-        SceneManager.LoadSceneAsync(1);
+        AsyncOperation loading = SceneManager.LoadSceneAsync(1);
+        loading.completed += (AsyncOperation operation) => 
+        {
+            EventManager.Instance.Raise(new SceneLoadedEvent { scene = 1 }); 
+        };
         SetScore(0);
     }
 
