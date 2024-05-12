@@ -55,7 +55,7 @@ public class PlayerManager : MonoBehaviour, IEventHandler
     void EnablePlayer(GamePlayStartEvent e)
     {
         SetActiveObjects(true);
-        EventManager.Instance.Raise(new PlayerWorldGeneratorEvent());
+        EventManager.Instance.Raise(new RequestWorldGeneratorEvent());
     }
 
     void PausePlayer(PausePlayerEvent e)

@@ -70,17 +70,17 @@ public class WorldGenerator : MonoBehaviour, IEventHandler
     #region Events
     public void SubscribeEvents()
     {
-        EventManager.Instance.AddListener<PlayerWorldGeneratorEvent>(GiveWorldGenerator);
+        EventManager.Instance.AddListener<RequestWorldGeneratorEvent>(GiveWorldGenerator);
         EventManager.Instance.AddListener<SceneLoadedEvent>(RaiseGeneratedEvent);
     }
 
     public void UnsubscribeEvents()
     {
-        EventManager.Instance.RemoveListener<PlayerWorldGeneratorEvent>(GiveWorldGenerator);
+        EventManager.Instance.RemoveListener<RequestWorldGeneratorEvent>(GiveWorldGenerator);
         EventManager.Instance.RemoveListener<SceneLoadedEvent>(RaiseGeneratedEvent);
     }
 
-    public void GiveWorldGenerator(PlayerWorldGeneratorEvent e)
+    public void GiveWorldGenerator(RequestWorldGeneratorEvent e)
     {
         EventManager.Instance?.Raise(new GiveWorldGeneratorEvent { generator = this });
     }

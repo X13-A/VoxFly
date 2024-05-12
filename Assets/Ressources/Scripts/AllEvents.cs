@@ -54,7 +54,7 @@ public class SceneLoadedEvent : SDD.Events.Event
 #endregion
 
 #region PlayerManager Events
-public class PlayerWorldGeneratorEvent : SDD.Events.Event
+public class RequestWorldGeneratorEvent : SDD.Events.Event
 {
 }
 #endregion
