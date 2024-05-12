@@ -39,6 +39,8 @@ public class plane : MonoBehaviour
     private bool rollOverride = false;
     private bool pitchOverride = false;
 
+    private bool isInWater;
+
     private bool regulatorActivate;
     public bool RegulatorActivate { set { regulatorActivate = value; } get { return regulatorActivate; } }
 
@@ -230,7 +232,7 @@ public class plane : MonoBehaviour
         // Calculer la poussée actuelle en fonction du throttle
         // Throttle varie entre 0 et 1, donc on mappe cette valeur à l'intervalle [minThrust, maxThrust]
         float currentThrust = Mathf.Lerp(minThrust, maxThrust, Throttle);
-        EventManager.Instance.Raise(new PlaneStateEvent() { eThrust = currentThrust });
+        EventManager.Instance.Raise(new PlaneStateEvent() { eIsInWater = isInWater, eThrust = currentThrust });
 
         // Appliquer la poussée
         rigid.AddRelativeForce(Vector3.forward * currentThrust, ForceMode.Force);
@@ -327,7 +329,12 @@ public class plane : MonoBehaviour
         // Slow down in water
         if (transform.position.y <= waterPostProcess.WaterLevel)
         {
+            isInWater = true;
             Throttle = Mathf.Min(Throttle, 0.01f);
+        }
+        else
+        {
+            isInWater = false;
         }
 
 

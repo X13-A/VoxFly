@@ -128,10 +128,6 @@ public class WorldGenerator : MonoBehaviour, IEventHandler
         coverageSeed = (uint)UnityEngine.Random.Range(0, int.MaxValue);
         deepTerrainSeed = (uint)UnityEngine.Random.Range(0, int.MaxValue);
         terrainSeed = (uint)UnityEngine.Random.Range(0, int.MaxValue);
-        UnityEngine.Debug.Log(cavesSeed);
-        UnityEngine.Debug.Log(coverageSeed);
-        UnityEngine.Debug.Log(deepTerrainSeed);
-        UnityEngine.Debug.Log(terrainSeed);
     }
 
     // 50x faster than GenerateTerrain_CPU (RTX 4050, 60W - R9 7940HS, 35W)

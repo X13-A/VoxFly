@@ -52,15 +52,25 @@ public class PlaneSound : MonoBehaviour, IEventHandler
 
     void Thrusting(PlaneStateEvent e)
     {
-        if (e.eThrust != 0) UpdateVolume(e.eThrust);
+        if (e.eThrust != 0) UpdateVolume(e.eThrust, e.eIsInWater);
     }
 
-    public void UpdateVolume(float currentThrust)
+    public void UpdateVolume(float currentThrust, bool isInWater = false)
     {
         float normalizedThrust = (currentThrust - minThrust) / (maxThrust - minThrust);
         float volume = normalizedThrust * (maxAudio - minAudio) + minAudio;
 
         volume = Mathf.Clamp(volume, minAudio, maxAudio);
         audioSource.volume = volume;
+
+        if (isInWater)
+        {
+            audioSource.volume = Mathf.Max(audioSource.volume, 0.3f);
+            audioSource.pitch = 0.4f;
+        }
+        else
+        {
+            audioSource.pitch = 1f;
+        }
     }
 }

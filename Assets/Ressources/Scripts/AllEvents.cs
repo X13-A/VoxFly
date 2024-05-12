@@ -170,6 +170,7 @@ public class PlaneStateEvent : SDD.Events.Event
 {
     public float eBurningPercent; // in % from 0 to 100
     public float eThrust;
+    public bool eIsInWater;
 }
 public class PlaneInformationEvent : SDD.Events.Event
 {
