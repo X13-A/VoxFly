@@ -14,19 +14,19 @@ public class SunBurn : MonoBehaviour, IEventHandler
     private WorldGenerator generator;
 
     #region Events
-    private void OnWorldGenerated(WorldGeneratedEvent e)
+    private void OnWorldGenerated(GiveWorldGeneratorEvent e)
     {
         generator = e.generator;
     }
 
     public void SubscribeEvents()
     {
-        EventManager.Instance.AddListener<WorldGeneratedEvent>(OnWorldGenerated);
+        EventManager.Instance.AddListener<GiveWorldGeneratorEvent>(OnWorldGenerated);
     }
 
     public void UnsubscribeEvents()
     {
-        EventManager.Instance.RemoveListener<WorldGeneratedEvent>(OnWorldGenerated);
+        EventManager.Instance.RemoveListener<GiveWorldGeneratorEvent>(OnWorldGenerated);
     }
     #endregion
 

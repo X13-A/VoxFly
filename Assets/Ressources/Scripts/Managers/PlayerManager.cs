@@ -6,20 +6,27 @@ using SDD.Events;
 public class PlayerManager : MonoBehaviour, IEventHandler
 {
     [SerializeField]
-    GameObject m_PlayerObject;
+    List<GameObject> m_PlayerObjects;
 
-    public void Awake()
+    public void Start()
     {
+        SetActiveObjects(false);
     }
 
     public void SubscribeEvents()
     {
         EventManager.Instance.AddListener<DisablePlayerEvent>(DisablePlayer);
+        EventManager.Instance.AddListener<GamePlayStartEvent>(EnablePlayer);
+        EventManager.Instance.AddListener<PausePlayerEvent>(PausePlayer);
+        EventManager.Instance.AddListener<ResumePlayerEvent>(ResumePlayer);
     }
 
     public void UnsubscribeEvents()
     {
         EventManager.Instance.RemoveListener<DisablePlayerEvent>(DisablePlayer);
+        EventManager.Instance.RemoveListener<GamePlayStartEvent>(EnablePlayer);
+        EventManager.Instance.RemoveListener<PausePlayerEvent>(PausePlayer);
+        EventManager.Instance.RemoveListener<ResumePlayerEvent>(ResumePlayer);
     }
 
     void OnEnable()
@@ -31,18 +38,33 @@ public class PlayerManager : MonoBehaviour, IEventHandler
         UnsubscribeEvents();
     }
 
+    void SetActiveObjects(bool b)
+    {
+        foreach (var obj in m_PlayerObjects)
+        {
+            obj.SetActive(b);
+        }
+    }
+
     void DisablePlayer(DisablePlayerEvent e)
     {
-        m_PlayerObject.SetActive(false);
+        SetActiveObjects(false);
     }
 
-    void EnablePlayer()
+
+    void EnablePlayer(GamePlayStartEvent e)
     {
-        m_PlayerObject.SetActive(true);
+        SetActiveObjects(true);
+        EventManager.Instance.Raise(new PlayerWorldGeneratorEvent());
     }
 
-    void Pause()
+    void PausePlayer(PausePlayerEvent e)
     {
+        SetActiveObjects(false);
+    }
 
+    void ResumePlayer(ResumePlayerEvent e)
+    {
+        SetActiveObjects(true);
     }
 }

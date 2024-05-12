@@ -37,6 +37,21 @@ public class GameStatisticsChangedEvent : SDD.Events.Event
 public class DisablePlayerEvent : SDD.Events.Event
 {
 }
+public class UpdateGameScoreEvent : SDD.Events.Event
+{
+    public float score { get; set; }
+}
+
+public class GamePlayStartEvent : SDD.Events.Event
+{
+}
+
+#endregion
+
+#region PlayerManager Events
+public class PlayerWorldGeneratorEvent : SDD.Events.Event
+{
+}
 #endregion
 
 #region MenuManager Events
@@ -87,20 +102,49 @@ public class UpdateScoresTextEvent : SDD.Events.Event
 public class PauseButtonClickedEvent : SDD.Events.Event
 {
 }
+public class PausePlayerEvent : SDD.Events.Event
+{
+}
+public class ResumePlayerEvent : SDD.Events.Event
+{
+}
+#endregion
+
+#region BeginTimer Events
+public class FinishTimerEvent : SDD.Events.Event
+{
+}
 #endregion
 
 #region AudioManager Events
 public class SoundMixEvent : SDD.Events.Event
 {
     public float eSFXVolume;
-    public float eBackgroundVolume;
-    public float ePlaneVolume;
+    public float eGameplayVolume;
+    public float eMenuVolume;
 }
 
-public class SoundMuteEvent : SDD.Events.Event
+#region player events
+public class PlaySoundEvent : SDD.Events.Event
+{
+    public string eNameClip;
+    public bool eLoop;
+}
+
+public class StopSoundEvent : SDD.Events.Event
+{
+    public string eNameClip;
+}
+public class StopSoundAllEvent : SDD.Events.Event
 {
     public bool eMute;
 }
+
+public class StopSoundByTypeEvent : SDD.Events.Event
+{
+    public string eType; // Check audioTypes list in AudioManager
+}
+#endregion
 #endregion
 
 #region Enemy Event
@@ -119,13 +163,17 @@ public class PlaneIsInShadowEvent : SDD.Events.Event
 
 public class PlaneStateEvent : SDD.Events.Event
 {
-    public float eBurningRate; // in % from 0 to 100
+    public float eBurningPercent; // in % from 0 to 100
     public float eThrust;
 }
 public class PlaneInformationEvent : SDD.Events.Event
 {
     public float eMinThrust;
     public float eMaxThrust;
+}
+public class PlaneInitializedEvent : SDD.Events.Event
+{
+    public plane plane;
 }
 #endregion
 
@@ -145,6 +193,11 @@ public class GBufferInitializedEvent : SDD.Events.Event
     public GBuffer gbuffer;
 }
 public class WorldGeneratedEvent : SDD.Events.Event
+{
+    public WorldGenerator generator;
+}
+
+public class GiveWorldGeneratorEvent : SDD.Events.Event
 {
     public WorldGenerator generator;
 }

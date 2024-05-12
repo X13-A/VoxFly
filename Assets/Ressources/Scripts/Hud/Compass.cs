@@ -46,7 +46,10 @@ public class Compass : MonoBehaviour
     List<Tick> ticks;
     List<Text> tickText;
     new Camera camera;
-    Transform planeTransform;
+
+    [SerializeField]
+    GameObject planeObject;
+    private Transform planeTransform;
     List<Graphic> graphics;
 
     void Start()
@@ -54,6 +57,7 @@ public class Compass : MonoBehaviour
         transform = GetComponent<RectTransform>();
         ticks = new List<Tick>();
         tickText = new List<Text>();
+        planeTransform = planeObject.transform;
 
         for (int i = 0; i < 360; i++)
         {
@@ -71,11 +75,6 @@ public class Compass : MonoBehaviour
     public void SetCamera(Camera camera)
     {
         this.camera = camera;
-    }
-
-    public void SetPlane(plane plane)
-    {
-        planeTransform = plane.GetComponent<Transform>();
     }
 
     public void UpdateColor(Color color)

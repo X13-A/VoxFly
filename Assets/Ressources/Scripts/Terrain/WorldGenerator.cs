@@ -31,7 +31,7 @@ public class WorldGenerator : MonoBehaviour
     [SerializeField] private uint cavesSeed;
     [SerializeField] private Vector3 offset = new Vector3();
     [SerializeField] private Vector3 scale = new Vector3(3.33f, 3.33f, 3.33f);
-    [SerializeField] private float threshold = 0.5f; // Seuil pour la génération des grottes
+    [SerializeField] private float threshold = 0.5f; // Seuil pour la gï¿½nï¿½ration des grottes
 
     [Header("Deep terrain parameters")]
     [SerializeField] private uint deepTerrainSeed;
@@ -60,7 +60,35 @@ public class WorldGenerator : MonoBehaviour
 
     [SerializeField] private ComputeShader compute;
     private int computeKernel;
+
     public bool WorldGenerated { get; private set; }
+
+    #region Events
+    public void SubscribeEvents()
+    {
+        EventManager.Instance.AddListener<PlayerWorldGeneratorEvent>(GiveWorldGenerator);
+    }
+
+    public void UnsubscribeEvents()
+    {
+        EventManager.Instance.RemoveListener<PlayerWorldGeneratorEvent>(GiveWorldGenerator);
+    }
+
+    public void GiveWorldGenerator(PlayerWorldGeneratorEvent e)
+    {
+        EventManager.Instance?.Raise(new GiveWorldGeneratorEvent { generator = this });
+    }
+    #endregion
+
+    private void OnEnable()
+    {
+        SubscribeEvents();
+    }
+
+    private void OnDisable()
+    {
+        UnsubscribeEvents();
+    }
 
     void Start()
     {
@@ -75,7 +103,7 @@ public class WorldGenerator : MonoBehaviour
         Stopwatch stopwatch = new Stopwatch();
         stopwatch.Start();
 
-        WorldTexture = new Texture3D(width, height, depth, TextureFormat.R8, false); // R8 car on a besoin seulement d'un channel, et peu de valeurs différentes.
+        WorldTexture = new Texture3D(width, height, depth, TextureFormat.R8, false); // R8 car on a besoin seulement d'un channel, et peu de valeurs diffï¿½rentes.
         WorldTexture.anisoLevel = 0;
         WorldTexture.filterMode = FilterMode.Point;
         WorldTexture.wrapMode = TextureWrapMode.Clamp;
@@ -86,7 +114,7 @@ public class WorldGenerator : MonoBehaviour
             {
                 float currentHeight = terrainStartY + Get2DNoise(x, z, terrainScale, terrainOffset) * terrainAmplitude;
 
-                // S'arrète dès qu'on atteint la hauteur actuelle pour ne pas générer des grottes au dessus du terrain
+                // S'arrï¿½te dï¿½s qu'on atteint la hauteur actuelle pour ne pas gï¿½nï¿½rer des grottes au dessus du terrain
                 for (int y = 0; y < height; y++)
                 {
                     if (y >= currentHeight)
@@ -231,13 +259,13 @@ public class WorldGenerator : MonoBehaviour
 
     public static float Get2DNoise(float x, float z, Vector2 scale, Vector2 offset)
     {
-        Vector2 adjustedScale = new Vector3(scale.x, scale.y) / 983.3546789f; // Pour éviter les valeurs entières qui sont toujours les mêmes avec Mathf.PerlinNoise
+        Vector2 adjustedScale = new Vector3(scale.x, scale.y) / 983.3546789f; // Pour ï¿½viter les valeurs entiï¿½res qui sont toujours les mï¿½mes avec Mathf.PerlinNoise
         return Mathf.PerlinNoise(offset.x + x * adjustedScale.x, offset.y + z * adjustedScale.y);
     }
 
     public static float Get3DNoise(float x, float y, float z, Vector3 scale, Vector3 offset)
     {
-        Vector3 adjustedScale = new Vector3(scale.x, scale.y, scale.z) / 983.3546789f; // Pour éviter les valeurs entières qui sont toujours les mêmes avec Mathf.PerlinNoise
+        Vector3 adjustedScale = new Vector3(scale.x, scale.y, scale.z) / 983.3546789f; // Pour ï¿½viter les valeurs entiï¿½res qui sont toujours les mï¿½mes avec Mathf.PerlinNoise
         float ab = Mathf.PerlinNoise(offset.x + x * adjustedScale.x, offset.y + y * adjustedScale.y);
         float bc = Mathf.PerlinNoise(offset.y + y * adjustedScale.y, offset.z + z * adjustedScale.z);
         float ac = Mathf.PerlinNoise(offset.x + x * adjustedScale.x, offset.z + z * adjustedScale.z);

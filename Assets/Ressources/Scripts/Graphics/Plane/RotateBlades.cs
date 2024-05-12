@@ -1,12 +1,37 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using SDD.Events;
 
 public class RotateBlades : MonoBehaviour
 {
     [SerializeField] private Transform blades;
-    [SerializeField] private plane planeCommands;
+    private plane planeCommands;
     [SerializeField] private float speedMultiplier = 2000;
+
+    public void SubscribeEvents()
+    {
+        EventManager.Instance.AddListener<PlaneInitializedEvent>(AttachPlane);
+    }
+
+    public void UnsubscribeEvents()
+    {
+        EventManager.Instance.RemoveListener<PlaneInitializedEvent>(AttachPlane);
+    }
+
+    void OnEnable()
+    {
+        SubscribeEvents();
+    }
+    void OnDisable()
+    {
+        UnsubscribeEvents();
+    }
+
+    void AttachPlane(PlaneInitializedEvent e)
+    {
+        planeCommands = e.plane;
+    }
 
     void Update()
     {

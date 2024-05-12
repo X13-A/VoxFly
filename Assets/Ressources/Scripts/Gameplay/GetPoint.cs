@@ -17,12 +17,12 @@ public class GetPoint : MonoBehaviour, IEventHandler
 
     public void SubscribeEvents()
     {
-        EventManager.Instance.AddListener<WorldGeneratedEvent>(OnGenerated);
+        EventManager.Instance.AddListener<GiveWorldGeneratorEvent>(OnGenerated);
     }
 
     public void UnsubscribeEvents()
     {
-        EventManager.Instance.RemoveListener<WorldGeneratedEvent>(OnGenerated);
+        EventManager.Instance.RemoveListener<GiveWorldGeneratorEvent>(OnGenerated);
     }
 
     void OnEnable()
@@ -35,7 +35,7 @@ public class GetPoint : MonoBehaviour, IEventHandler
         UnsubscribeEvents();
     }
 
-    void OnGenerated(WorldGeneratedEvent e)
+    void OnGenerated(GiveWorldGeneratorEvent e)
     {
         generator = e.generator;
         isGenerated = true;
@@ -43,7 +43,6 @@ public class GetPoint : MonoBehaviour, IEventHandler
 
     void Start()
     {
-        updateScore(0);
     }
 
     void Update()
@@ -53,7 +52,7 @@ public class GetPoint : MonoBehaviour, IEventHandler
         foreach (GameObject obj in colliders)
         {
             int points = GetColliderPoint(obj);
-            if (points > 0) updateScore(points);
+            if (points > 0) UpdateScore(points);
         }
     }
 
@@ -90,8 +89,8 @@ public class GetPoint : MonoBehaviour, IEventHandler
         return points;
     }
 
-    void updateScore(int points)
+    void UpdateScore(int points)
     {
-        scoreText.text = "Score: " + GameManager.Instance?.IncrementScore(points);
+        GameManager.Instance.IncrementScore(points);
     }
 }
