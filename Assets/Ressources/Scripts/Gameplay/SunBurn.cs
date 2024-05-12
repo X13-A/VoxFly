@@ -115,7 +115,7 @@ public class SunBurn : MonoBehaviour, IEventHandler
 
         if (result)
         {
-            EventManager.Instance.Raise(new PlaneIsInShadowEvent() { eIsInShadow = false, eRayRate = resultIntensity });
+            EventManager.Instance.Raise(new PlaneIsInShadowEvent() { eIsInShadow = false, eRayRate = resultIntensity / 4.0f});
         }
         else
         {
