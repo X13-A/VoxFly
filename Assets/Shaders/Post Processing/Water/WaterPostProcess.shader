@@ -159,17 +159,15 @@ Shader"Custom/WaterPostProcess"
                 return 0;
             }
 
-
-            float getLighting(float3 pos, float3 rayDir, float3 lightDir, bool isSurface)
+            float getLighting(float3 pos, float3 rayDir, float3 lightDir, bool useSpecular)
             {
-
                 float3 L = -lightDir; // Light direction, from surface to light
                 float3 N = float3(0, 1, 0);
                 float diffuse = saturate(dot(L, N));
     
                 float specular = 0;
                 
-                if (isSurface)
+                if (useSpecular)
                 {
                     float3 V = -rayDir; // View direction, from surface to camera
                     float3 H = normalize(L + V); // Halfway vector
@@ -179,7 +177,7 @@ Shader"Custom/WaterPostProcess"
                     specular = pow(max(dot(N, H), 0.0), shininess) * specularStrength;
                 }
 
-                return 0.0125 + diffuse + specular;
+                return (0.0125 + diffuse + specular);
             }
 
             fixed4 frag(v2f i) : SV_Target
@@ -235,6 +233,12 @@ Shader"Custom/WaterPostProcess"
                 float distortionScale = 2.0;
                 float2 distortedUV = sin(pos.xz * distortionScale + float2(_Time.y, _Time.y)) * waterDensity; 
                 float distortionStrength = 0.1 * (0.2 / depth);
+                if (rayPos.y > _WaterLevel) 
+                {
+                    distortionScale *= 4;
+                    distortionStrength *= 4;
+                }
+
                 float4 background = tex2D(_MainTex, i.uv + distortedUV * distortionStrength);
 
                 float4 finalWaterColor = _WaterColor * light * (1 - transmittance) * (1 - foam);

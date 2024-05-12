@@ -18,6 +18,11 @@ public class WaterPostProcess : PostProcessBase
     [SerializeField] private float waterDensity;
     [SerializeField] private Color waterColor;
 
+    public float WaterLevel => waterLevel;
+    public float WaterDensity => waterDensity;
+    public Color WaterColor => waterColor;
+
+
     public Texture3D WorldTexture => generator.WorldTexture;
     private GBuffer gBuffer;
     private WorldGenerator generator;

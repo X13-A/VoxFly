@@ -10,6 +10,7 @@ public class SunBurn : MonoBehaviour, IEventHandler
 {
     [SerializeField] private Transform directionalLight;
     [SerializeField] private CloudsPostProcess cloudsPostProcess;
+    [SerializeField] private WaterPostProcess waterPostProcess;
 
     private WorldGenerator generator;
 
@@ -99,6 +100,13 @@ public class SunBurn : MonoBehaviour, IEventHandler
     void Update()
     {
         if (generator == null) return;
+
+        // Refill when in water
+        if (waterPostProcess && transform.position.y <= waterPostProcess.WaterLevel)
+        {
+            EventManager.Instance.Raise(new PlaneIsInShadowEvent() { eIsInShadow = true, eRayRate = 10f });
+            return;
+        }
 
         float maxCoverage = 75;
         float resultIntensity = maxCoverage - Mathf.Clamp(CloudCoverage(transform.position, -directionalLight.forward), 0, maxCoverage);
