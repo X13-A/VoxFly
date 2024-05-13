@@ -3916,7 +3916,7 @@ VideoPlayer:
   m_DirectAudioMutes: 00
   m_ControlledAudioTrackCount: 1
   m_PlayOnAwake: 0
-  m_SkipOnDrop: 0
+  m_SkipOnDrop: 1
   m_Looping: 0
   m_WaitForFirstFrame: 1
   m_FrameReadyEventEnabled: 0
@@ -7012,7 +7012,7 @@ MonoBehaviour:
   cavesSeed: 0
   offset: {x: 1820, y: -25, z: 0}
   scale: {x: 40, y: 15, z: 40}
-  threshold: 0.45
+  threshold: 0.48
   deepTerrainSeed: 0
   deepTerrainAmplitude: 10
   deepTerrainScale: {x: 20, y: 20}

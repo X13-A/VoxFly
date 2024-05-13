@@ -24,7 +24,7 @@ public class SunBar : MonoBehaviour, IEventHandler
 
     public void UnsubscribeEvents()
     {
-        EventManager.Instance.AddListener<PlaneStateEvent>(UpdateSlider);
+        EventManager.Instance.RemoveListener<PlaneStateEvent>(UpdateSlider);
     }
 
     void OnEnable()
