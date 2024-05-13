@@ -143,7 +143,7 @@ public class Hud : MonoBehaviour
 
         float newYPosition = terrainImage.transform.position.y + (planeAltitude / cloudAltitude) * (cloudImage.transform.position.y - terrainImage.transform.position.y);
         //Debug.Log("planeAltitude : " + planeAltitude + " - ImagePos : " + newYPosition);
-        this.altitude.text = string.Format("{0:0}", planeAltitude);
+        this.altitude.text = string.Format("{0:0} m", planeAltitude);
         Vector3 newPosition = new Vector3(planeImage.transform.position.x, newYPosition, planeImage.transform.position.z);
         planeImage.transform.position = newPosition;
     }
