@@ -309,12 +309,11 @@ public class plane : MonoBehaviour
             pitchOverride = true;
             rollOverride = true;
         }
-        if (Input.GetKey(KeyCode.R))
+        if (Input.GetKeyDown(KeyCode.R))
         {
             if (!regulatorActivate) regulatorActivate = true;
         }
-
-        if (Input.GetKey(KeyCode.Space))
+        else if (Input.GetKey(KeyCode.Space))
         {
             // Augmenter le throttle
             if (regulatorActivate) regulatorActivate = false;
