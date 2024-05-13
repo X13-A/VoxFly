@@ -3915,10 +3915,10 @@ VideoPlayer:
   m_EnabledAudioTracks: 01
   m_DirectAudioMutes: 00
   m_ControlledAudioTrackCount: 1
-  m_PlayOnAwake: 1
-  m_SkipOnDrop: 1
+  m_PlayOnAwake: 0
+  m_SkipOnDrop: 0
   m_Looping: 0
-  m_WaitForFirstFrame: 0
+  m_WaitForFirstFrame: 1
   m_FrameReadyEventEnabled: 0
   m_VideoShaders: []
 --- !u!4 &833854507
@@ -10042,6 +10042,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   loseObjects: {fileID: 1157154655}
   scoreText: {fileID: 1688478937}
+  video: {fileID: 833854506}
 --- !u!114 &2050886725
 MonoBehaviour:
   m_ObjectHideFlags: 0
