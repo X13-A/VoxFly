@@ -7,6 +7,8 @@ public class PlayerManager : MonoBehaviour, IEventHandler
 {
     [SerializeField]
     List<GameObject> m_PlayerObjects;
+    [SerializeField]
+    GameObject blackScreen;
 
     public void Start()
     {
@@ -49,12 +51,14 @@ public class PlayerManager : MonoBehaviour, IEventHandler
     void DisablePlayer(DisablePlayerEvent e)
     {
         SetActiveObjects(false);
+        blackScreen?.SetActive(true);
     }
 
 
     void EnablePlayer(GamePlayStartEvent e)
     {
         SetActiveObjects(true);
+        blackScreen?.SetActive(false);
         EventManager.Instance.Raise(new RequestWorldGeneratorEvent());
     }
 

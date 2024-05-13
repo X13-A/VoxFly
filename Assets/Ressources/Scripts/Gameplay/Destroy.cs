@@ -45,7 +45,7 @@ public class Destroy : MonoBehaviour, IEventHandler
         {
             foreach (GameObject obj in colliders)
             {
-                if (IsInTexture(obj))
+                if (CollidesWithTerrain(obj))
                 {
                     EventManager.Instance.Raise(new DestroyEvent());
                     break;
@@ -54,7 +54,7 @@ public class Destroy : MonoBehaviour, IEventHandler
         }
     }
 
-    bool IsInTexture(GameObject obj)
+    bool CollidesWithTerrain(GameObject obj)
     {
         BoxCollider boxCollider = obj.GetComponent<BoxCollider>();
 
