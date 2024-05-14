@@ -47,6 +47,10 @@ public class SceneLoadedEvent : SDD.Events.Event
 {
     public int scene;
 }
+public class UpdateScoreEvent : SDD.Events.Event
+{
+    public int score;
+}
 
 #endregion
 
@@ -95,14 +99,6 @@ public class ScoreButtonClickedEvent : SDD.Events.Event
 #endregion
 
 #region ScoreManager Events
-public class UpdateScoreEvent : SDD.Events.Event
-{
-	public int score;
-    public UpdateScoreEvent(int score)
-    {
-        this.score = score;
-    }
-}
 public class UpdateScoresTextEvent : SDD.Events.Event
 {
 }

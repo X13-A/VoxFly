@@ -145,7 +145,7 @@ public class GameManager : MonoBehaviour, IEventHandler
 
     void UpdateScores()
     {
-        EventManager.Instance.Raise(new UpdateScoreEvent(m_Score));
+        EventManager.Instance.Raise(new UpdateScoreEvent { score = m_Score; });
     }
 
     void Pause()
