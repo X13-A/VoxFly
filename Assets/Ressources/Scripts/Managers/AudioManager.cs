@@ -38,7 +38,12 @@ public class AudioManager : MonoBehaviour, IEventHandler
             { "menu", Tuple.Create(menu, "menu") }
         };
 
-        /* /!\ Add all audio types to the lists /!\ */
+        /* /!\ Add all audio types to the lists in UpdateVolumeList() function /!\ */
+        UpdateVolumeList();
+    }
+
+    void UpdateVolumeList()
+    {
         audioTypes = new List<Tuple<string, float>>()
         {
             Tuple.Create("sfx", maxSFXVolume),
@@ -80,6 +85,8 @@ public class AudioManager : MonoBehaviour, IEventHandler
         maxSFXVolume = e.eSFXVolume;
         maxGameplayVolume = e.eGameplayVolume;
         maxMenuVolume = e.eMenuVolume;
+
+        UpdateVolumeList();
         UpdateSound();
     }
 
@@ -125,7 +132,7 @@ public class AudioManager : MonoBehaviour, IEventHandler
     {
         foreach (Transform child in transform)
         {
-            AudioSource audioSource = child.GetComponent<AudioSource>();
+             AudioSource audioSource = child.GetComponent<AudioSource>();
             audioClips.TryGetValue(child.name, out Tuple<AudioClip, string> audioClip);
             audioSource.volume = getVolume(audioClip.Item2);
         }

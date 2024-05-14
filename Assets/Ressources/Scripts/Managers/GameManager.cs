@@ -130,6 +130,7 @@ public class GameManager : MonoBehaviour, IEventHandler
     {
         InitGame();
         SetState(GAMESTATE.play);
+        EventManager.Instance.Raise(new StopSoundEvent() { eNameClip = "menu" });
     }
 
     void Victory()
