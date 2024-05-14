@@ -49,7 +49,7 @@ public class SceneLoadedEvent : SDD.Events.Event
 }
 public class UpdateScoreEvent : SDD.Events.Event
 {
-    public int score;
+    public int score { get; set; }
 }
 
 #endregion
