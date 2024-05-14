@@ -34,9 +34,6 @@ public class GameStatisticsChangedEvent : SDD.Events.Event
 	public int eScore { get; set; }
 	public float eCountDown { get; set; }
 }
-public class DisablePlayerEvent : SDD.Events.Event
-{
-}
 public class UpdateGameScoreEvent : SDD.Events.Event
 {
     public float score { get; set; }
@@ -55,6 +52,14 @@ public class SceneLoadedEvent : SDD.Events.Event
 
 #region PlayerManager Events
 public class RequestWorldGeneratorEvent : SDD.Events.Event
+{
+}
+
+public class PlayerExplosedEvent : SDD.Events.Event
+{
+}
+
+public class ExplosionEvent : SDD.Events.Event
 {
 }
 #endregion

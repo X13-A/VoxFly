@@ -46,7 +46,7 @@ public class GameManager : MonoBehaviour, IEventHandler
         EventManager.Instance.AddListener<QuitButtonClickedEvent>(QuitButtonClicked);
         EventManager.Instance.AddListener<SettingsButtonClickedEvent>(SettingsButtonClicked);
         EventManager.Instance.AddListener<ScoreButtonClickedEvent>(ScoreButtonClicked);
-        EventManager.Instance.AddListener<DestroyEvent>(Destroy);
+        EventManager.Instance.AddListener<PlayerExplosedEvent>(PlayerExplosed);
         EventManager.Instance.AddListener<PauseButtonClickedEvent>(PauseButtonClicked);
         EventManager.Instance.AddListener<FinishTimerEvent>(FinishTimer);
     }
@@ -59,7 +59,7 @@ public class GameManager : MonoBehaviour, IEventHandler
         EventManager.Instance.RemoveListener<QuitButtonClickedEvent>(QuitButtonClicked);
         EventManager.Instance.RemoveListener<SettingsButtonClickedEvent>(SettingsButtonClicked);
         EventManager.Instance.RemoveListener<ScoreButtonClickedEvent>(ScoreButtonClicked);
-        EventManager.Instance.RemoveListener<DestroyEvent>(Destroy);
+        EventManager.Instance.RemoveListener<PlayerExplosedEvent>(PlayerExplosed);
         EventManager.Instance.RemoveListener<PauseButtonClickedEvent>(PauseButtonClicked);
         EventManager.Instance.RemoveListener<FinishTimerEvent>(FinishTimer);
     }
@@ -207,9 +207,8 @@ public class GameManager : MonoBehaviour, IEventHandler
         StartGame();
     }
 
-    void Destroy(DestroyEvent e)
+    void PlayerExplosed(PlayerExplosedEvent e)
     {
-        EventManager.Instance.Raise(new DisablePlayerEvent());
         StartCoroutine(LoadSceneThenFunction(0, GameOver));
     }
 
