@@ -788,8 +788,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   audioSource: {fileID: 152044757}
-  minAudio: 0.08
-  maxAudio: 0.55
+  minAudio: 0.03
+  maxAudio: 0.45
 --- !u!1 &156264149
 GameObject:
   m_ObjectHideFlags: 0
@@ -5440,7 +5440,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 95fcce8823ff0394b99541fc57c501b2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  levels: 19000000320000004b000000
+  levels: e8030000d0070000b80b0000a00f00008813000070170000581b0000401f000028230000
   directionalLight: {fileID: 705507994}
 --- !u!1 &1177039467
 GameObject:
@@ -6674,7 +6674,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 82cac93d0fd48f4478060a751c98258c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  explosionPrefab: {fileID: 0}
 --- !u!1 &1411226937
 GameObject:
   m_ObjectHideFlags: 0
