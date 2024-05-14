@@ -24,6 +24,13 @@ public class GameManager : MonoBehaviour, IEventHandler
         {
             m_Instance = this;
         }
+
+
+        EventManager.Instance.Raise(new PlaySoundEvent()
+        {
+            eNameClip = "menu",
+            eLoop = true
+        });
     }
 
     void SetScore(int newScore)
@@ -119,11 +126,6 @@ public class GameManager : MonoBehaviour, IEventHandler
     void StartGame()
     {
         EventManager.Instance.Raise(new GamePlayStartEvent());
-    }
-
-    void Update()
-    {
-        //Debug.Log("score : " + m_Score);
     }
 
     void Play()
