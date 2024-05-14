@@ -60,7 +60,6 @@ public class Volume : MonoBehaviour
 
     private void MuteAll(bool isCheck)
     {
-        Debug.Log("MuteAll: " + isCheck);
         if (isCheck)
         {
             EventManager.Instance.Raise(new SoundMixEvent

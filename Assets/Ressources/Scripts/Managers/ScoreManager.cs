@@ -68,8 +68,6 @@ public class ScoreManager : MonoBehaviour, IEventHandler
 
     void UpdateScoresText(UpdateScoresTextEvent e)
     {
-        Debug.Log(PlayerPrefs.GetString("PlayerScores", ""));
-        Debug.Log("A");
         string text = "";
         int i = 1;
         List<int> scores = ReadScores();

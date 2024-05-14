@@ -33,7 +33,6 @@ public class Points : MonoBehaviour, IEventHandler
 
     void AnimatePoints(WinningPointsEvent e)
     {
-        Debug.Log("Points: " + e.ePoints);
         pointsText.text = "+" + e.ePoints;
         pointsText.gameObject.SetActive(true);
         StartCoroutine(AnimateText());
