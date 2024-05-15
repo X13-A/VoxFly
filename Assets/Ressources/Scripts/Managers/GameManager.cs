@@ -143,6 +143,7 @@ public class GameManager : MonoBehaviour, IEventHandler
     {
         UpdateScores();
         SetState(GAMESTATE.gameover);
+        EventManager.Instance.Raise(new StopSoundAllEvent());
     }
 
     void UpdateScores()

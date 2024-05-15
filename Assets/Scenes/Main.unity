@@ -668,7 +668,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 152044751}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 67c5909c0b27a314e98dd01a02958610, type: 3}
   m_Name: 
@@ -1628,7 +1628,7 @@ MonoBehaviour:
   coverage: 0.707
   phaseParams: {x: 0.6, y: 0, z: 0.7}
   lightSteps: 3
-  globalBrightness: 1
+  globalBrightness: 0.97
   globalDensity: 0.15
   sunlightAbsorption: 0.1
   stepSizeDistanceScale: 0.0001
@@ -5440,8 +5440,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 95fcce8823ff0394b99541fc57c501b2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  levels: e8030000d0070000b80b0000a00f00008813000070170000581b0000401f000028230000
-  directionalLight: {fileID: 705507994}
+  levels: f4010000e8030000d0070000b80b0000a00f00008813000070170000
 --- !u!1 &1177039467
 GameObject:
   m_ObjectHideFlags: 0
@@ -6173,7 +6172,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: -215, y: -46}
+  m_AnchoredPosition: {x: -215, y: -46.00006}
   m_SizeDelta: {x: 300, y: 250}
   m_Pivot: {x: 1, y: 0}
 --- !u!114 &1274869904
@@ -6635,7 +6634,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1399108381}
-  - component: {fileID: 1399108382}
   m_Layer: 0
   m_Name: PlaneMesh
   m_TagString: Untagged
@@ -6662,18 +6660,6 @@ Transform:
   - {fileID: 1531277333}
   m_Father: {fileID: 152044752}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1399108382
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1399108380}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 82cac93d0fd48f4478060a751c98258c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1411226937
 GameObject:
   m_ObjectHideFlags: 0

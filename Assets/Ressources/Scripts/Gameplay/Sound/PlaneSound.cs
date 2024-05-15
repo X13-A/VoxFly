@@ -41,7 +41,8 @@ public class PlaneSound : MonoBehaviour, IEventHandler
 
     void SoundMix(SoundMixEvent e)
     {
-        maxAudio = e.eGameplayVolume;
+        if (e.eGameplayVolume.HasValue)
+            maxAudio = e.eGameplayVolume.Value;
     }
 
     void PlaneInformation(PlaneInformationEvent e)

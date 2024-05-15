@@ -125,9 +125,9 @@ public class FinishTimerEvent : SDD.Events.Event
 #region AudioManager Events
 public class SoundMixEvent : SDD.Events.Event
 {
-    public float eSFXVolume;
-    public float eGameplayVolume;
-    public float eMenuVolume;
+    public float? eSFXVolume;
+    public float? eGameplayVolume;
+    public float? eMenuVolume;
 }
 
 #region player events
@@ -181,6 +181,18 @@ public class PlaneInformationEvent : SDD.Events.Event
 public class PlaneInitializedEvent : SDD.Events.Event
 {
     public plane plane;
+}
+#endregion
+
+#region EnvrionnementManager Events
+public class SetGlobalBrightnessEvent : SDD.Events.Event
+{
+    public float eValue; // from 0 to 1 : 0 = black, 1 = full light
+}
+
+public class SetCloudCoverageEvent : SDD.Events.Event
+{
+    public float eValue; // from 0 to 1 : 0 = no clouds, 1 = full clouds
 }
 #endregion
 
