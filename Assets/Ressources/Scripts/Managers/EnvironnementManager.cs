@@ -8,8 +8,11 @@ using UnityEngine.UI;
 public class EnvironnementManager : MonoBehaviour, IEventHandler
 {
     [SerializeField] private List<int> levels;
+    [SerializeField] private GameObject rain;
 
     private Dictionary<int, bool> levelsReached;
+    private ParticleSystem rainPS;
+    bool flag = false;
 
     public void SubscribeEvents()
     {
@@ -39,13 +42,13 @@ public class EnvironnementManager : MonoBehaviour, IEventHandler
             return;
         }
 
+        rainPS = rain.GetComponent<ParticleSystem>();
         EventManager.Instance.Raise(new SetGlobalBrightnessEvent() { eValue = 1 });
         EventManager.Instance.Raise(new SetCloudCoverageEvent() { eValue = 0 });
         EventManager.Instance.Raise(new SoundMixEvent() { eGameplayVolume = 0 });
         EventManager.Instance.Raise(new PlaySoundEvent() { eNameClip = "wind", eLoop = true });
-        EventManager.Instance.Raise(new PlaySoundEvent() { eNameClip = "rain", eLoop = true });
         EventManager.Instance.Raise(new PlaySoundEvent() { eNameClip = "thunder", eLoop = true });
-
+        rain.SetActive(false);
         levels.Sort();
         levelsReached = new Dictionary<int, bool>();
         foreach (int level in levels)
@@ -76,8 +79,16 @@ public class EnvironnementManager : MonoBehaviour, IEventHandler
         // increase sfx volume
         EventManager.Instance.Raise(new SoundMixEvent() { eGameplayVolume = normalizedValue });
         // increase aircraft disruptions
-
-        // ajouter la pluie
+        EventManager.Instance.Raise(new SetTurbulenceEvent() { eStrength = normalizedValue });
+        // increase rateOverTime of rain
+        if (!flag && normalizedValue > 0.6)
+        {
+            flag = true;
+            rain.SetActive(true);
+            EventManager.Instance.Raise(new PlaySoundEvent() { eNameClip = "rain", eLoop = true });
+        }
+        var emission = rainPS.emission;
+        emission.rateOverTime = 100 * normalizedValue;
     }
 
     float normalizeLight(float value)

@@ -194,6 +194,12 @@ public class SetCloudCoverageEvent : SDD.Events.Event
 {
     public float eValue; // from 0 to 1 : 0 = no clouds, 1 = full clouds
 }
+
+public class SetTurbulenceEvent : SDD.Events.Event
+{
+    public float eStrength;
+    public float eScale;
+}
 #endregion
 
 public class WinningPointsEvent : SDD.Events.Event

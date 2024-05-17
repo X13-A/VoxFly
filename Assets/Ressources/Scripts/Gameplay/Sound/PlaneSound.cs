@@ -4,8 +4,8 @@ using UnityEngine;
 public class PlaneSound : MonoBehaviour, IEventHandler
 {
     [SerializeField] private AudioSource audioSource;
-    [SerializeField] float minAudio = .08f;
-    [SerializeField] float maxAudio = .8f;
+    [SerializeField] float minAudio;
+    [SerializeField] float maxAudio;
 
     float minThrust;
     float maxThrust;
@@ -14,14 +14,12 @@ public class PlaneSound : MonoBehaviour, IEventHandler
     {
         EventManager.Instance.AddListener<PlaneStateEvent>(Thrusting);
         EventManager.Instance.AddListener<PlaneInformationEvent>(PlaneInformation);
-        EventManager.Instance.AddListener<SoundMixEvent>(SoundMix);
     }
 
     public void UnsubscribeEvents()
     {
         EventManager.Instance.RemoveListener<PlaneStateEvent>(Thrusting);
         EventManager.Instance.RemoveListener<PlaneInformationEvent>(PlaneInformation);
-        EventManager.Instance.RemoveListener<SoundMixEvent>(SoundMix);
     }
 
     void OnEnable()
@@ -37,12 +35,6 @@ public class PlaneSound : MonoBehaviour, IEventHandler
     void Start()
     {
         audioSource.volume = minAudio;
-    }
-
-    void SoundMix(SoundMixEvent e)
-    {
-        if (e.eGameplayVolume.HasValue)
-            maxAudio = e.eGameplayVolume.Value;
     }
 
     void PlaneInformation(PlaneInformationEvent e)

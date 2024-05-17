@@ -99,6 +99,26 @@ public class plane : MonoBehaviour
 
     const float metersToFeet = 3.28084f;
 
+    public void SubscribeEvents()
+    {
+        EventManager.Instance.AddListener<SetTurbulenceEvent>(SetTurbulence);
+    }
+
+    public void UnsubscribeEvents()
+    {
+        EventManager.Instance.RemoveListener<SetTurbulenceEvent>(SetTurbulence);
+    }
+
+    void OnEnable()
+    {
+        SubscribeEvents();
+    }
+
+    void OnDisable()
+    {
+        UnsubscribeEvents();
+    }
+
     private void Awake()
     {
         rigid = GetComponent<Rigidbody>();
@@ -161,10 +181,10 @@ public class plane : MonoBehaviour
         return result;
     }
 
-    void SetTurbulence(float strength, float scale)
+    void SetTurbulence(SetTurbulenceEvent e)
     {
-        turbulenceStrength = strength;
-        turbulenceScale = scale;
+        turbulenceStrength = e.eStrength;
+        turbulenceScale = e.eScale;
     }
 
     void UpdateTurbulence()
