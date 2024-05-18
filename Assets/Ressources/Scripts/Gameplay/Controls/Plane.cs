@@ -217,7 +217,18 @@ public class plane : MonoBehaviour
         rigid.AddRelativeForce(drag);
     }
 
-
+    public void SetConfig(Config config)
+    {
+        rollMult = config.rollMult;
+        yawMult = config.yawMult;
+        pitchMult = config.pitchMult;
+        forceMult = config.forceMult;
+        liftPower = config.liftPower;
+        minThrust = config.minThrust;
+        maxThrust = config.maxThrust;
+        throttleAdjustmentRate = config.throttleAdjustmentRate;
+        Debug.Log("Add Config " + config.name);
+    }
 
 
     Vector3 CalculateLift(float angleOfAttack, Vector3 rightAxis, float liftPower, AnimationCurve aoaCurve, AnimationCurve inducedDragCurve)

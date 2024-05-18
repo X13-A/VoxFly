@@ -12,6 +12,7 @@ public class PlayerManager : MonoBehaviour, IEventHandler
     [SerializeField]
     GameObject particleCam;
 
+    private plane planeScript;
 
     public void Start()
     {
@@ -24,6 +25,7 @@ public class PlayerManager : MonoBehaviour, IEventHandler
         EventManager.Instance.AddListener<PausePlayerEvent>(PausePlayer);
         EventManager.Instance.AddListener<ResumePlayerEvent>(ResumePlayer);
         EventManager.Instance.AddListener<DestroyEvent>(Destroy);
+        EventManager.Instance.AddListener<PlaneInitializedEvent>(AttachPlane);
     }
 
     public void UnsubscribeEvents()
@@ -32,6 +34,7 @@ public class PlayerManager : MonoBehaviour, IEventHandler
         EventManager.Instance.RemoveListener<PausePlayerEvent>(PausePlayer);
         EventManager.Instance.RemoveListener<ResumePlayerEvent>(ResumePlayer);
         EventManager.Instance.RemoveListener<DestroyEvent>(Destroy);
+        EventManager.Instance.RemoveListener<PlaneInitializedEvent>(AttachPlane);
 
     }
 
@@ -50,6 +53,12 @@ public class PlayerManager : MonoBehaviour, IEventHandler
         {
             obj.SetActive(b);
         }
+    }
+
+    void AttachPlane(PlaneInitializedEvent e)
+    {
+        planeScript = e.plane;
+        planeScript.SetConfig(ConfigManager.Instance.CurrentConfig);
     }
 
     void EnablePlayer(GamePlayStartEvent e)
