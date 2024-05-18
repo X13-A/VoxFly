@@ -6,6 +6,7 @@ using TMPro;
 public class ConfigDropDown : MonoBehaviour
 {
     private TMP_Dropdown dropdown;
+    [SerializeField] TMP_Text configInfos;
 
     void Awake()
     {
@@ -21,8 +22,18 @@ public class ConfigDropDown : MonoBehaviour
         dropdown.onValueChanged.AddListener(OnDropdownValueChanged);
     }
 
+    void UpdateInfos()
+    {
+        Config config = ConfigManager.Instance.CurrentConfig;
+        configInfos.text = string.Format("name : {0}\nforce multiplier : {1}\nyaw multiplier : {2}\nroll multiplier : {3}\n" +
+            "pitch muliplier : {4}\nlift power : {5}\nmin thrust : {6}\nmax thrust : {7}\nthrottle adjustment rate : {8}"
+            , config.name, config.forceMult, config.yawMult, config.rollMult, config.pitchMult, config.liftPower, config.minThrust,
+            config.maxThrust, config.throttleAdjustmentRate);
+    }
+
     public void InitializeDropdown()
     {
+        UpdateInfos();
         List<string> configNames = new List<string>(); // Initialize the list 
         List<Config> configs = ConfigManager.Instance.Configs;
         string defaultConfigName = ConfigManager.Instance.CurrentConfig?.name;
@@ -48,5 +59,6 @@ public class ConfigDropDown : MonoBehaviour
         Config selectedConfig = ConfigManager.Instance.Configs[index];
         ConfigManager.Instance.SetConfig(index);
         Debug.Log("Select config " + selectedConfig.name);
+        UpdateInfos();
     }
 }
