@@ -1,127 +1,95 @@
 using SDD.Events;
-using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
-using static Unity.IO.LowLevel.Unsafe.AsyncReadManagerMetrics;
 
-public class Fire : MonoBehaviour, IEventHandler
+public class Fire : MonoBehaviour
 {
-    [SerializeField] private List<GameObject> fireLevel;
+    [SerializeField] private GameObject smoke;
+    [SerializeField] private GameObject fire;
 
-    bool flag = false;
-    [SerializeField] private float maxBurningRate;
-    private float burningRate;
-
-    void Awake()
-    {
-        maxBurningRate = 500;
-        burningRate = 0;
-    }
-
-    public void SubscribeEvents()
-    {
-        EventManager.Instance.AddListener<PlaneIsInShadowEvent>(IsInShadow);
-    }
-
-    public void UnsubscribeEvents()
-    {
-        EventManager.Instance.RemoveListener<PlaneIsInShadowEvent>(IsInShadow);
-    }
-
-    void OnEnable()
-    {
-        SubscribeEvents();
-    }
-
-    void OnDisable()
-    {
-        UnsubscribeEvents();
-    }
+    int burningPercent = 0;
+    List<float> fireEmission = new List<float>();
 
     void Start()
     {
-        foreach (var item in fireLevel)
+        foreach (Transform child in fire.transform)
         {
-            item.SetActive(false);
+            ParticleSystem fireParticles = child.GetComponent<ParticleSystem>();
+            {
+                var emission_f = fireParticles.emission;
+                fireEmission.Add(emission_f.rateOverTime.constant);
+                emission_f.rateOverTime = 0;
+            }
         }
+
+        ParticleSystem smokeParticles = smoke.GetComponent<ParticleSystem>();
+        var emission_s = smokeParticles.emission;
+        emission_s.rateOverTime = 0;
+
+        smoke.SetActive(false);
+        fire.SetActive(false);
     }
 
-    void StateBurningRate(float burningPercent)
+    /* For testing */
+    //void Update()
+    //{
+    //    if (Input.GetKey(KeyCode.RightControl))
+    //    {
+    //        burningPercent += 5;
+    //        UpdateFire();
+    //    }
+
+    //    if (Input.GetKey(KeyCode.LeftControl))
+    //    {
+    //        burningPercent -= 5;
+    //        UpdateFire();
+    //    }
+    //}
+
+    void UpdateFire()
     {
-        switch (burningPercent)
+        if (burningPercent <= 50)
         {
-            case < 8:
-                break;
-
-            case < 25:
-                FireUpdate(0);
-                break;
-
-            case < 50:
-                FireUpdate(1);
-                break;
-                
-            case < 75:
-                FireUpdate(2);
-                break;
-
-            case < 100:
-                FireUpdate(3);
-                break;
-
-            case >= 100:
-                EventManager.Instance.Raise(new DestroyEvent());
-                break;
-
-            default:
-                break;
-        }
-    }
-
-    void IsInShadow(PlaneIsInShadowEvent e)
-    {
-        if (e.eIsInShadow)
-        {
-            burningRate -= e.eRayRate;
+            smokeUpdate(burningPercent);
         }
         else
         {
-            burningRate += e.eRayRate;
+            fireUpdate(burningPercent);
         }
-
-        float burningPercent = (burningRate / maxBurningRate) * 100;
-
-        StateBurningRate(burningPercent);
-
-        EventManager.Instance.Raise(new PlaneStateEvent() { eBurningPercent = burningPercent });
     }
 
-    void FireUpdate(int fireNumber)
+    void smokeUpdate(float percent)
     {
-         if (flag) return;
+        smoke.SetActive(true);
+        fire.SetActive(false);
 
-        if (fireNumber == 0)
+        float normalizedPercent = Mathf.Clamp(percent / 100.0f, 0.0f, 1.0f);
+        float emissionRate = Mathf.Lerp(0, 50, normalizedPercent);
+
+        ParticleSystem smokeParticles = smoke.GetComponent<ParticleSystem>();
+        var emission = smokeParticles.emission;
+        emission.rateOverTime = emissionRate;
+    }
+
+    void fireUpdate(float percent)
+    {
+        smoke.SetActive(false);
+        fire.SetActive(true);
+
+        int i = 0;
+
+        foreach (Transform child in fire.transform)
         {
-            fireLevel[fireNumber].SetActive(true);
-            return;
+            float normalizedPercent = Mathf.Clamp((percent - 50) / 50.0f, 0.0f, 1.0f);
+            float emissionRate = Mathf.Lerp(0, fireEmission[i], normalizedPercent);
+
+            ParticleSystem fireParticles = child.GetComponent<ParticleSystem>();
+            var emission = fireParticles.emission;
+            emission.rateOverTime = emissionRate;
+            i++;
         }
-
-        if (fireNumber == fireLevel.Count - 1) return;
-
-        flag = true;
-
-        GameObject currentFire = fireLevel[fireNumber];
-        GameObject previousFire = fireLevel[fireNumber - 1];
-
-        StartCoroutine(FireDelay(previousFire, currentFire, 2f));
-    }
-
-    IEnumerator FireDelay(GameObject oldFire, GameObject newFire, float delay)
-    {
-        newFire.SetActive(true);
-        yield return new WaitForSeconds(delay);
-        oldFire.SetActive(false);
-        flag = false;
     }
 }
