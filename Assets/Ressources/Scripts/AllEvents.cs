@@ -161,17 +161,11 @@ public class EnemyHasBeenHitEvent : SDD.Events.Event
 #endregion
 
 #region Plane Event
-public class PlaneIsInShadowEvent : SDD.Events.Event
-{
-	public bool eIsInShadow;
-	public float eRayRate;
-}
-
 public class PlaneStateEvent : SDD.Events.Event
 {
-    public float eBurningPercent; // in % from 0 to 100
-    public float eThrust;
-    public bool eIsInWater;
+    public float? eBurningPercent; // in pourcentage
+    public float? eThrust;
+    public bool? eIsInWater;
 }
 public class PlaneInformationEvent : SDD.Events.Event
 {

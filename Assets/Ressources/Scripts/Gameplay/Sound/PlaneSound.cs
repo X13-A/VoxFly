@@ -45,7 +45,10 @@ public class PlaneSound : MonoBehaviour, IEventHandler
 
     void Thrusting(PlaneStateEvent e)
     {
-        if (e.eThrust != 0) UpdateVolume(e.eThrust, e.eIsInWater);
+        if (e.eThrust.HasValue && e.eIsInWater.HasValue)
+        {
+            if (e.eThrust != 0) UpdateVolume(e.eThrust.Value, e.eIsInWater.Value);
+        }
     }
 
     public void UpdateVolume(float currentThrust, bool isInWater = false)

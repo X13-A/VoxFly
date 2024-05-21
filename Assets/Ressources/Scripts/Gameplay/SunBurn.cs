@@ -4,14 +4,15 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.TestTools;
 
 public class SunBurn : MonoBehaviour, IEventHandler
 {
     [SerializeField] private Transform directionalLight;
     [SerializeField] private CloudsPostProcess cloudsPostProcess;
     [SerializeField] private WaterPostProcess waterPostProcess;
+    [SerializeField] private float maxBurningRate = 500;
 
+    float burningSum = 0;
     private WorldGenerator generator;
 
     #region Events
@@ -40,7 +41,6 @@ public class SunBurn : MonoBehaviour, IEventHandler
     {
         UnsubscribeEvents();
     }
-
 
     private struct RayBoxInfo
     {
@@ -104,7 +104,8 @@ public class SunBurn : MonoBehaviour, IEventHandler
         // Refill when in water
         if (waterPostProcess && transform.position.y <= waterPostProcess.WaterLevel)
         {
-            EventManager.Instance.Raise(new PlaneIsInShadowEvent() { eIsInShadow = true, eRayRate = 10f });
+            burningSum -= 10f;
+            BurningPercentEvent(burningSum);
             return;
         }
 
@@ -115,11 +116,25 @@ public class SunBurn : MonoBehaviour, IEventHandler
 
         if (result)
         {
-            EventManager.Instance.Raise(new PlaneIsInShadowEvent() { eIsInShadow = false, eRayRate = resultIntensity / 4.0f});
+            burningSum += resultIntensity / 4;
+            BurningPercentEvent(burningSum);
         }
         else
         {
-            EventManager.Instance.Raise(new PlaneIsInShadowEvent() { eIsInShadow = true, eRayRate = resultIntensity });
+            burningSum -= resultIntensity;
+            BurningPercentEvent(burningSum);
         }
+    }
+
+    void BurningPercentEvent(float burningSum)
+    {
+        float burningPercent = Mathf.Clamp(burningSum, 0, maxBurningRate) / maxBurningRate * 100;
+
+        if (burningPercent >= 100)
+        {
+            EventManager.Instance.Raise(new DestroyEvent());
+        }
+
+        EventManager.Instance.Raise(new PlaneStateEvent() { eBurningPercent = burningPercent });
     }
 }

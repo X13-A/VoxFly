@@ -5,13 +5,33 @@ using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
 
-public class Fire : MonoBehaviour
+public class Fire : MonoBehaviour, IEventHandler
 {
     [SerializeField] private GameObject smoke;
     [SerializeField] private GameObject fire;
 
-    int burningPercent = 0;
+    //int burningPercent = 0;
     List<float> fireEmission = new List<float>();
+
+    public void SubscribeEvents()
+    {
+        EventManager.Instance.AddListener<PlaneStateEvent>(UpdateFire);
+    }
+
+    public void UnsubscribeEvents()
+    {
+        EventManager.Instance.RemoveListener<PlaneStateEvent>(UpdateFire);
+    }
+
+    void OnEnable()
+    {
+        SubscribeEvents();
+    }
+
+    void OnDisable()
+    {
+        UnsubscribeEvents();
+    }
 
     void Start()
     {
@@ -49,16 +69,19 @@ public class Fire : MonoBehaviour
     //    }
     //}
 
-    void UpdateFire()
+    void UpdateFire(PlaneStateEvent e)
     {
-        if (burningPercent <= 50)
+        if (e.eBurningPercent.HasValue)
         {
-            smokeUpdate(burningPercent);
-        }
-        else
-        {
-            fireUpdate(burningPercent);
-        }
+            if (e.eBurningPercent.Value <= 50)
+            {
+                smokeUpdate(e.eBurningPercent.Value);
+            }
+            else
+            {
+                fireUpdate(e.eBurningPercent.Value);
+            }
+        }        
     }
 
     void smokeUpdate(float percent)
