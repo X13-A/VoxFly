@@ -245,7 +245,7 @@ public class plane : MonoBehaviour
 
 
         //lift is perpendicular to velocity
-        var liftDirection = Vector3.Cross(liftVelocity.normalized, rightAxis);
+        var liftDirection = Vector3.up;
         //Debug.Log("lift velocity : "+LocalVelocity.normalized+" - liftDirection : "+liftDirection);
         var lift = liftDirection * liftForce;
 
@@ -291,6 +291,7 @@ public class plane : MonoBehaviour
 
     void CalculateAngleOfAttack()
     {
+        Debug.Log(LocalVelocity);
         if (LocalVelocity.sqrMagnitude < 0.1f)
         {
             AngleOfAttack = 0;
@@ -441,9 +442,9 @@ public class plane : MonoBehaviour
         CalculateGForce(dt);
 
         //apply updates
-        UpdateThrust();
         UpdateDrag();
         UpdateLift();
+        UpdateThrust();
         UpdateTurbulence();
 
         // Calculate and apply turbulence effects

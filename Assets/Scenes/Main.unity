@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0.1737682, g: 0.21726067, b: 0.2993987, a: 1}
+  m_IndirectSpecularColor: {r: 0.17376858, g: 0.21726137, b: 0.29939994, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -402,6 +402,7 @@ MonoBehaviour:
   directionalLight: {fileID: 705507995}
   cloudsPostProcess: {fileID: 404103033}
   waterPostProcess: {fileID: 488864615}
+  maxBurningRate: 500
 --- !u!114 &152044754
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -643,7 +644,7 @@ Rigidbody:
   m_GameObject: {fileID: 152044751}
   serializedVersion: 4
   m_Mass: 100
-  m_Drag: 1.5
+  m_Drag: 0.5
   m_AngularDrag: 10
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
