@@ -203,9 +203,10 @@ rayMarchInfo rayMarchWorld(float3 startPos, float3 rayDir)
     float dstTravelled = 0;
 
     int loopCount = 0;
+    int hardLoopLimit = (int)dstLimit * 2;
 
     [loop]
-    while (dstTravelled < dstLimit)
+    while (loopCount++ < hardLoopLimit && dstTravelled < dstLimit)
     {
         // Check the position for a voxel
         float epsilon = 0.0001f;  // Smaller, more precise offset
@@ -245,6 +246,7 @@ rayMarchInfo rayMarchWorld(float3 startPos, float3 rayDir)
         }
     }
 
+    res.complexity = loopCount;
     res.depth = 1e10;
     return res;
 }
@@ -303,16 +305,6 @@ rayMarchInfo rayMarchBrickMap(float3 startPos, float3 rayDir)
         float3 rayPos = startPos + rayDir * (dstTravelled) + epsilon * sign(rayDir);    
         float brickDensity = sampleBrickMap(rayPos).r;
         
-        //if (dstTravelled > 1)
-        //{
-        //    res.blockID = 1;
-        //    res.complexity = loopCount;
-        //    res.depth = dstToWorld + dstTravelled;
-        //    res.normal = 0;
-        //    res.pos = rayPos;
-        //    return res;
-        //}
-
         if (brickDensity > 0)
         {
             res.blockID = 1;
@@ -345,6 +337,7 @@ rayMarchInfo rayMarchBrickMap(float3 startPos, float3 rayDir)
         }
     }
 
+    res.complexity = loopCount;
     res.depth = 1e10;
     return res;
 }
@@ -488,8 +481,15 @@ rayMarchInfo rayMarchWorld_Brickmap(float3 startPos, float3 rayDir)
         }
     }
 
+    res.complexity = loopCount;
     res.depth = 1e10;
     return res;
+}
+
+float computeUnityDepth(uint3 id)
+{
+    float2 depthUV = id.xy * ((float2) _UnityBufferSize / (float2) _GBufferSize);
+    return LinearEyeDepth(_UnityDepthTexture[depthUV]);
 }
 
 float3 computeRayDir(float2 uv)
@@ -497,12 +497,6 @@ float3 computeRayDir(float2 uv)
     float3 direction = mul(_InvProjectionMatrix, float4(uv, 0.0f, 1.0f)).xyz;
     direction = mul(_InvViewMatrix, float4(direction, 0.0f)).xyz;
     return direction;
-}
-
-float computeUnityDepth(uint3 id)
-{
-    float2 depthUV = id.xy * ((float2) _UnityBufferSize / (float2) _GBufferSize);
-    return LinearEyeDepth(_UnityDepthTexture[depthUV]);
 }
 
 [numthreads(8, 8, 1)]
@@ -535,7 +529,7 @@ void CSMain(uint3 id : SV_DispatchThreadID)
 
     // Fill buffers
     _BlocksBuffer[id.xy] = float4(blockID, 0, 0, 1);
-    _NormalBuffer[id.xy] = float4(normal, 0);
+    _NormalBuffer[id.xy] = float4(normal, 1);
     _DepthBuffer[id.xy] = combinedDepth;
     _PositionBuffer[id.xy] = float4(pos, 1);
 }
