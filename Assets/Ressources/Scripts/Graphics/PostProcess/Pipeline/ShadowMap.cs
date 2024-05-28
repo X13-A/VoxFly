@@ -101,7 +101,7 @@ public class ShadowMap : MonoBehaviour
         Origin += new Vector3(LightDir.x, LightDir.y, LightDir.z) * -mapDistance;
     }
 
-    private void Update()
+    private void FixedUpdate()
     {
         if (!initialized) return;
         if (generator.WorldTexture == null) return;
@@ -119,6 +119,15 @@ public class ShadowMap : MonoBehaviour
 
         shadowMapCompute.SetTexture(mapKernel, "_WorldTexture", generator.WorldTexture);
         shadowMapCompute.SetInts("_WorldTextureSize", new int[] { generator.WorldTexture.width, generator.WorldTexture.height, generator.WorldTexture.depth });
+
+        // BrickMap optimization (on hold for now)
+        //shadowMapCompute.SetTexture(mapKernel, "_BrickMapTexture", generator.BrickMapTexture);
+        //shadowMapCompute.SetInts("_BrickMapTextureSize", new int[] { generator.BrickMapTexture.width, generator.BrickMapTexture.height, generator.BrickMapTexture.depth });
+        //shadowMapCompute.SetInt("_BrickSize", generator.BrickSize);
+
+        //shadowMapCompute.SetFloats("_CameraPos", new float[] { cam.transform.position.x, cam.transform.position.y, cam.transform.position.z });
+        //shadowMapCompute.SetMatrix("_InvProjectionMatrix", cam.projectionMatrix.inverse);
+        //shadowMapCompute.SetMatrix("_InvViewMatrix", cam.worldToCameraMatrix.inverse);
 
         shadowMapCompute.Dispatch(mapKernel, textureWidth / 8, textureHeight / 8, 1);
     }
