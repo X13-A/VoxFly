@@ -26,6 +26,7 @@ float _CavesThreshold;
 float3 _CavesScale;
 float3 _CavesOffset;
 uint _CavesSeed;
+float _CavesHeightDiminution;
 
 float _Coverage;
 float2 _CoverageScale;
@@ -124,14 +125,15 @@ void CSMain(uint3 id : SV_DispatchThreadID)
     terrainHeight += _ElevationStartY;
 
     // Sample coverage
-    float coverage = sampleCoverage(id) * 3;
+    float coverage = min(pow(sampleCoverage(id) * 8, 2), 1); // TODO: make the factors parameters
     terrainHeight *= coverage;
 
     // Lower height on edge of map
     float borderDist = dstFromBorder((float3) id);
-    float borderGradient = pow(saturate(borderDist / 100.0), 4);
+    float borderGradient = pow(saturate(borderDist / 20.0), 4);
     terrainHeight *= borderGradient;
 
+    // Prevent overflowing on y axis
     if (terrainHeight > (float) _WorldSize.y)
     {
         terrainHeight = _WorldSize.y - terrainHeight % _WorldSize.y;
@@ -159,8 +161,11 @@ void CSMain(uint3 id : SV_DispatchThreadID)
     // Generate caves
     if ((float) id.y < terrainHeight)
     {
+        float thresholdHeightFactor = 1 - saturate((float) id.y * _CavesHeightDiminution / (float) terrainHeight);
+        float threshold = _CavesThreshold * thresholdHeightFactor;
         float noise = get3DNoise(id.x, id.y, id.z, _CavesScale, _CavesOffset, _CavesSeed);
-        if (noise <= _CavesThreshold)
+
+        if (noise <= threshold)
         {
             color = float4(0, 0, 0, 0);
         }
@@ -186,4 +191,4 @@ void CSMain(uint3 id : SV_DispatchThreadID)
     }
 
     WorldTexture[id] = color;
-} 
+}

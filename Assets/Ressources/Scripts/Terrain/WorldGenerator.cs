@@ -33,6 +33,10 @@ public class WorldGenerator : MonoBehaviour, IEventHandler
     [SerializeField] private Vector3 offset = new Vector3();
     [SerializeField] private Vector3 scale = new Vector3(3.33f, 3.33f, 3.33f);
     [SerializeField] private float threshold = 0.5f; // Seuil pour la g�n�ration des grottes
+    /// <summary>
+    /// The higher the value, the thinner the caves are on higher terrain
+    /// </summary>
+    [SerializeField] private float cavesHeightDiminution = 0.1f;
 
     [Header("Deep terrain parameters")]
     [SerializeField] private uint deepTerrainSeed;
@@ -195,6 +199,7 @@ public class WorldGenerator : MonoBehaviour, IEventHandler
         compute.SetVector("_StoneColor", stoneColor);
         compute.SetFloat("_GrassDepth", grassDepth);
         compute.SetFloat("_CavesThreshold", threshold);
+        compute.SetFloat("_CavesHeightDiminution", cavesHeightDiminution);
         compute.SetVector("_CavesScale", scale);
         compute.SetVector("_CavesOffset", offset);
         compute.SetInt("_CavesSeed", (int) cavesSeed);
@@ -220,14 +225,14 @@ public class WorldGenerator : MonoBehaviour, IEventHandler
         stopwatch.Restart();
 
         // Convert RenderTexture to Texture3D.
-        StartCoroutine(RenderingUtils.ConvertRenderTextureToTexture3D(WorldRenderTexture, (Texture3D tex) =>
+        StartCoroutine(RenderingUtils.ConvertRenderTextureToTexture3D(WorldRenderTexture, 1, TextureFormat.R8, TextureWrapMode.Repeat, FilterMode.Point, (Texture3D tex) =>
         {
             WorldTexture = tex;
             WorldViz = tex;
             WorldRenderTexture.Release();
             //AssetDatabase.CreateAsset(tex, "Assets/IslandWorld.asset");
             
-            StartCoroutine(RenderingUtils.ConvertRenderTextureToTexture3D(BrickMapRenderTexture, (Texture3D tex) =>
+            StartCoroutine(RenderingUtils.ConvertRenderTextureToTexture3D(BrickMapRenderTexture, 1, TextureFormat.R8, TextureWrapMode.Repeat, FilterMode.Point, (Texture3D tex) =>
             {
                 BrickMapTexture = tex;
                 BrickMapViz = tex;
@@ -253,26 +258,6 @@ public class WorldGenerator : MonoBehaviour, IEventHandler
     }
 
     #region CPU generation
-    public static float Get2DNoise(float x, float z, Vector2 scale, Vector2 offset)
-    {
-        Vector2 adjustedScale = new Vector3(scale.x, scale.y) / 983.3546789f; // Pour �viter les valeurs enti�res qui sont toujours les m�mes avec Mathf.PerlinNoise
-        return Mathf.PerlinNoise(offset.x + x * adjustedScale.x, offset.y + z * adjustedScale.y);
-    }
-
-    public static float Get3DNoise(float x, float y, float z, Vector3 scale, Vector3 offset)
-    {
-        Vector3 adjustedScale = new Vector3(scale.x, scale.y, scale.z) / 983.3546789f; // Pour �viter les valeurs enti�res qui sont toujours les m�mes avec Mathf.PerlinNoise
-        float ab = Mathf.PerlinNoise(offset.x + x * adjustedScale.x, offset.y + y * adjustedScale.y);
-        float bc = Mathf.PerlinNoise(offset.y + y * adjustedScale.y, offset.z + z * adjustedScale.z);
-        float ac = Mathf.PerlinNoise(offset.x + x * adjustedScale.x, offset.z + z * adjustedScale.z);
-
-        float ba = Mathf.PerlinNoise(offset.y + y * adjustedScale.y, offset.x + x * adjustedScale.x);
-        float cb = Mathf.PerlinNoise(offset.z + z * adjustedScale.z, offset.y + y * adjustedScale.y);
-        float ca = Mathf.PerlinNoise(offset.z + z * adjustedScale.z, offset.x + x * adjustedScale.x);
-
-        float abc = ab + bc + ac + ba + cb + ca;
-        return abc / 6f;
-    }
 
     public void GenerateTerrain_CPU()
     {
@@ -290,7 +275,7 @@ public class WorldGenerator : MonoBehaviour, IEventHandler
         {
             for (int z = 0; z < depth; z++)
             {
-                float currentHeight = terrainStartY + Get2DNoise(x, z, terrainScale, terrainOffset) * terrainAmplitude;
+                float currentHeight = terrainStartY + RenderingUtils.Get2DNoise(x, z, terrainScale, terrainOffset) * terrainAmplitude;
 
                 // S'arr�te d�s qu'on atteint la hauteur actuelle pour ne pas g�n�rer des grottes au dessus du terrain
                 for (int y = 0; y < height; y++)
@@ -301,7 +286,7 @@ public class WorldGenerator : MonoBehaviour, IEventHandler
                         continue;
                     }
 
-                    float noise = Get3DNoise(x, y, z, scale, offset);
+                    float noise = RenderingUtils.Get3DNoise(x, y, z, scale, offset);
                     Color colorUsed = Mathf.Abs(currentHeight - y) < grassDepth ? grassColor : stoneColor;
                     if (noise > threshold)
                     {
