@@ -39,8 +39,11 @@ public class SunBar : MonoBehaviour, IEventHandler
 
     void UpdateSlider(PlaneStateEvent e)
     {
-        slider.value = (e.eBurningPercent/100)*slider.maxValue;
-        gradient.Evaluate(1f);
-        fill.color = gradient.Evaluate(slider.normalizedValue);
+        if (e.eBurningPercent.HasValue)
+        {
+            slider.value = (e.eBurningPercent.Value / 100) * slider.maxValue;
+            gradient.Evaluate(1f);
+            fill.color = gradient.Evaluate(slider.normalizedValue);
+        }
     }   
 }

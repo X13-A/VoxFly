@@ -32,12 +32,6 @@ public class Volume : MonoBehaviour
             eMenuVolume = menuSlider.value
         });
 
-        EventManager.Instance.Raise(new PlaySoundEvent()
-        {
-            eNameClip = "menu",
-            eLoop = true
-        });
-
         menuSlider.onValueChanged.AddListener(SliderChanged);
         gameplaySlider.onValueChanged.AddListener(SliderChanged);
         sfxSlider.onValueChanged.AddListener(SliderChanged);
@@ -73,9 +67,9 @@ public class Volume : MonoBehaviour
         {
             EventManager.Instance.Raise(new SoundMixEvent
             {
-                eSFXVolume = menuVolume,
+                eSFXVolume = sfxVolume,
                 eGameplayVolume = gameplayVolume,
-                eMenuVolume = sfxVolume
+                eMenuVolume = menuVolume
             });
 
             menuSlider.value = menuVolume;

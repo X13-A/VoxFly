@@ -34,9 +34,6 @@ public class GameStatisticsChangedEvent : SDD.Events.Event
 	public int eScore { get; set; }
 	public float eCountDown { get; set; }
 }
-public class DisablePlayerEvent : SDD.Events.Event
-{
-}
 public class UpdateGameScoreEvent : SDD.Events.Event
 {
     public float score { get; set; }
@@ -50,11 +47,23 @@ public class SceneLoadedEvent : SDD.Events.Event
 {
     public int scene;
 }
+public class UpdateScoreEvent : SDD.Events.Event
+{
+    public int score { get; set; }
+}
 
 #endregion
 
 #region PlayerManager Events
 public class RequestWorldGeneratorEvent : SDD.Events.Event
+{
+}
+
+public class PlayerExplosedEvent : SDD.Events.Event
+{
+}
+
+public class ExplosionEvent : SDD.Events.Event
 {
 }
 #endregion
@@ -90,14 +99,6 @@ public class ScoreButtonClickedEvent : SDD.Events.Event
 #endregion
 
 #region ScoreManager Events
-public class UpdateScoreEvent : SDD.Events.Event
-{
-	public int score;
-    public UpdateScoreEvent(int score)
-    {
-        this.score = score;
-    }
-}
 public class UpdateScoresTextEvent : SDD.Events.Event
 {
 }
@@ -124,9 +125,9 @@ public class FinishTimerEvent : SDD.Events.Event
 #region AudioManager Events
 public class SoundMixEvent : SDD.Events.Event
 {
-    public float eSFXVolume;
-    public float eGameplayVolume;
-    public float eMenuVolume;
+    public float? eSFXVolume;
+    public float? eGameplayVolume;
+    public float? eMenuVolume;
 }
 
 #region player events
@@ -160,17 +161,11 @@ public class EnemyHasBeenHitEvent : SDD.Events.Event
 #endregion
 
 #region Plane Event
-public class PlaneIsInShadowEvent : SDD.Events.Event
-{
-	public bool eIsInShadow;
-	public float eRayRate;
-}
-
 public class PlaneStateEvent : SDD.Events.Event
 {
-    public float eBurningPercent; // in % from 0 to 100
-    public float eThrust;
-    public bool eIsInWater;
+    public float? eBurningPercent; // in pourcentage
+    public float? eThrust;
+    public bool? eIsInWater;
 }
 public class PlaneInformationEvent : SDD.Events.Event
 {
@@ -180,6 +175,24 @@ public class PlaneInformationEvent : SDD.Events.Event
 public class PlaneInitializedEvent : SDD.Events.Event
 {
     public plane plane;
+}
+#endregion
+
+#region EnvrionnementManager Events
+public class SetGlobalBrightnessEvent : SDD.Events.Event
+{
+    public float eValue; // from 0 to 1 : 0 = black, 1 = full light
+}
+
+public class SetCloudCoverageEvent : SDD.Events.Event
+{
+    public float eValue; // from 0 to 1 : 0 = no clouds, 1 = full clouds
+}
+
+public class SetTurbulenceEvent : SDD.Events.Event
+{
+    public float eStrength;
+    public float eScale;
 }
 #endregion
 

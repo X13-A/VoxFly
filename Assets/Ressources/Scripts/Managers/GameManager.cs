@@ -24,6 +24,13 @@ public class GameManager : MonoBehaviour, IEventHandler
         {
             m_Instance = this;
         }
+
+
+        EventManager.Instance.Raise(new PlaySoundEvent()
+        {
+            eNameClip = "menu",
+            eLoop = true
+        });
     }
 
     void SetScore(int newScore)
@@ -46,7 +53,7 @@ public class GameManager : MonoBehaviour, IEventHandler
         EventManager.Instance.AddListener<QuitButtonClickedEvent>(QuitButtonClicked);
         EventManager.Instance.AddListener<SettingsButtonClickedEvent>(SettingsButtonClicked);
         EventManager.Instance.AddListener<ScoreButtonClickedEvent>(ScoreButtonClicked);
-        EventManager.Instance.AddListener<DestroyEvent>(Destroy);
+        EventManager.Instance.AddListener<PlayerExplosedEvent>(PlayerExplosed);
         EventManager.Instance.AddListener<PauseButtonClickedEvent>(PauseButtonClicked);
         EventManager.Instance.AddListener<FinishTimerEvent>(FinishTimer);
     }
@@ -59,7 +66,7 @@ public class GameManager : MonoBehaviour, IEventHandler
         EventManager.Instance.RemoveListener<QuitButtonClickedEvent>(QuitButtonClicked);
         EventManager.Instance.RemoveListener<SettingsButtonClickedEvent>(SettingsButtonClicked);
         EventManager.Instance.RemoveListener<ScoreButtonClickedEvent>(ScoreButtonClicked);
-        EventManager.Instance.RemoveListener<DestroyEvent>(Destroy);
+        EventManager.Instance.RemoveListener<PlayerExplosedEvent>(PlayerExplosed);
         EventManager.Instance.RemoveListener<PauseButtonClickedEvent>(PauseButtonClicked);
         EventManager.Instance.RemoveListener<FinishTimerEvent>(FinishTimer);
     }
@@ -121,11 +128,6 @@ public class GameManager : MonoBehaviour, IEventHandler
         EventManager.Instance.Raise(new GamePlayStartEvent());
     }
 
-    void Update()
-    {
-        //Debug.Log("score : " + m_Score);
-    }
-
     void Play()
     {
         InitGame();
@@ -141,11 +143,12 @@ public class GameManager : MonoBehaviour, IEventHandler
     {
         UpdateScores();
         SetState(GAMESTATE.gameover);
+        EventManager.Instance.Raise(new StopSoundAllEvent());
     }
 
     void UpdateScores()
     {
-        EventManager.Instance.Raise(new UpdateScoreEvent(m_Score));
+        EventManager.Instance.Raise(new UpdateScoreEvent { score = m_Score });
     }
 
     void Pause()
@@ -207,9 +210,8 @@ public class GameManager : MonoBehaviour, IEventHandler
         StartGame();
     }
 
-    void Destroy(DestroyEvent e)
+    void PlayerExplosed(PlayerExplosedEvent e)
     {
-        EventManager.Instance.Raise(new DisablePlayerEvent());
         StartCoroutine(LoadSceneThenFunction(0, GameOver));
     }
 

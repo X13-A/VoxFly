@@ -9,6 +9,10 @@ public class PlayerManager : MonoBehaviour, IEventHandler
     List<GameObject> m_PlayerObjects;
     [SerializeField]
     GameObject blackScreen;
+    [SerializeField]
+    GameObject particleCam;
+
+    private plane planeScript;
 
     public void Start()
     {
@@ -17,18 +21,21 @@ public class PlayerManager : MonoBehaviour, IEventHandler
 
     public void SubscribeEvents()
     {
-        EventManager.Instance.AddListener<DisablePlayerEvent>(DisablePlayer);
         EventManager.Instance.AddListener<GamePlayStartEvent>(EnablePlayer);
         EventManager.Instance.AddListener<PausePlayerEvent>(PausePlayer);
         EventManager.Instance.AddListener<ResumePlayerEvent>(ResumePlayer);
+        EventManager.Instance.AddListener<DestroyEvent>(Destroy);
+        EventManager.Instance.AddListener<PlaneInitializedEvent>(AttachPlane);
     }
 
     public void UnsubscribeEvents()
     {
-        EventManager.Instance.RemoveListener<DisablePlayerEvent>(DisablePlayer);
         EventManager.Instance.RemoveListener<GamePlayStartEvent>(EnablePlayer);
         EventManager.Instance.RemoveListener<PausePlayerEvent>(PausePlayer);
         EventManager.Instance.RemoveListener<ResumePlayerEvent>(ResumePlayer);
+        EventManager.Instance.RemoveListener<DestroyEvent>(Destroy);
+        EventManager.Instance.RemoveListener<PlaneInitializedEvent>(AttachPlane);
+
     }
 
     void OnEnable()
@@ -48,12 +55,11 @@ public class PlayerManager : MonoBehaviour, IEventHandler
         }
     }
 
-    void DisablePlayer(DisablePlayerEvent e)
+    void AttachPlane(PlaneInitializedEvent e)
     {
-        SetActiveObjects(false);
-        blackScreen?.SetActive(true);
+        planeScript = e.plane;
+        planeScript.SetConfig(ConfigManager.Instance.CurrentConfig);
     }
-
 
     void EnablePlayer(GamePlayStartEvent e)
     {
@@ -71,4 +77,19 @@ public class PlayerManager : MonoBehaviour, IEventHandler
     {
         SetActiveObjects(true);
     }
+
+    void Destroy(DestroyEvent e)
+    {
+        EventManager.Instance.Raise(new ExplosionEvent());
+        SetActiveObjects(false);
+        StartCoroutine(WaitExplosion());
+    }
+
+    private IEnumerator WaitExplosion()
+    {
+        yield return new WaitForSeconds(1);
+        blackScreen?.SetActive(true);
+        EventManager.Instance.Raise(new PlayerExplosedEvent());
+    }
+
 }

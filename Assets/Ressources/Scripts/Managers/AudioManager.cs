@@ -82,9 +82,20 @@ public class AudioManager : MonoBehaviour, IEventHandler
 
     void MixSFX(SoundMixEvent e)
     {
-        maxSFXVolume = e.eSFXVolume;
-        maxGameplayVolume = e.eGameplayVolume;
-        maxMenuVolume = e.eMenuVolume;
+        if (e.eSFXVolume.HasValue)
+        {
+            maxSFXVolume = e.eSFXVolume.Value;
+        }
+
+        if (e.eGameplayVolume.HasValue)
+        {
+            maxGameplayVolume = e.eGameplayVolume.Value;
+        }
+
+        if (e.eMenuVolume.HasValue)
+        {
+            maxMenuVolume = e.eMenuVolume.Value;
+        }
 
         UpdateVolumeList();
         UpdateSound();

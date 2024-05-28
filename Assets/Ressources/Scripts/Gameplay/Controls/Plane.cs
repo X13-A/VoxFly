@@ -99,6 +99,26 @@ public class plane : MonoBehaviour
 
     const float metersToFeet = 3.28084f;
 
+    public void SubscribeEvents()
+    {
+        EventManager.Instance.AddListener<SetTurbulenceEvent>(SetTurbulence);
+    }
+
+    public void UnsubscribeEvents()
+    {
+        EventManager.Instance.RemoveListener<SetTurbulenceEvent>(SetTurbulence);
+    }
+
+    void OnEnable()
+    {
+        SubscribeEvents();
+    }
+
+    void OnDisable()
+    {
+        UnsubscribeEvents();
+    }
+
     private void Awake()
     {
         rigid = GetComponent<Rigidbody>();
@@ -161,10 +181,10 @@ public class plane : MonoBehaviour
         return result;
     }
 
-    void SetTurbulence(float strength, float scale)
+    void SetTurbulence(SetTurbulenceEvent e)
     {
-        turbulenceStrength = strength;
-        turbulenceScale = scale;
+        turbulenceStrength = e.eStrength;
+        turbulenceScale = e.eScale;
     }
 
     void UpdateTurbulence()
@@ -197,7 +217,18 @@ public class plane : MonoBehaviour
         rigid.AddRelativeForce(drag);
     }
 
-
+    public void SetConfig(Config config)
+    {
+        rollMult = config.rollMult;
+        yawMult = config.yawMult;
+        pitchMult = config.pitchMult;
+        forceMult = config.forceMult;
+        liftPower = config.liftPower;
+        minThrust = config.minThrust;
+        maxThrust = config.maxThrust;
+        throttleAdjustmentRate = config.throttleAdjustmentRate;
+        Debug.Log("Add Config " + config.name);
+    }
 
 
     Vector3 CalculateLift(float angleOfAttack, Vector3 rightAxis, float liftPower, AnimationCurve aoaCurve, AnimationCurve inducedDragCurve)
@@ -214,7 +245,7 @@ public class plane : MonoBehaviour
 
 
         //lift is perpendicular to velocity
-        var liftDirection = Vector3.Cross(liftVelocity.normalized, rightAxis);
+        var liftDirection = Vector3.up;
         //Debug.Log("lift velocity : "+LocalVelocity.normalized+" - liftDirection : "+liftDirection);
         var lift = liftDirection * liftForce;
 
@@ -410,9 +441,9 @@ public class plane : MonoBehaviour
         CalculateGForce(dt);
 
         //apply updates
-        UpdateThrust();
         UpdateDrag();
         UpdateLift();
+        UpdateThrust();
         UpdateTurbulence();
 
         // Calculate and apply turbulence effects

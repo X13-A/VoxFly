@@ -4,8 +4,8 @@ using UnityEngine;
 public class PlaneSound : MonoBehaviour, IEventHandler
 {
     [SerializeField] private AudioSource audioSource;
-    [SerializeField] float minAudio = .08f;
-    [SerializeField] float maxAudio = .8f;
+    [SerializeField] float minAudio;
+    [SerializeField] float maxAudio;
 
     float minThrust;
     float maxThrust;
@@ -14,14 +14,12 @@ public class PlaneSound : MonoBehaviour, IEventHandler
     {
         EventManager.Instance.AddListener<PlaneStateEvent>(Thrusting);
         EventManager.Instance.AddListener<PlaneInformationEvent>(PlaneInformation);
-        EventManager.Instance.AddListener<SoundMixEvent>(SoundMix);
     }
 
     public void UnsubscribeEvents()
     {
         EventManager.Instance.RemoveListener<PlaneStateEvent>(Thrusting);
         EventManager.Instance.RemoveListener<PlaneInformationEvent>(PlaneInformation);
-        EventManager.Instance.RemoveListener<SoundMixEvent>(SoundMix);
     }
 
     void OnEnable()
@@ -39,11 +37,6 @@ public class PlaneSound : MonoBehaviour, IEventHandler
         audioSource.volume = minAudio;
     }
 
-    void SoundMix(SoundMixEvent e)
-    {
-        maxAudio = e.eGameplayVolume;
-    }
-
     void PlaneInformation(PlaneInformationEvent e)
     {
         minThrust = e.eMinThrust;
@@ -52,7 +45,10 @@ public class PlaneSound : MonoBehaviour, IEventHandler
 
     void Thrusting(PlaneStateEvent e)
     {
-        if (e.eThrust != 0) UpdateVolume(e.eThrust, e.eIsInWater);
+        if (e.eThrust.HasValue && e.eIsInWater.HasValue)
+        {
+            if (e.eThrust != 0) UpdateVolume(e.eThrust.Value, e.eIsInWater.Value);
+        }
     }
 
     public void UpdateVolume(float currentThrust, bool isInWater = false)
