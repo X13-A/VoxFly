@@ -48,12 +48,11 @@ Shader"Custom/CloudsPostProcess"
 
             sampler2D _CameraDepthTexture; // Unity depth
             sampler2D _MainTex; // Background
-            
+
             // G-Buffer
             int _UseGBuffer;
             sampler2D _DepthTexture;
             sampler2D _PositionTexture;
-
             sampler2D _HeightMap;
             float2 _HeightMapSpeed;
 
@@ -166,14 +165,23 @@ Shader"Custom/CloudsPostProcess"
 	            return float2(dstToBox, dstInsideBox);
             }
 
-            float lightMarch(float3 samplePos, float3 lightDir)
+            float lightMarch(float3 samplePos, float3 lightDir, float sampleDist = -1)
             {
 	            float3 rayDir = lightDir;
 	            float dstTravelled = 0;
 
 	            // Evaluate distance inside box from samplePos to LightDir for computing stepSize
 	            float dstInsideBox = rayBoxDst(samplePos, rayDir).y;
-	            float stepSize = dstInsideBox / _LightSteps;
+
+                // Considerable optimization : reduce lighting quality with distance
+                // TODO: make 300 a parameter
+                int steps = _LightSteps;
+                if (sampleDist >= 0)
+                {
+                    steps *= (1 - saturate(sampleDist / 2000.0));
+                    steps = max(steps, 2);
+                }
+	            float stepSize = dstInsideBox / steps;
 	            float dstLimit = dstInsideBox;
 
 	            float totalDensity = 0;
@@ -186,24 +194,24 @@ Shader"Custom/CloudsPostProcess"
 		            dstTravelled += stepSize;
 	            }
 
-	            return exp(-totalDensity * _SunLightAbsorption);
+	            return max(0, exp(-totalDensity * _SunLightAbsorption));
             }
 
             float2 sampleCloud(float3 rayOrigin, float3 rayDir, float3 lightDir, float dstToBox, float dstInsideBox, float depthDist, float offset)
             {
 	            float dstTravelled = offset;
 	            float dstLimit = min(depthDist - dstToBox, dstInsideBox); // TODO: Improve far distances
-                
+                dstLimit = min(dstLimit, 2000);
 	            float transmittance = 1;
 	            float lightEnergy = 0;
 	            float totalDensity = 0;
 	            float phaseVal = phaseHG(rayDir, lightDir);
-                
+
                 [loop]
 	            while (dstTravelled < dstLimit)
 	            {
                     // TODO: increase step size the further we go ?
-                    float stepSize = max(_StepSize, _StepSize * dstTravelled / 1000);
+                    float stepSize = max(_StepSize, _StepSize * dstTravelled / 300);
 		            stepSize = min(stepSize, dstLimit - dstTravelled); // TODO: Improve performance on far distances
 		            if (transmittance < 0.01)
 		            {
@@ -214,7 +222,8 @@ Shader"Custom/CloudsPostProcess"
 		            float density = sampleDensity(rayPos) * stepSize * _GlobalDensity;
 		            totalDensity += density;
 
-		            float lightTransmittance = lightMarch(rayPos, lightDir);
+                    float sampleDist = dstTravelled + dstToBox;
+		            float lightTransmittance = lightMarch(rayPos, lightDir, sampleDist);
 		            lightEnergy += density * transmittance * lightTransmittance;
 		            transmittance *= exp(-density);
 
