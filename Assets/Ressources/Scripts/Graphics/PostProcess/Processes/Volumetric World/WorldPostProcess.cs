@@ -8,7 +8,6 @@ using UnityEngine;
 public class WorldPostProcess : PostProcessBase
 {
     [Header("Player")]
-    [SerializeField] private Camera cam;
     [SerializeField] private Transform playerLight;
     [SerializeField][Range(0, 200f)] private float playerLightRange;
     [SerializeField][Range(0, 5f)] private float playerLightIntensity;
@@ -146,7 +145,7 @@ public class WorldPostProcess : PostProcessBase
         postProcessMaterial.SetVector("_ShadowMapResolution", new Vector2(shadowMap.TextureWidth, shadowMap.TextureHeight));
 
         // Camera
-        postProcessMaterial.SetVector("_CameraPos", cam.transform.position);
+        postProcessMaterial.SetVector("_CameraPos", Camera.main.transform.position);
 
         // Player light
         postProcessMaterial.SetVector("_PlayerLightDir", playerLight.forward);

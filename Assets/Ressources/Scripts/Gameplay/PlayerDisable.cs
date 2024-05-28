@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using SDD.Events;
 
-public class PlayerDisable : MonoBehaviour
+public class PlayerDisable : MonoBehaviour, IEventHandler
 {
     [SerializeField] GameObject PlaneMesh;
     [SerializeField] GameObject Explosion;

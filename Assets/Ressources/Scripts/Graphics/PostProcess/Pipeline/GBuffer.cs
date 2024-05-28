@@ -18,7 +18,6 @@ public class GBuffer : MonoBehaviour, IEventHandler
     public RenderTexture BlockBuffer { get; private set; } // The texture to write block ID's
 
     [SerializeField] private ComputeShader shader;
-    [SerializeField] private Camera cam;
     
 
     public bool Initialized { get; private set; }
@@ -122,9 +121,9 @@ public class GBuffer : MonoBehaviour, IEventHandler
         }
 
         shader.SetFloat("_VoxelRenderDistance", voxelViewDistance);
-        shader.SetFloats("_CameraPos", new float[] { cam.transform.position.x, cam.transform.position.y, cam.transform.position.z });
-        shader.SetMatrix("_InvProjectionMatrix", cam.projectionMatrix.inverse);
-        shader.SetMatrix("_InvViewMatrix", cam.worldToCameraMatrix.inverse);
+        shader.SetFloats("_CameraPos", new float[] { Camera.main.transform.position.x, Camera.main.transform.position.y, Camera.main.transform.position.z });
+        shader.SetMatrix("_InvProjectionMatrix", Camera.main.projectionMatrix.inverse);
+        shader.SetMatrix("_InvViewMatrix", Camera.main.worldToCameraMatrix.inverse);
         shader.SetTextureFromGlobal(kernelHandle, "_UnityDepthTexture", "_CameraDepthTexture");
         shader.SetInts("_UnityBufferSize", new int[] { Screen.width, Screen.height });
         
@@ -133,7 +132,7 @@ public class GBuffer : MonoBehaviour, IEventHandler
 
     public void UpdateGBuffer(StartPostProcessingEvent e)
     {
-        if (cam == null)
+        if (Camera.main == null)
         {
             Debug.Log("No camera active");
             return;

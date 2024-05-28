@@ -59,7 +59,7 @@ public class RequestWorldGeneratorEvent : SDD.Events.Event
 {
 }
 
-public class PlayerExplosedEvent : SDD.Events.Event
+public class PlayerExplodedEvent : SDD.Events.Event
 {
 }
 
@@ -230,3 +230,14 @@ public class ShadowMapInitializedEvent : SDD.Events.Event
 public class DestroyEvent : SDD.Events.Event
 {
 }
+
+#region Camera events
+public class SwitchToFirstPersonEvent : SDD.Events.Event
+{
+}
+
+public class SwitchToThirdPersonEvent : SDD.Events.Event
+{
+}
+
+#endregion

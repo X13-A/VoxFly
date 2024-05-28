@@ -7,9 +7,6 @@ using UnityEngine;
 
 public class WaterPostProcess : PostProcessBase
 {
-    [Header("Camera")]
-    [SerializeField] private Camera cam;
-
     [Header("Pipeline")]
     [SerializeField] private Material postProcessMaterial;
 
@@ -91,7 +88,7 @@ public class WaterPostProcess : PostProcessBase
         postProcessMaterial.SetVector("_ShadowMapResolution", new Vector2(shadowMap.TextureWidth, shadowMap.TextureHeight));
 
         // Camera
-        postProcessMaterial.SetVector("_CameraPos", cam.transform.position);
+        postProcessMaterial.SetVector("_CameraPos", Camera.main.transform.position);
         postProcessMaterial.SetFloat("_WaterLevel", waterLevel);
         postProcessMaterial.SetFloat("_WaterDensity", waterDensity);
         postProcessMaterial.SetVector("_WaterColor", waterColor);

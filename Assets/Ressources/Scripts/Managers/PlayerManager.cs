@@ -9,8 +9,6 @@ public class PlayerManager : MonoBehaviour, IEventHandler
     List<GameObject> m_PlayerObjects;
     [SerializeField]
     GameObject blackScreen;
-    [SerializeField]
-    GameObject particleCam;
 
     private plane planeScript;
 
@@ -89,7 +87,7 @@ public class PlayerManager : MonoBehaviour, IEventHandler
     {
         yield return new WaitForSeconds(1);
         blackScreen?.SetActive(true);
-        EventManager.Instance.Raise(new PlayerExplosedEvent());
+        EventManager.Instance.Raise(new PlayerExplodedEvent());
     }
 
 }
