@@ -184,7 +184,6 @@ Shader"Custom/WaterPostProcess"
             {
                 float depth = tex2D(_DepthTexture, i.uv);
                 float3 pos = tex2D(_PositionTexture, i.uv);
-                
                 float3 rayPos = _CameraPos;
                 float viewLength = length(i.viewVector);
                 float3 rayDir = i.viewVector.xyz;
@@ -242,6 +241,9 @@ Shader"Custom/WaterPostProcess"
                 float4 background = tex2D(_MainTex, i.uv + distortedUV * distortionStrength);
 
                 float4 finalWaterColor = _WaterColor * light * (1 - transmittance) * (1 - foam);
+                float depthColor = 1 - saturate((_WaterLevel - pos.y) / 20);
+                depthColor = clamp(depthColor, 0.5, 1);
+                finalWaterColor *= depthColor;
                 return background * (transmittance) + finalWaterColor + foam * light + fogColor * fog;
             }
             ENDCG
