@@ -48,8 +48,8 @@ public class CameraManager : MonoBehaviour, IEventHandler
 
     void OnEnable()
     {
-        Init();
         SubscribeEvents();
+        Init();
     }
 
     void OnDisable()
