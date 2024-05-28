@@ -4,15 +4,18 @@ using System.Collections.Generic;
 public class CloudsNoiseGenerator : MonoBehaviour
 {
     [SerializeField] private ComputeShader worleyComputeShader;
-    [SerializeField] private int textureRes;
-    [SerializeField] private int pointsCount;
-    private RenderTexture worleyTexture;
-    private int kernelHandle;
+    [SerializeField] private ComputeShader perlinComputeShader;
+
+    private int worleyKernelHandle;
+    private int perlinKernelHandle;
+
     private void Start()
     {
-        kernelHandle = worleyComputeShader.FindKernel("CSMain");
+        worleyKernelHandle = worleyComputeShader.FindKernel("CSMain");
+        perlinKernelHandle = perlinComputeShader.FindKernel("CSMain");
     }
 
+    #region Worley noise
     public List<Vector3> CreateWorleyPointsGrid(int gridSize)
     {
         List<Vector3> points = new List<Vector3>();
@@ -84,11 +87,11 @@ public class CloudsNoiseGenerator : MonoBehaviour
         ComputeBuffer pointsBuffer = new ComputeBuffer(worleyPoints.Count, bufferStride);
         pointsBuffer.SetData(worleyPoints);
 
-        worleyComputeShader.SetBuffer(kernelHandle, "pointsBuffer", pointsBuffer);
-        worleyComputeShader.SetTexture(kernelHandle, "Result", worleyTexture);
+        worleyComputeShader.SetBuffer(worleyKernelHandle, "pointsBuffer", pointsBuffer);
+        worleyComputeShader.SetTexture(worleyKernelHandle, "Result", worleyTexture);
         worleyComputeShader.SetInt("pointsBufferLength", worleyPoints.Count);
         worleyComputeShader.SetInts("textureDimensions", textureSize, textureSize, textureSize);
-        worleyComputeShader.Dispatch(kernelHandle, textureSize / 8, textureSize / 8, textureSize / 8);
+        worleyComputeShader.Dispatch(worleyKernelHandle, textureSize / 8, textureSize / 8, textureSize / 8);
 
         pointsBuffer.Release();
 
@@ -101,4 +104,30 @@ public class CloudsNoiseGenerator : MonoBehaviour
         points = RepeatWorleyPoints(points);
         return ComputeWorleyTexture(points, textureSize);
     }
+    #endregion
+
+    #region Perlin noise
+    public RenderTexture ComputePerlinTexture(Vector3 scale, Vector3 offset, int textureSize)
+    {
+        RenderTexture perlinTexture = new RenderTexture(textureSize, textureSize, 0);
+        perlinTexture.enableRandomWrite = true;
+        perlinTexture.dimension = UnityEngine.Rendering.TextureDimension.Tex3D;
+        perlinTexture.volumeDepth = textureSize;
+        perlinTexture.format = RenderTextureFormat.RFloat;
+        perlinTexture.useMipMap = false;
+        perlinTexture.anisoLevel = 0;
+        perlinTexture.wrapMode = TextureWrapMode.Repeat;
+        perlinTexture.filterMode = FilterMode.Bilinear;
+        perlinTexture.Create();
+
+        perlinComputeShader.SetTexture(perlinKernelHandle, "Result", perlinTexture);
+        perlinComputeShader.SetInts("textureDimensions", textureSize, textureSize, textureSize);
+        perlinComputeShader.SetFloats("perlinScale", scale.x, scale.y, scale.z);
+        perlinComputeShader.SetFloats("perlinOffset", offset.x, offset.y, offset.z);
+        perlinComputeShader.Dispatch(perlinKernelHandle, textureSize / 8, textureSize / 8, textureSize / 8);
+
+        return perlinTexture;
+    }
+
+    #endregion
 }
