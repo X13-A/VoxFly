@@ -11,13 +11,13 @@ GameObject:
   - component: {fileID: 4521404770085940}
   - component: {fileID: 198321560017527566}
   - component: {fileID: 199049106770456860}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Fire
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &4521404770085940
 Transform:
   m_ObjectHideFlags: 0
@@ -36,7 +36,7 @@ Transform:
   - {fileID: 4250067245354182}
   - {fileID: 4845561253834940}
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: -90, y: 0, z: 0}
 --- !u!198 &198321560017527566
 ParticleSystem:
   m_ObjectHideFlags: 0
@@ -53,7 +53,7 @@ ParticleSystem:
   ringBufferLoopRange: {x: 0, y: 1}
   emitterVelocityMode: 0
   looping: 1
-  prewarm: 0
+  prewarm: 1
   playOnAwake: 1
   useUnscaledTime: 0
   autoRandomSeed: 1
@@ -110,7 +110,7 @@ ParticleSystem:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-  moveWithTransform: 0
+  moveWithTransform: 1
   moveWithCustomTransform: {fileID: 0}
   scalingMode: 1
   randomSeed: 0
@@ -4857,7 +4857,7 @@ GameObject:
   - component: {fileID: 4175407219268534}
   - component: {fileID: 198205007009897148}
   - component: {fileID: 199147534815207922}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PS_Fire_ALPHA
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -9699,7 +9699,7 @@ GameObject:
   - component: {fileID: 4250067245354182}
   - component: {fileID: 198168859160489886}
   - component: {fileID: 199681101902524428}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PS_Glow
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -14541,7 +14541,7 @@ GameObject:
   - component: {fileID: 4845561253834940}
   - component: {fileID: 198778633208645958}
   - component: {fileID: 199242344788938392}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PS_Sparks
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -19383,7 +19383,7 @@ GameObject:
   - component: {fileID: 4841828537153292}
   - component: {fileID: 198260517930635872}
   - component: {fileID: 199061620583998734}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PS_Fire_ADD
   m_TagString: Untagged
   m_Icon: {fileID: 0}
