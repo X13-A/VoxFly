@@ -12,6 +12,7 @@ public class Fire : MonoBehaviour, IEventHandler
 
     //int burningPercent = 0;
     List<float> fireEmission = new List<float>();
+    float transition = 70;
 
     public void SubscribeEvents()
     {
@@ -73,7 +74,7 @@ public class Fire : MonoBehaviour, IEventHandler
     {
         if (e.eBurningPercent.HasValue)
         {
-            if (e.eBurningPercent.Value <= 50)
+            if (e.eBurningPercent.Value <= transition)
             {
                 smokeUpdate(e.eBurningPercent.Value);
             }
@@ -106,7 +107,7 @@ public class Fire : MonoBehaviour, IEventHandler
 
         foreach (Transform child in fire.transform)
         {
-            float normalizedPercent = Mathf.Clamp((percent - 50) / 50.0f, 0.0f, 1.0f);
+            float normalizedPercent = Mathf.Clamp((percent - transition) / transition, 0.0f, 1.0f);
             float emissionRate = Mathf.Lerp(0, fireEmission[i], normalizedPercent);
 
             ParticleSystem fireParticles = child.GetComponent<ParticleSystem>();

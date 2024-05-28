@@ -291,7 +291,6 @@ public class plane : MonoBehaviour
 
     void CalculateAngleOfAttack()
     {
-        Debug.Log(LocalVelocity);
         if (LocalVelocity.sqrMagnitude < 0.1f)
         {
             AngleOfAttack = 0;
