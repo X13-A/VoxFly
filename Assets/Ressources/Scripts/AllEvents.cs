@@ -123,11 +123,24 @@ public class FinishTimerEvent : SDD.Events.Event
 #endregion
 
 #region AudioManager Events
-public class SoundMixEvent : SDD.Events.Event
+public class SoundMixAllEvent : SDD.Events.Event
 {
     public float? eSFXVolume;
     public float? eGameplayVolume;
     public float? eMenuVolume;
+    public float? ePlaneVolume;
+}
+
+public class SoundMixSoundEvent : SDD.Events.Event
+{
+    public string eNameClip; // Check audioTypes list in AudioManager
+    public float eVolume;
+}
+
+public class PlaneMixSoundEvent : SDD.Events.Event
+{
+    public float? eVolume;
+    public float? ePitch;
 }
 
 #region player events
@@ -142,13 +155,16 @@ public class StopSoundEvent : SDD.Events.Event
     public string eNameClip;
 }
 public class StopSoundAllEvent : SDD.Events.Event
-{
-    public bool eMute;
-}
+{ }
 
 public class StopSoundByTypeEvent : SDD.Events.Event
 {
     public string eType; // Check audioTypes list in AudioManager
+}
+
+public class MuteAllSoundEvent : SDD.Events.Event
+{
+    public bool eMute;
 }
 #endregion
 #endregion

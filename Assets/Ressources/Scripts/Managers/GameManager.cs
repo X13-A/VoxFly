@@ -24,13 +24,11 @@ public class GameManager : MonoBehaviour, IEventHandler
         {
             m_Instance = this;
         }
-
-
-        EventManager.Instance.Raise(new PlaySoundEvent()
+        else
         {
-            eNameClip = "menu",
-            eLoop = true
-        });
+            Debug.LogError("GameManager already exists. Deleting new one.");
+            Destroy(this);
+        }
     }
 
     void SetScore(int newScore)
@@ -143,7 +141,6 @@ public class GameManager : MonoBehaviour, IEventHandler
     {
         UpdateScores();
         SetState(GAMESTATE.gameover);
-        EventManager.Instance.Raise(new StopSoundAllEvent());
     }
 
     void UpdateScores()

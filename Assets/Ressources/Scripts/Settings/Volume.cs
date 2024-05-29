@@ -1,80 +1,102 @@
 using SDD.Events;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class Volume : MonoBehaviour
+public class Volume : MonoBehaviour, IEventHandler
 {
     [SerializeField] private Slider menuSlider;
     [SerializeField] private Slider gameplaySlider;
     [SerializeField] private Slider sfxSlider;
+    [SerializeField] private Slider planeSlider;
     [SerializeField] private Toggle muteAllToggle;
 
-    float menuVolume;
-    float gameplayVolume;
-    float sfxVolume;
+    public void SubscribeEvents()
+    {
+        EventManager.Instance.AddListener<SoundMixAllEvent>(SoundMix);
+    }
+
+    public void UnsubscribeEvents()
+    {
+        EventManager.Instance.RemoveListener<SoundMixAllEvent>(SoundMix);
+    }
+
+    void OnEnable()
+    {
+        SubscribeEvents();
+    }
+
+    void OnDisable()
+    {
+        UnsubscribeEvents();
+    }
 
     void Start()
     {
-        menuSlider.value = .8f;
-        gameplaySlider.value = .8f;
-        sfxSlider.value = .8f;
-        muteAllToggle.isOn = false;
+        menuSlider.value = AudioManager.Instance.MaxMenuVolume;
+        gameplaySlider.value = AudioManager.Instance.MaxGameplayVolume;
+        sfxSlider.value = AudioManager.Instance.MaxSFXVolume;
+        planeSlider.value = AudioManager.Instance.MaxPlaneVolume;
+        muteAllToggle.isOn = AudioManager.Instance.Mute;
 
-        menuVolume = menuSlider.value;
-        gameplayVolume = gameplaySlider.value;
-        sfxVolume = sfxSlider.value;
-
-        EventManager.Instance.Raise(new SoundMixEvent { 
+        EventManager.Instance.Raise(new SoundMixAllEvent { 
             eSFXVolume = sfxSlider.value,
             eGameplayVolume = gameplaySlider.value,
-            eMenuVolume = menuSlider.value
+            eMenuVolume = menuSlider.value,
+            ePlaneVolume = planeSlider.value
         });
 
-        menuSlider.onValueChanged.AddListener(SliderChanged);
-        gameplaySlider.onValueChanged.AddListener(SliderChanged);
-        sfxSlider.onValueChanged.AddListener(SliderChanged);
+        menuSlider.onValueChanged.AddListener(MenuSliderChanged);
+        gameplaySlider.onValueChanged.AddListener(GameplaySliderChanged);
+        sfxSlider.onValueChanged.AddListener(SFXSliderChanged);
+        planeSlider.onValueChanged.AddListener(PlaneSliderChanged);
         muteAllToggle.onValueChanged.AddListener(MuteAll);
     }
 
-    private void SliderChanged(float value)
+    void MenuSliderChanged(float value)
     {
-        EventManager.Instance.Raise(new SoundMixEvent
-        {
-            eSFXVolume = sfxSlider.value,
-            eGameplayVolume = gameplaySlider.value,
-            eMenuVolume = menuSlider.value
-        });
+        EventManager.Instance.Raise(new SoundMixAllEvent { eMenuVolume = menuSlider.value });
+    }
 
-        menuVolume = menuSlider.value;
-        gameplayVolume = gameplaySlider.value;
-        sfxVolume = sfxSlider.value;
+    void GameplaySliderChanged(float value)
+    {
+        EventManager.Instance.Raise(new SoundMixAllEvent { eGameplayVolume = gameplaySlider.value });
+    }
+
+    void SFXSliderChanged(float value)
+    {
+        EventManager.Instance.Raise(new SoundMixAllEvent { eSFXVolume = sfxSlider.value });
+    }
+
+    void PlaneSliderChanged(float value)
+    {
+        EventManager.Instance.Raise(new SoundMixAllEvent { ePlaneVolume = planeSlider.value });
     }
 
     private void MuteAll(bool isCheck)
     {
-        if (isCheck)
-        {
-            EventManager.Instance.Raise(new SoundMixEvent
-            {
-                eSFXVolume = 0,
-                eGameplayVolume = 0,
-                eMenuVolume = 0
-            });
-        }
-        else
-        {
-            EventManager.Instance.Raise(new SoundMixEvent
-            {
-                eSFXVolume = sfxVolume,
-                eGameplayVolume = gameplayVolume,
-                eMenuVolume = menuVolume
-            });
+        EventManager.Instance.Raise(new MuteAllSoundEvent { eMute = isCheck });
+    }
 
-            menuSlider.value = menuVolume;
-            gameplaySlider.value = gameplayVolume;
-            sfxSlider.value = sfxVolume;
+    void SoundMix(SoundMixAllEvent e)
+    {
+        if (e.eMenuVolume.HasValue)
+        {
+            menuSlider.value = e.eMenuVolume.Value;
+        }
+
+        if (e.eGameplayVolume.HasValue)
+        {
+            gameplaySlider.value = e.eGameplayVolume.Value;
+        }
+
+        if (e.eSFXVolume.HasValue)
+        {
+            sfxSlider.value = e.eSFXVolume.Value;
+        }
+
+        if (e.ePlaneVolume.HasValue)
+        {
+            planeSlider.value = e.ePlaneVolume.Value;
         }
     }
 }
