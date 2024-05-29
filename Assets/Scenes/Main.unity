@@ -1628,7 +1628,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   postProcessMaterial: {fileID: 2100000, guid: 1759a57d80d643d41925f91b992670eb, type: 2}
-  waterLevel: 19.8
+  waterLevel: 9.8
   waterDensity: 0.25
   waterColor: {r: 0.14509805, g: 0.38431373, b: 1, a: 1}
 --- !u!1 &509019034
