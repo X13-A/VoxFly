@@ -71,7 +71,6 @@ public class WorldGenerator : MonoBehaviour, IEventHandler
     void Start()
     {
         computeKernel = compute.FindKernel("CSMain");
-        RandomizeSeeds();
 
         //if (WorldPreset != null && BrickMapPreset != null)
         //{
@@ -96,6 +95,7 @@ public class WorldGenerator : MonoBehaviour, IEventHandler
     // 50x faster than GenerateTerrain_CPU (RTX 4050, 60W - R9 7940HS, 35W)
     public IEnumerator GenerateTerrain_GPU(Action callback = null, bool log = false)
     {
+        RandomizeSeeds();
         WorldGenerated = false;
 
         Stopwatch stopwatch = new Stopwatch();
