@@ -116,6 +116,7 @@ public class Hud : MonoBehaviour
     void UpdateAirspeed()
     {
         var speed = plane.LocalVelocity.magnitude * toKilometersPerHour;
+        maxSpeed = plane.maxThrust * 0.3f + 600;
         // Calculer l'angle de rotation proportionnel à la vitesse
         float angle = (speed / maxSpeed) * 200f;
 

@@ -9524,7 +9524,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Configs:
-  - name: Easy
+  - name: Normal
     pitchMult: 1
     yawMult: 1
     rollMult: 5
@@ -9533,24 +9533,24 @@ MonoBehaviour:
     minThrust: 0
     maxThrust: 2000
     throttleAdjustmentRate: 0.1
-  - name: Medium
-    pitchMult: 0
-    yawMult: 0
-    rollMult: 0
-    forceMult: 0
-    liftPower: 0
+  - name: Fast
+    pitchMult: 1
+    yawMult: 1
+    rollMult: 5
+    forceMult: 0.3
+    liftPower: 100
     minThrust: 0
-    maxThrust: 0
-    throttleAdjustmentRate: 0
-  - name: Hard
-    pitchMult: 0
-    yawMult: 0
-    rollMult: 0
-    forceMult: 0
-    liftPower: 0
+    maxThrust: 3000
+    throttleAdjustmentRate: 0.3
+  - name: Slow
+    pitchMult: 1
+    yawMult: 1
+    rollMult: 5
+    forceMult: 0.05
+    liftPower: 200
     minThrust: 0
-    maxThrust: 0
-    throttleAdjustmentRate: 0
+    maxThrust: 1000
+    throttleAdjustmentRate: 0.1
 --- !u!1 &1515601278
 GameObject:
   m_ObjectHideFlags: 0
