@@ -27,7 +27,7 @@ public class LosePanel : MonoBehaviour
         video.gameObject.SetActive(true);
         video.Stop();
         video.Play();
-        yield return new WaitForSeconds(7);
+        yield return new WaitForSeconds(4);
         video.Stop();
         video.gameObject.SetActive(false);
         loseObjects.SetActive(true);
