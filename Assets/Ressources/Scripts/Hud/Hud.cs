@@ -137,13 +137,10 @@ public class Hud : MonoBehaviour
         float cloudAltitude = cloudContainer.transform.position.y * metersToFeet;
         float planeAltitude = plane.Rigid.position.y * metersToFeet;
 
-        if (planeAltitude > cloudAltitude)
-        {
-            planeAltitude = cloudAltitude;
-        }
+        float altitudeRatio = Mathf.Clamp((planeAltitude / cloudAltitude), 0, 1);
 
-        float newYPosition = terrainImage.transform.position.y + (planeAltitude / cloudAltitude) * (cloudImage.transform.position.y - terrainImage.transform.position.y);
-        //Debug.Log("planeAltitude : " + planeAltitude + " - ImagePos : " + newYPosition);
+        float newYPosition = terrainImage.transform.position.y + altitudeRatio * (cloudImage.transform.position.y - terrainImage.transform.position.y);
+
         this.altitude.text = string.Format("{0:0} m", planeAltitude);
         Vector3 newPosition = new Vector3(planeImage.transform.position.x, newYPosition, planeImage.transform.position.z);
         planeImage.transform.position = newPosition;
