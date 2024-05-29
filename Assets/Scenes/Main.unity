@@ -9468,7 +9468,6 @@ MonoBehaviour:
   lightForwardTransform: {fileID: 286850343}
   lightUpTransform: {fileID: 1479337330}
   lightRightTransform: {fileID: 215885059}
-  cam: {fileID: 1112909378}
   mapWidth: 200
   mapHeight: 200
   mapDistance: 1000

@@ -13,7 +13,6 @@ public class ShadowMap : MonoBehaviour
     [SerializeField] private Transform lightForwardTransform;
     [SerializeField] private Transform lightUpTransform;
     [SerializeField] private Transform lightRightTransform;
-    [SerializeField] private Camera cam;
 
     [Header("Light projection params")]
     [SerializeField] private float mapWidth = 50f;
@@ -97,7 +96,7 @@ public class ShadowMap : MonoBehaviour
 
     private void ComputeShadowMapOrigin()
     {
-        Origin = new Vector3(Mathf.Round(cam.transform.position.x), Mathf.Round(cam.transform.position.y), Mathf.Round(cam.transform.position.z));
+        Origin = new Vector3(Mathf.Round(Camera.main.transform.position.x), Mathf.Round(Camera.main.transform.position.y), Mathf.Round(Camera.main.transform.position.z));
         Origin += new Vector3(LightDir.x, LightDir.y, LightDir.z) * -mapDistance;
     }
 
