@@ -211,15 +211,6 @@ public class GBufferInitializedEvent : SDD.Events.Event
 {
     public GBuffer gbuffer;
 }
-public class WorldGeneratedEvent : SDD.Events.Event
-{
-    public WorldGenerator generator;
-}
-
-public class GiveWorldGeneratorEvent : SDD.Events.Event
-{
-    public WorldGenerator generator;
-}
 
 public class ShadowMapInitializedEvent : SDD.Events.Event
 {
@@ -237,6 +228,23 @@ public class SwitchToFirstPersonEvent : SDD.Events.Event
 }
 
 public class SwitchToThirdPersonEvent : SDD.Events.Event
+{
+}
+
+#endregion
+
+#region Generation Events
+public class WorldGeneratedEvent : SDD.Events.Event
+{
+    public WorldGenerator generator;
+}
+
+public class GiveWorldGeneratorEvent : SDD.Events.Event
+{
+    public WorldGenerator generator;
+}
+
+public class WorldConfigChangedEvent : SDD.Events.Event
 {
 }
 

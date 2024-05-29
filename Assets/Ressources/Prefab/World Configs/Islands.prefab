@@ -1,0 +1,71 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &1616537905810073316
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8046951689079794225}
+  - component: {fileID: 6237581976059441074}
+  m_Layer: 0
+  m_Name: Islands
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8046951689079794225
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1616537905810073316}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6237581976059441074
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1616537905810073316}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 78fb715692358a04887a794646dc70a8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  configName: Islands
+  grassDepth: 15
+  width: 1024
+  depth: 1024
+  height: 128
+  brickSize: 8
+  terrainSeed: 617485197
+  terrainAmplitude: 50
+  terrainStartY: 80
+  terrainScale: {x: 10, y: 10}
+  terrainOffset: {x: 0, y: 0}
+  cavesSeed: 608123423
+  offset: {x: 0, y: 0, z: 0}
+  scale: {x: 40, y: 15, z: 40}
+  threshold: 0.48
+  cavesHeightDiminution: 0.02
+  deepTerrainSeed: 857903106
+  deepTerrainAmplitude: 10
+  deepTerrainScale: {x: 20, y: 20}
+  deepTerrainOffset: {x: 0, y: 0}
+  coverageSeed: 711569039
+  coverageScale: {x: 5, y: 5}
+  coverageOffset: {x: 0, y: 0}
+  coverage: 0.55
+  coverageFactor: 8

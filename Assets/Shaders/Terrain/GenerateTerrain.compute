@@ -32,6 +32,7 @@ float _Coverage;
 float2 _CoverageScale;
 float2 _CoverageOffset;
 uint _CoverageSeed;
+float _CoverageFactor;
 
 // Hash function with seed
 uint hash(uint x, uint seed) 
@@ -125,7 +126,9 @@ void CSMain(uint3 id : SV_DispatchThreadID)
     terrainHeight += _ElevationStartY;
 
     // Sample coverage
-    float coverage = min(pow(sampleCoverage(id) * 8, 2), 1); // TODO: make the factors parameters
+    float coverage = sampleCoverage(id);
+    coverage *=_CoverageFactor;
+    coverage = min(coverage, 1);
     terrainHeight *= coverage;
 
     // Lower height on edge of map

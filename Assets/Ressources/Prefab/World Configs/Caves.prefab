@@ -1,0 +1,71 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &1602401986710640151
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6906625147900727360}
+  - component: {fileID: 6352944620272349253}
+  m_Layer: 0
+  m_Name: Caves
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6906625147900727360
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1602401986710640151}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6352944620272349253
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1602401986710640151}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 78fb715692358a04887a794646dc70a8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  configName: Caves
+  grassDepth: 15
+  width: 1024
+  depth: 1024
+  height: 128
+  brickSize: 8
+  terrainSeed: 1077850192
+  terrainAmplitude: 78
+  terrainStartY: 50
+  terrainScale: {x: 15, y: 15}
+  terrainOffset: {x: 0, y: 0}
+  cavesSeed: 1805821895
+  offset: {x: 0, y: 0, z: 0}
+  scale: {x: 40, y: 15, z: 40}
+  threshold: 0.5
+  cavesHeightDiminution: 0.005
+  deepTerrainSeed: 1581625760
+  deepTerrainAmplitude: 10
+  deepTerrainScale: {x: 20, y: 20}
+  deepTerrainOffset: {x: 0, y: 0}
+  coverageSeed: 247031547
+  coverageScale: {x: 5, y: 5}
+  coverageOffset: {x: 0, y: 0}
+  coverage: 1
+  coverageFactor: 100

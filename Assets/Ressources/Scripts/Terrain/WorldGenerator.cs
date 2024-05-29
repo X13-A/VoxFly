@@ -9,62 +9,16 @@ using UnityEngine;
 
 public class WorldGenerator : MonoBehaviour, IEventHandler
 {
-    [Header("General parameters")]
-    [SerializeField] private float grassDepth = 3;
-
-    [SerializeField] private int width = 50;
-    [SerializeField] private int depth = 50;
-    [SerializeField] private int height = 50;
-
-    [Header("Optimization parameters")]
-    [SerializeField] private int brickSize = 8;
-
-    public Vector3Int Size => new Vector3Int(width, height, depth);
-
-    [Header("Terrain parameters")]
-    [SerializeField] private uint terrainSeed;
-    [SerializeField] private float terrainAmplitude = 1;
-    [SerializeField] private float terrainStartY = 15;
-    [SerializeField] private Vector2 terrainScale = new Vector2(3.33f, 3.33f);
-    [SerializeField] private Vector2 terrainOffset = new Vector2();
-
-    [Header("Caves parameters")]
-    [SerializeField] private uint cavesSeed;
-    [SerializeField] private Vector3 offset = new Vector3();
-    [SerializeField] private Vector3 scale = new Vector3(3.33f, 3.33f, 3.33f);
-    [SerializeField] private float threshold = 0.5f; // Seuil pour la g�n�ration des grottes
-    /// <summary>
-    /// The higher the value, the thinner the caves are on higher terrain
-    /// </summary>
-    [SerializeField] private float cavesHeightDiminution = 0.1f;
-
-    [Header("Deep terrain parameters")]
-    [SerializeField] private uint deepTerrainSeed;
-    [SerializeField] private float deepTerrainAmplitude = 1;
-    [SerializeField] private Vector2 deepTerrainScale = new Vector2(3.33f, 3.33f);
-    [SerializeField] private Vector2 deepTerrainOffset = new Vector2();
-
-    [Header("Land coverage parameters")]
-    [SerializeField] private uint coverageSeed;
-    [SerializeField] private Vector2 coverageScale = new Vector2(3.33f, 3.33f);
-    [SerializeField] private Vector2 coverageOffset = new Vector2();
-    [SerializeField] private float coverage = 0.5f;
-
-
+    private WorldConfig config => WorldConfigManager.Instance.CurrentConfig;
+    public Vector3Int Size => new Vector3Int(config.width, config.height, config.depth);
     public Texture3D WorldTexture { get; private set; }
     public Texture3D BrickMapTexture { get; private set; }
-    public int BrickSize => brickSize;
-
-    [SerializeField] private Texture3D BrickMapPreset;
-    [SerializeField] private Texture3D WorldPreset;
-
-    [SerializeField] private Texture3D BrickMapViz;
-    [SerializeField] private Texture3D WorldViz;
+    public int BrickSize => config.brickSize;
 
     private RenderTexture WorldRenderTexture;
     private RenderTexture BrickMapRenderTexture;
-    [SerializeField] private Color grassColor;
-    [SerializeField] private Color stoneColor;
+    private Color grassColor = new Color(1f/255f, 0, 0, 1);
+    private Color stoneColor = new Color(2f/255f, 0, 0, 1);
 
     [SerializeField] private ComputeShader compute;
     private int computeKernel;
@@ -76,11 +30,13 @@ public class WorldGenerator : MonoBehaviour, IEventHandler
     {
         EventManager.Instance.AddListener<RequestWorldGeneratorEvent>(GiveWorldGenerator);
         EventManager.Instance.AddListener<SceneLoadedEvent>(RaiseGeneratedEvent);
+        EventManager.Instance.AddListener<WorldConfigChangedEvent>(HandleWorldConfigChange);
     }
     public void UnsubscribeEvents()
     {
         EventManager.Instance.RemoveListener<RequestWorldGeneratorEvent>(GiveWorldGenerator);
         EventManager.Instance.RemoveListener<SceneLoadedEvent>(RaiseGeneratedEvent);
+        EventManager.Instance.RemoveListener<WorldConfigChangedEvent>(HandleWorldConfigChange);
     }
 
     public void GiveWorldGenerator(RequestWorldGeneratorEvent e)
@@ -94,6 +50,11 @@ public class WorldGenerator : MonoBehaviour, IEventHandler
     public void RaiseGeneratedEvent(SceneLoadedEvent e)
     {
         EventManager.Instance.Raise(new WorldGeneratedEvent { generator = this });
+    }
+
+    public void HandleWorldConfigChange(WorldConfigChangedEvent e)
+    {
+        StartCoroutine(GenerateTerrain_GPU());
     }
     #endregion
 
@@ -112,26 +73,24 @@ public class WorldGenerator : MonoBehaviour, IEventHandler
         computeKernel = compute.FindKernel("CSMain");
         RandomizeSeeds();
 
-        if (WorldPreset != null && BrickMapPreset != null)
-        {
-            WorldTexture = WorldPreset;
-            BrickMapTexture = BrickMapPreset;
-            WorldViz = WorldPreset;
-            BrickMapViz = BrickMapPreset;
-            RaiseGeneratedEvent();
-        }
-        else
-        {
-            StartCoroutine(GenerateTerrain_GPU());
-        }
+        //if (WorldPreset != null && BrickMapPreset != null)
+        //{
+        //    WorldTexture = WorldPreset;
+        //    BrickMapTexture = BrickMapPreset;
+        //    RaiseGeneratedEvent();
+        //}
+        //else
+        //{
+        //}
+        StartCoroutine(GenerateTerrain_GPU());
     }
 
     public void RandomizeSeeds()
     {
-        cavesSeed = (uint)UnityEngine.Random.Range(0, int.MaxValue);
-        coverageSeed = (uint)UnityEngine.Random.Range(0, int.MaxValue);
-        deepTerrainSeed = (uint)UnityEngine.Random.Range(0, int.MaxValue);
-        terrainSeed = (uint)UnityEngine.Random.Range(0, int.MaxValue);
+        config.cavesSeed = (uint)UnityEngine.Random.Range(0, int.MaxValue);
+        config.coverageSeed = (uint)UnityEngine.Random.Range(0, int.MaxValue);
+        config.deepTerrainSeed = (uint)UnityEngine.Random.Range(0, int.MaxValue);
+        config.terrainSeed = (uint)UnityEngine.Random.Range(0, int.MaxValue);
     }
 
     // 50x faster than GenerateTerrain_CPU (RTX 4050, 60W - R9 7940HS, 35W)
@@ -149,9 +108,9 @@ public class WorldGenerator : MonoBehaviour, IEventHandler
         // Create a RenderTexture with 3D support and enable random write
         RenderTextureDescriptor worldDesc = new RenderTextureDescriptor
         {
-            width = width,
-            height = height,
-            volumeDepth = depth,
+            width = config.width,
+            height = config.height,
+            volumeDepth = config.depth,
             dimension = UnityEngine.Rendering.TextureDimension.Tex3D,
             enableRandomWrite = true,
             graphicsFormat = UnityEngine.Experimental.Rendering.GraphicsFormat.R8_UNorm,
@@ -165,9 +124,9 @@ public class WorldGenerator : MonoBehaviour, IEventHandler
 
         RenderTextureDescriptor brickMapDesc = new RenderTextureDescriptor
         {
-            width = width / brickSize,
-            height = height / brickSize,
-            volumeDepth = depth / brickSize,
+            width = config.width / config.brickSize,
+            height = config.height / config.brickSize,
+            volumeDepth = config.depth / config.brickSize,
             dimension = UnityEngine.Rendering.TextureDimension.Tex3D,
             enableRandomWrite = true,
             graphicsFormat = UnityEngine.Experimental.Rendering.GraphicsFormat.R8_UNorm,
@@ -183,37 +142,38 @@ public class WorldGenerator : MonoBehaviour, IEventHandler
         // Set uniforms
         //int[] worldSize = new int[] { width, height, depth };
         compute.SetInts("_WorldSize", new int[] { WorldRenderTexture.width, WorldRenderTexture.height, WorldRenderTexture.volumeDepth });
-        compute.SetInts("_BrickSize", brickSize);
-        compute.SetFloat("_TerrainAmplitude", terrainAmplitude);
-        compute.SetFloat("_ElevationStartY", terrainStartY);
-        compute.SetVector("_TerrainScale", new Vector4(terrainScale.x, terrainScale.y, 0, 0));
-        compute.SetVector("_TerrainOffset", new Vector4(terrainOffset.x, terrainOffset.y, 0, 0));
-        compute.SetInt("_TerrainSeed", (int)terrainSeed);
+        compute.SetInts("_BrickSize", config.brickSize);
+        compute.SetFloat("_TerrainAmplitude", config.terrainAmplitude);
+        compute.SetFloat("_ElevationStartY", config.terrainStartY);
+        compute.SetVector("_TerrainScale", new Vector4(config.terrainScale.x, config.terrainScale.y, 0, 0));
+        compute.SetVector("_TerrainOffset", new Vector4(config.terrainOffset.x, config.terrainOffset.y, 0, 0));
+        compute.SetInt("_TerrainSeed", (int)config.terrainSeed);
 
-        compute.SetFloat("_DeepTerrainAmplitude", deepTerrainAmplitude);
-        compute.SetVector("_DeepTerrainScale", new Vector4(deepTerrainScale.x, deepTerrainScale.y, 0, 0));
-        compute.SetVector("_DeepTerrainOffset", new Vector4(deepTerrainOffset.x, deepTerrainOffset.y, 0, 0));
-        compute.SetInt("_DeepTerrainSeed", (int)deepTerrainSeed);
+        compute.SetFloat("_DeepTerrainAmplitude", config.deepTerrainAmplitude);
+        compute.SetVector("_DeepTerrainScale", new Vector4(config.deepTerrainScale.x, config.deepTerrainScale.y, 0, 0));
+        compute.SetVector("_DeepTerrainOffset", new Vector4(config.deepTerrainOffset.x, config.deepTerrainOffset.y, 0, 0));
+        compute.SetInt("_DeepTerrainSeed", (int)config.deepTerrainSeed);
 
         compute.SetVector("_GrassColor", grassColor);
         compute.SetVector("_StoneColor", stoneColor);
-        compute.SetFloat("_GrassDepth", grassDepth);
-        compute.SetFloat("_CavesThreshold", threshold);
-        compute.SetFloat("_CavesHeightDiminution", cavesHeightDiminution);
-        compute.SetVector("_CavesScale", scale);
-        compute.SetVector("_CavesOffset", offset);
-        compute.SetInt("_CavesSeed", (int) cavesSeed);
+        compute.SetFloat("_GrassDepth", config.grassDepth);
+        compute.SetFloat("_CavesThreshold", config.threshold);
+        compute.SetFloat("_CavesHeightDiminution", config.cavesHeightDiminution);
+        compute.SetVector("_CavesScale", config.scale);
+        compute.SetVector("_CavesOffset", config.offset);
+        compute.SetInt("_CavesSeed", (int) config.cavesSeed);
 
         // Coverage
-        compute.SetFloat("_Coverage", coverage);
-        compute.SetVector("_CoverageScale", coverageScale);
-        compute.SetVector("_CoverageOffset", coverageOffset);
-        compute.SetInt("_CoverageSeed", (int) coverageSeed);
+        compute.SetFloat("_Coverage", config.coverage);
+        compute.SetVector("_CoverageScale", config.coverageScale);
+        compute.SetVector("_CoverageOffset", config.coverageOffset);
+        compute.SetInt("_CoverageSeed", (int) config.coverageSeed);
+        compute.SetFloat("_CoverageFactor", config.coverageFactor);
 
         // Dispatch the compute shader
-        int threadGroupsX = Mathf.CeilToInt(width / 8.0f);
-        int threadGroupsY = Mathf.CeilToInt(height / 8.0f);
-        int threadGroupsZ = Mathf.CeilToInt(depth / 8.0f);
+        int threadGroupsX = Mathf.CeilToInt(config.width / 8.0f);
+        int threadGroupsY = Mathf.CeilToInt(config.height / 8.0f);
+        int threadGroupsZ = Mathf.CeilToInt(config.depth / 8.0f);
         compute.Dispatch(computeKernel, threadGroupsX, threadGroupsY, threadGroupsZ);
 
         stopwatch.Stop();
@@ -228,14 +188,12 @@ public class WorldGenerator : MonoBehaviour, IEventHandler
         StartCoroutine(RenderingUtils.ConvertRenderTextureToTexture3D(WorldRenderTexture, 1, TextureFormat.R8, TextureWrapMode.Repeat, FilterMode.Point, (Texture3D tex) =>
         {
             WorldTexture = tex;
-            WorldViz = tex;
             WorldRenderTexture.Release();
             //AssetDatabase.CreateAsset(tex, "Assets/IslandWorld.asset");
             
             StartCoroutine(RenderingUtils.ConvertRenderTextureToTexture3D(BrickMapRenderTexture, 1, TextureFormat.R8, TextureWrapMode.Repeat, FilterMode.Point, (Texture3D tex) =>
             {
                 BrickMapTexture = tex;
-                BrickMapViz = tex;
                 BrickMapRenderTexture.Release();
                 WorldGenerated = true;
                 //AssetDatabase.CreateAsset(tex, "Assets/IslandWorld_BrickMap.asset");
@@ -259,26 +217,26 @@ public class WorldGenerator : MonoBehaviour, IEventHandler
 
     #region CPU generation
 
-    public void GenerateTerrain_CPU()
+    public void DEPRECATED_GenerateTerrain_CPU()
     {
         WorldGenerated = false;
         UnityEngine.Debug.Log("Starting world generation (CPU)...");
         Stopwatch stopwatch = new Stopwatch();
         stopwatch.Start();
 
-        WorldTexture = new Texture3D(width, height, depth, TextureFormat.R8, false); // R8 car on a besoin seulement d'un channel, et peu de valeurs diff�rentes.
+        WorldTexture = new Texture3D(config.width, config.height, config.depth, TextureFormat.R8, false); // R8 car on a besoin seulement d'un channel, et peu de valeurs diff�rentes.
         WorldTexture.anisoLevel = 0;
         WorldTexture.filterMode = FilterMode.Point;
         WorldTexture.wrapMode = TextureWrapMode.Clamp;
 
-        for (int x = 0; x < width; x++)
+        for (int x = 0; x < config.width; x++)
         {
-            for (int z = 0; z < depth; z++)
+            for (int z = 0; z < config.depth; z++)
             {
-                float currentHeight = terrainStartY + RenderingUtils.Get2DNoise(x, z, terrainScale, terrainOffset) * terrainAmplitude;
+                float currentHeight = config.terrainStartY + RenderingUtils.Get2DNoise(x, z, config.terrainScale, config.terrainOffset) * config.terrainAmplitude;
 
                 // S'arr�te d�s qu'on atteint la hauteur actuelle pour ne pas g�n�rer des grottes au dessus du terrain
-                for (int y = 0; y < height; y++)
+                for (int y = 0; y < config.height; y++)
                 {
                     if (y >= currentHeight)
                     {
@@ -286,9 +244,9 @@ public class WorldGenerator : MonoBehaviour, IEventHandler
                         continue;
                     }
 
-                    float noise = RenderingUtils.Get3DNoise(x, y, z, scale, offset);
-                    Color colorUsed = Mathf.Abs(currentHeight - y) < grassDepth ? grassColor : stoneColor;
-                    if (noise > threshold)
+                    float noise = RenderingUtils.Get3DNoise(x, y, z, config.scale, config.offset);
+                    Color colorUsed = Mathf.Abs(currentHeight - y) < config.grassDepth ? grassColor : stoneColor;
+                    if (noise > config.threshold)
                     {
                         WorldTexture.SetPixel(x, y, z, colorUsed);
                         continue;
@@ -299,9 +257,9 @@ public class WorldGenerator : MonoBehaviour, IEventHandler
         }
 
         // Fill bottom
-        for (int x = 0; x < width; x++)
+        for (int x = 0; x < config.width; x++)
         {
-            for (int z = 0; z < depth; z++)
+            for (int z = 0; z < config.depth; z++)
             {
                 WorldTexture.SetPixel(x, 0, z, stoneColor);
                 WorldTexture.SetPixel(x, 1, z, stoneColor);

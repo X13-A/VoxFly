@@ -18,11 +18,15 @@ public class ConfigManager : MonoBehaviour
         if (m_Instance == null)
         {
             m_Instance = this;
+            if (m_Configs.Count > 0)
+            {
+                m_CurrentConfig = m_Configs[0];
+            }
         }
-        if (m_Configs.Count > 0)
+        else
         {
-            m_CurrentConfig = m_Configs[0];
-        }              
+            Destroy(this);
+        }      
     }
 
     public void SetConfig(int i)
