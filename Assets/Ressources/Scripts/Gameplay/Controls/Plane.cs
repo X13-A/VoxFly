@@ -227,7 +227,6 @@ public class plane : MonoBehaviour
         minThrust = config.minThrust;
         maxThrust = config.maxThrust;
         throttleAdjustmentRate = config.throttleAdjustmentRate;
-        Debug.Log("Add Config " + config.name);
     }
 
 
