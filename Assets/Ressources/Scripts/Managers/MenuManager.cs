@@ -11,6 +11,7 @@ public class MenuManager : MonoBehaviour, IEventHandler
     [SerializeField] GameObject m_SettingsPanel;
     [SerializeField] GameObject m_ScorePanel;
 
+
     List<GameObject> m_Panels;
     void OpenPanel(GameObject panel)
     {
