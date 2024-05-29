@@ -1611,7 +1611,7 @@ MonoBehaviour:
   explosion: {fileID: 8300000, guid: 5523d5b47c1797246a919df840d54c40, type: 3}
   maxMenuVolume: 1
   menu: {fileID: 8300000, guid: 49aa17b135fe2534c964e5266a76ae5f, type: 3}
-  maxPlaneVolume: 0.8
+  maxPlaneVolume: 1
   plane: {fileID: 8300000, guid: 239147d63a394b74e84d0b78ea7fe7ef, type: 3}
 --- !u!1 &179722049
 GameObject:
@@ -11940,9 +11940,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9c7bf2bbbc7791e4c81c3b20d8cbac84, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  audioSource: {fileID: 0}
-  minAudio: 0
-  maxAudio: 0
 --- !u!1 &1681793134
 GameObject:
   m_ObjectHideFlags: 0

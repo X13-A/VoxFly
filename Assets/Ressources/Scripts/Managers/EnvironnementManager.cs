@@ -78,15 +78,6 @@ public class EnvironnementManager : MonoBehaviour, IEventHandler
         EventManager.Instance.Raise(new StopSoundEvent() { eNameClip = "wind" });
         EventManager.Instance.Raise(new StopSoundEvent() { eNameClip = "thunder" });
     }
-    int score = 0;
-    void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.O))
-        {
-            score += 100;
-            EventManager.Instance.Raise(new UpdateGameScoreEvent() { score = score });
-        }
-    }
 
     void UpdateEnvironnement(UpdateGameScoreEvent e)
     {
