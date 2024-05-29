@@ -11,7 +11,7 @@ public class WorldPostProcess : PostProcessBase
     [SerializeField] private Transform playerLight;
     [SerializeField][Range(0, 200f)] private float playerLightRange;
     [SerializeField][Range(0, 5f)] private float playerLightIntensity;
-    [SerializeField][Range(0, 1f)] private float playerLightVolumetricIntensity;
+    [SerializeField][Range(0, 1f)] public float playerLightVolumetricIntensity;
     [SerializeField][Range(0, 90f)] private float playerLightAngle;
 
     [Header("Pipeline")]

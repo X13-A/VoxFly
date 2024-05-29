@@ -4,6 +4,7 @@ using UnityEngine;
 using SDD.Events;
 using Unity.VisualScripting;
 using static UnityEngine.UI.CanvasScaler;
+using System.Runtime.CompilerServices;
 
 public enum CameraMode { FirstPerson, ThirdPerson }
 
@@ -15,6 +16,8 @@ public class CameraManager : MonoBehaviour, IEventHandler
     [Header("First Person")]
     [SerializeField] private Camera firstPerson_Camera;
     [SerializeField] private GameObject blackScreen;
+    [SerializeField] private WorldPostProcess worldPostProcess;
+    private float initialVolumetricIntensity;
 
     [Header("Third Person")]
     [SerializeField] private Camera thirdPerson_Camera;
@@ -36,6 +39,7 @@ public class CameraManager : MonoBehaviour, IEventHandler
 
     void Init()
     {
+        initialVolumetricIntensity = worldPostProcess.playerLightVolumetricIntensity;
         if (Camera.main == firstPerson_Camera)
         {
             EventManager.Instance.Raise(new SwitchToFirstPersonEvent());
@@ -77,6 +81,7 @@ public class CameraManager : MonoBehaviour, IEventHandler
         thirdPerson_MouseFlightRig.SetActive(false);
         firstPerson_Camera.gameObject.SetActive(true);
         cameraMode = CameraMode.FirstPerson;
+        worldPostProcess.playerLightVolumetricIntensity = 0;
     }
 
     public void SwitchToThirdPerson(SwitchToThirdPersonEvent e)
@@ -85,6 +90,7 @@ public class CameraManager : MonoBehaviour, IEventHandler
         thirdPerson_MouseFlightRig.SetActive(true);
         firstPerson_Camera.gameObject.SetActive(false);
         cameraMode = CameraMode.ThirdPerson;
+        worldPostProcess.playerLightVolumetricIntensity = initialVolumetricIntensity;
     }
 
     public void HandleDestroy(DestroyEvent e)
