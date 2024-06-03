@@ -99,7 +99,8 @@ public class GameManager : Singleton<GameManager>, IEventHandler
         AsyncOperation loading = SceneManager.LoadSceneAsync(1);
         loading.completed += (AsyncOperation operation) => 
         {
-            EventManager.Instance.Raise(new SceneLoadedEvent { scene = 1 }); 
+            EventManager.Instance.Raise(new SceneLoadedEvent { scene = 1 });
+            SetState(GAMESTATE.play);
         };
         SetScore(0);
     }
@@ -112,7 +113,6 @@ public class GameManager : Singleton<GameManager>, IEventHandler
     void Play()
     {
         InitGame();
-        SetState(GAMESTATE.play);
         EventManager.Instance.Raise(new StopSoundEvent() { eNameClip = "menu" });
     }
 
