@@ -102,7 +102,6 @@ public class GetPoint : MonoBehaviour, IEventHandler
         float pitchVariation = 0.5f;
         if (points > 0 && Time.time - scoreSoundTime > scoreSoundDelay)
         {
-            Debug.Log(points);
             scoreSoundTime = Time.time;
             float pitch = Random.Range(1 - pitchVariation / 2f, 1 + pitchVariation / 2f);
             EventManager.Instance.Raise(new PlaySoundEvent { eNameClip = "score", eCanStack = true, eDestroyWhenFinished = true, ePitch = pitch, eVolumeMultiplier = 0.3f });

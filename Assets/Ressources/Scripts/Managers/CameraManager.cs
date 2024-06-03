@@ -15,6 +15,7 @@ public class CameraManager : Singleton<CameraManager>, IEventHandler
     [SerializeField] private Camera firstPerson_Camera;
     [SerializeField] private GameObject blackScreen;
     [SerializeField] private WorldPostProcess worldPostProcess;
+
     private float initialVolumetricIntensity;
 
     [Header("Third Person")]
@@ -84,8 +85,15 @@ public class CameraManager : Singleton<CameraManager>, IEventHandler
         if (cameraMode == CameraMode.FirstPerson)
         {
             // Prevents the camera from being disabled
+            firstPerson_Camera.transform.localPosition -= new Vector3(0, 0, 7);
+
+            // Remove roll
+            Vector3 currentRotation = firstPerson_Camera.transform.eulerAngles;
+            float pitch = currentRotation.x;
+            float yaw = currentRotation.y;
+            firstPerson_Camera.transform.rotation = Quaternion.Euler(pitch, yaw, 0);
             firstPerson_Camera.transform.SetParent(null);
-            blackScreen.SetActive(true);
+            //blackScreen.SetActive(true);
         }
     }
 
