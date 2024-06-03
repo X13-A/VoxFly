@@ -3,11 +3,8 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class AudioManager : MonoBehaviour, IEventHandler
+public class AudioManager : Singleton<AudioManager>, IEventHandler
 {
-    public static AudioManager m_Instance;
-    public static AudioManager Instance { get { return m_Instance; } }
-
     [Header("SFX")]
     [SerializeField] private float maxSFXVolume = 1;
     [SerializeField] private AudioClip click;
@@ -40,19 +37,9 @@ public class AudioManager : MonoBehaviour, IEventHandler
     public float MaxPlaneVolume => maxPlaneVolume;
     public bool Mute => mute;
 
-
-    void Awake()
+    protected override void Awake()
     {
-        if (m_Instance == null)
-        {
-            m_Instance = this;
-        }
-        else
-        {
-            Debug.LogError("GameManager already exists. Deleting new one.");
-            Destroy(this);
-        }
-
+        base.Awake();
         /* /!\ Add all audio clips to the dictionary /!\ */
         audioClips = new Dictionary<string, Tuple<AudioClip, string>>()
         {

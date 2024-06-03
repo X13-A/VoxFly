@@ -179,7 +179,7 @@ public class EnemyHasBeenHitEvent : SDD.Events.Event
 #region Plane Event
 public class PlaneStateEvent : SDD.Events.Event
 {
-    public float? eBurningPercent; // in pourcentage
+    public float? eBurningPercent;
     public float? eThrust;
     public bool? eIsInWater;
 }

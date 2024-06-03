@@ -7,30 +7,13 @@ using UnityEngine.SceneManagement;
 public enum GAMESTATE { menu, play, pause, victory, gameover }
 public delegate void afterFunction();
 
-public class GameManager : MonoBehaviour, IEventHandler
+public class GameManager : Singleton<GameManager>, IEventHandler
 {
-    public static GameManager m_Instance;
-    public static GameManager Instance { get { return m_Instance; } }
-
     GAMESTATE m_State;
     public bool IsPlaying => m_State == GAMESTATE.play;
 
     public int m_Score;
     public int Score {  get { return m_Score; } }
-
-    void Awake()
-    {
-        if (m_Instance == null)
-        {
-            m_Instance = this;
-        }
-        else
-        {
-            Debug.LogError("GameManager already exists. Deleting new one.");
-            Destroy(this);
-        }
-    }
-
     void SetScore(int newScore)
     {
         m_Score = newScore;

@@ -116,7 +116,7 @@ public class SunBurn : MonoBehaviour, IEventHandler
 
         if (result)
         {
-            burningSum += resultIntensity / 4;
+            burningSum += resultIntensity;
             BurningPercentEvent(burningSum);
         }
         else

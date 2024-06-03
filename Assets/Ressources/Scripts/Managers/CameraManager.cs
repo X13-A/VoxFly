@@ -8,10 +8,8 @@ using System.Runtime.CompilerServices;
 
 public enum CameraMode { FirstPerson, ThirdPerson }
 
-public class CameraManager : MonoBehaviour, IEventHandler
+public class CameraManager : Singleton<CameraManager>, IEventHandler
 {
-    public static CameraManager m_Instance;
-    public static CameraManager Instance { get { return m_Instance; } }
 
     [Header("First Person")]
     [SerializeField] private Camera firstPerson_Camera;
@@ -24,18 +22,6 @@ public class CameraManager : MonoBehaviour, IEventHandler
     [SerializeField] private GameObject thirdPerson_MouseFlightRig;
     
     private CameraMode cameraMode;
-
-    void Awake()
-    {
-        if (m_Instance == null)
-        {
-            m_Instance = this;
-        }
-        else
-        {
-            Destroy(this);
-        }
-    }
 
     void Init()
     {
