@@ -10,9 +10,12 @@ public class SunBurn : MonoBehaviour, IEventHandler
     [SerializeField] private Transform directionalLight;
     [SerializeField] private CloudsPostProcess cloudsPostProcess;
     [SerializeField] private WaterPostProcess waterPostProcess;
-    [SerializeField] private float maxBurningRate = 500;
 
-    float burningSum = 0;
+    [SerializeField] private float sunBurningRate = 10;
+    [SerializeField] private float waterRecoverRate = -100;
+    [SerializeField] private float shadowRecoverRate = -50;
+
+    float burningPercent = 0;
     private WorldGenerator generator;
 
     #region Events
@@ -104,8 +107,8 @@ public class SunBurn : MonoBehaviour, IEventHandler
         // Refill when in water
         if (waterPostProcess && transform.position.y <= waterPostProcess.WaterLevel)
         {
-            burningSum -= 10f;
-            BurningPercentEvent(burningSum);
+            burningPercent -= waterRecoverRate * Time.deltaTime;
+            BurningPercentEvent(burningPercent);
             return;
         }
 
@@ -116,20 +119,19 @@ public class SunBurn : MonoBehaviour, IEventHandler
 
         if (result)
         {
-            burningSum += resultIntensity;
-            BurningPercentEvent(burningSum);
+            burningPercent += resultIntensity * sunBurningRate * Time.deltaTime;
+            BurningPercentEvent(burningPercent);
         }
         else
         {
-            burningSum -= resultIntensity;
-            BurningPercentEvent(burningSum);
+            burningPercent -= shadowRecoverRate * Time.deltaTime;
+            BurningPercentEvent(burningPercent);
         }
+        burningPercent = Mathf.Clamp(burningPercent, 0, 100);
     }
 
     void BurningPercentEvent(float burningSum)
     {
-        float burningPercent = Mathf.Clamp(burningSum, 0, maxBurningRate) / maxBurningRate * 100;
-
         if (burningPercent >= 100)
         {
             EventManager.Instance.Raise(new DestroyEvent());
