@@ -1609,6 +1609,7 @@ MonoBehaviour:
   thunder: {fileID: 8300000, guid: f7d6ddfe7bf9fc94996334f86e548c83, type: 3}
   rain: {fileID: 8300000, guid: ce56b6d96645575448c0993f270fa2f0, type: 3}
   explosion: {fileID: 8300000, guid: 5523d5b47c1797246a919df840d54c40, type: 3}
+  score: {fileID: 8300000, guid: 67936a82b6f6acc4a956baadb0d80e5f, type: 3}
   maxMenuVolume: 1
   menu: {fileID: 8300000, guid: 49aa17b135fe2534c964e5266a76ae5f, type: 3}
   maxPlaneVolume: 1

@@ -15,6 +15,9 @@ public class GetPoint : MonoBehaviour, IEventHandler
     private int sizeY => generator.Size.y;
     private WorldGenerator generator;
 
+    private float scoreSoundDelay = 0.1f;
+    private float scoreSoundTime;
+
     public void SubscribeEvents()
     {
         EventManager.Instance.AddListener<GiveWorldGeneratorEvent>(OnGenerated);
@@ -96,6 +99,14 @@ public class GetPoint : MonoBehaviour, IEventHandler
 
     void UpdateScore(int points)
     {
+        float pitchVariation = 0.5f;
+        if (points > 0 && Time.time - scoreSoundTime > scoreSoundDelay)
+        {
+            Debug.Log(points);
+            scoreSoundTime = Time.time;
+            float pitch = Random.Range(1 - pitchVariation / 2f, 1 + pitchVariation / 2f);
+            EventManager.Instance.Raise(new PlaySoundEvent { eNameClip = "score", eCanStack = true, eDestroyWhenFinished = true, ePitch = pitch, eVolumeMultiplier = 0.3f });
+        }
         GameManager.Instance.IncrementScore(points);
     }
 }

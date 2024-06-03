@@ -1,11 +1,12 @@
 using SDD.Events;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class AudioManager : Singleton<AudioManager>, IEventHandler
 {
-    [Header("SFX")]
+    [Header("UI")]
     [SerializeField] private float maxSFXVolume = 1;
     [SerializeField] private AudioClip click;
 
@@ -15,8 +16,9 @@ public class AudioManager : Singleton<AudioManager>, IEventHandler
     [SerializeField] private AudioClip thunder;
     [SerializeField] private AudioClip rain;
     [SerializeField] private AudioClip explosion;
+    [SerializeField] private AudioClip score;
 
-    [Header("Menu")]
+    [Header("Music")]
     [SerializeField] private float maxMenuVolume = 1;
     [SerializeField] private AudioClip menu;
 
@@ -48,6 +50,7 @@ public class AudioManager : Singleton<AudioManager>, IEventHandler
             { "thunder", Tuple.Create(thunder, "gameplay") },
             { "rain", Tuple.Create(rain, "gameplay") },
             { "explosion", Tuple.Create(explosion, "gameplay") },
+            { "score", Tuple.Create(score, "gameplay") },
             { "plane", Tuple.Create(plane, "plane") },
             { "menu", Tuple.Create(menu, "menu") }
         };
@@ -186,28 +189,49 @@ public class AudioManager : Singleton<AudioManager>, IEventHandler
 
     void PlaySound(PlaySoundEvent e)
     {
-        if (isAlreadyExisting(e.eNameClip)) return;
+        AudioSource audioSource;
+        Transform soundTransform = GetExistingClip(e.eNameClip);
+        if (soundTransform != null && e.eCanStack == false)
+        {
+            return;
+        }
 
         GameObject childObject = new GameObject(e.eNameClip);
         childObject.transform.parent = transform;
-        AudioSource audioSource = childObject.AddComponent<AudioSource>();
+        audioSource = childObject.AddComponent<AudioSource>();
         audioClips.TryGetValue(e.eNameClip, out Tuple<AudioClip, string> audioClip);
+        audioSource.time = 0;
         audioSource.clip = audioClip.Item1;
-        audioSource.volume = getVolume(audioClip.Item2);
+        audioSource.volume = getVolume(audioClip.Item2) * e.eVolumeMultiplier;
         audioSource.loop = e.eLoop;
+        audioSource.pitch = e.ePitch;
         audioSource.Play();
+
+        if (e.eDestroyWhenFinished)
+        {
+            StartCoroutine(DestroyAfterPlaying(audioSource));
+        }
     }
 
-    bool isAlreadyExisting(string name)
+    /// <summary>
+    /// Wait until the audio clip has finished playing, then destroy it
+    /// </summary>
+    private IEnumerator DestroyAfterPlaying(AudioSource audioSource)
+    {
+        yield return new WaitWhile(() => audioSource.isPlaying);
+        Destroy(audioSource.gameObject);
+    }
+
+    Transform GetExistingClip(string name)
     {
         foreach (Transform child in transform)
         {
             if (child.name == name)
             {
-                return true;
+                return child;
             }
         }
-        return false;
+        return null;
     }
 
     void StopSound(StopSoundEvent e)

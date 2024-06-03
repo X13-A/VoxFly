@@ -3136,7 +3136,7 @@ GameObject:
   - component: {fileID: 790421882}
   - component: {fileID: 790421883}
   m_Layer: 0
-  m_Name: GetPoint
+  m_Name: GetPoints
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3319,7 +3319,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7032148307659988179, guid: 5fe492c3df62d0343aac5ff6d943b69c, type: 3}
       propertyPath: m_Name
-      value: Plane Coliiders
+      value: Plane Colliders
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

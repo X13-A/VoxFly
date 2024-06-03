@@ -148,6 +148,10 @@ public class PlaySoundEvent : SDD.Events.Event
 {
     public string eNameClip;
     public bool eLoop;
+    public bool eCanStack;
+    public bool eDestroyWhenFinished = false;
+    public float ePitch = 1;
+    public float eVolumeMultiplier = 1;
 }
 
 public class StopSoundEvent : SDD.Events.Event
