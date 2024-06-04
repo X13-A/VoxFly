@@ -539,7 +539,7 @@ Shader "Custom/WorldPostProcess"
                     if (depth >= 10000)
                     {
                         // Reduce fog in the sky
-                        return applyFog(backgroundColor + lightShaft, fog * (1 - saturate(dot(rayDir, float3(0, 1, 0)) )), fogColor);
+                        return applyFog(backgroundColor + lightShaft, fog * (1 - saturate(dot(rayDir, float3(0, 1, 0)) + 0.5)), fogColor);
                     }
 
                     return applyFog(backgroundColor + lightShaft, fog, fogColor);
