@@ -12026,7 +12026,7 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   scoreStart: 0
-  scoreEnd: 3000
+  scoreEnd: 20000
 --- !u!114 &1668454119
 MonoBehaviour:
   m_ObjectHideFlags: 0
