@@ -23,6 +23,7 @@ public class CameraManager : Singleton<CameraManager>, IEventHandler
     [SerializeField] private GameObject thirdPerson_MouseFlightRig;
     
     private CameraMode cameraMode;
+    private bool ready;
 
     void Init()
     {
@@ -52,6 +53,7 @@ public class CameraManager : Singleton<CameraManager>, IEventHandler
     {
         EventManager.Instance.AddListener<SwitchToThirdPersonEvent>(SwitchToThirdPerson);
         EventManager.Instance.AddListener<SwitchToFirstPersonEvent>(SwitchToFirstPerson);
+        EventManager.Instance.AddListener<FinishTimerEvent>(HandleTimerFinished);
         EventManager.Instance.AddListener<DestroyEvent>(HandleDestroy);
     }
 
@@ -59,10 +61,11 @@ public class CameraManager : Singleton<CameraManager>, IEventHandler
     {
         EventManager.Instance.RemoveListener<SwitchToThirdPersonEvent>(SwitchToThirdPerson);
         EventManager.Instance.RemoveListener<SwitchToFirstPersonEvent>(SwitchToFirstPerson);
+        EventManager.Instance.RemoveListener<FinishTimerEvent>(HandleTimerFinished);
         EventManager.Instance.RemoveListener<DestroyEvent>(HandleDestroy);
     }
 
-    public void SwitchToFirstPerson(SwitchToFirstPersonEvent e)
+    private void SwitchToFirstPerson(SwitchToFirstPersonEvent e)
     {
         thirdPerson_Camera.gameObject.SetActive(false);
         thirdPerson_MouseFlightRig.SetActive(false);
@@ -71,7 +74,7 @@ public class CameraManager : Singleton<CameraManager>, IEventHandler
         worldPostProcess.playerLightVolumetricIntensity = 0;
     }
 
-    public void SwitchToThirdPerson(SwitchToThirdPersonEvent e)
+    private void SwitchToThirdPerson(SwitchToThirdPersonEvent e)
     {
         thirdPerson_Camera.gameObject.SetActive(true);
         thirdPerson_MouseFlightRig.SetActive(true);
@@ -80,7 +83,12 @@ public class CameraManager : Singleton<CameraManager>, IEventHandler
         worldPostProcess.playerLightVolumetricIntensity = initialVolumetricIntensity;
     }
 
-    public void HandleDestroy(DestroyEvent e)
+    private void HandleTimerFinished(FinishTimerEvent e)
+    {
+        ready = true;
+    }
+
+    private void HandleDestroy(DestroyEvent e)
     {
         if (cameraMode == CameraMode.FirstPerson)
         {
@@ -99,7 +107,7 @@ public class CameraManager : Singleton<CameraManager>, IEventHandler
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.C))
+        if (ready && Input.GetKeyDown(KeyCode.C))
         {
             if (cameraMode == CameraMode.FirstPerson)
             {
