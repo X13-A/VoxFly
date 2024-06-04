@@ -16,7 +16,8 @@ public class AudioManager : Singleton<AudioManager>, IEventHandler
     [SerializeField] private AudioClip thunder;
     [SerializeField] private AudioClip rain;
     [SerializeField] private AudioClip explosion;
-    [SerializeField] private AudioClip score;
+    [SerializeField] private AudioClip score1;
+    [SerializeField] private AudioClip score2;
 
     [Header("Music")]
     [SerializeField] private float maxMenuVolume = 1;
@@ -50,7 +51,8 @@ public class AudioManager : Singleton<AudioManager>, IEventHandler
             { "thunder", Tuple.Create(thunder, "gameplay") },
             { "rain", Tuple.Create(rain, "gameplay") },
             { "explosion", Tuple.Create(explosion, "gameplay") },
-            { "score", Tuple.Create(score, "gameplay") },
+            { "score1", Tuple.Create(score1, "gameplay") },
+            { "score2", Tuple.Create(score2, "gameplay") },
             { "plane", Tuple.Create(plane, "plane") },
             { "menu", Tuple.Create(menu, "menu") }
         };
