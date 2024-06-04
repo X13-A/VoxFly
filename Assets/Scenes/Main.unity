@@ -1300,7 +1300,7 @@ MonoBehaviour:
   coverageScale: 4000
   coverageOffset: {x: 0, y: 0}
   coverageSpeed: {x: 20, y: 10}
-  coverage: 0.707
+  coverage: 0
   phaseParams: {x: 0.6, y: 0, z: 0.7}
   lightSteps: 3
   globalBrightness: 0.97
@@ -1311,7 +1311,7 @@ MonoBehaviour:
   maxStepSize: 50
   blueNoise: {fileID: 2800000, guid: 46b80e55c53d548458b0cb4a2f5b7dd7, type: 3}
   offsetNoiseIntensity: 150
-  shadowIntensity: 1
+  shadowIntensity: 3
   shadowSteps: 3
   shadowDist: 10000
 --- !u!1 &413974518

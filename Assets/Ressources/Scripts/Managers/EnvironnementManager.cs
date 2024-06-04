@@ -65,8 +65,8 @@ public class EnvironnementManager : MonoBehaviour, IEventHandler
     void GamePlayStart(GamePlayStartEvent e)
     {
         EventManager.Instance.Raise(new StopSoundEvent() { eNameClip = "explosion" });
-        EventManager.Instance.Raise(new SetGlobalBrightnessEvent() { eValue = 1 });
-        EventManager.Instance.Raise(new SetCloudCoverageEvent() { eValue = 0 });
+        EventManager.Instance.Raise(new SetCloudDensityEvent() { eValue = 1 });
+        EventManager.Instance.Raise(new SetCloudCoverageEvent() { eValue = 0.2f });
         EventManager.Instance.Raise(new PlaySoundEvent() { eNameClip = "wind", eLoop = true });
         EventManager.Instance.Raise(new SoundMixSoundEvent() { eNameClip = "wind", eVolume = 0 });
         EventManager.Instance.Raise(new PlaySoundEvent() { eNameClip = "thunder", eLoop = true });
@@ -95,8 +95,8 @@ public class EnvironnementManager : MonoBehaviour, IEventHandler
     {
         float normalizedValue = normalize(level);
         float normalizedSoundValue = normalizedSound(level);
-        // from 0 to 1 : 0 = black, 1 = full light
-        EventManager.Instance.Raise(new SetGlobalBrightnessEvent() { eValue = 1 - normalizedValue });
+        // from 0 to 1 : 0 = low density, 1 = high
+        EventManager.Instance.Raise(new SetCloudDensityEvent() { eValue = normalizedValue });
         // from 0 to 1 : 0 = no clouds, 1 = full clouds
         EventManager.Instance.Raise(new SetCloudCoverageEvent() { eValue = normalizedValue });
         // increase gameplay volume

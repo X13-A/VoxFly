@@ -199,7 +199,7 @@ public class PlaneInitializedEvent : SDD.Events.Event
 #endregion
 
 #region EnvrionnementManager Events
-public class SetGlobalBrightnessEvent : SDD.Events.Event
+public class SetCloudDensityEvent : SDD.Events.Event
 {
     public float eValue; // from 0 to 1 : 0 = black, 1 = full light
 }

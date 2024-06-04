@@ -11,7 +11,6 @@ public class Fire : MonoBehaviour, IEventHandler
     [SerializeField] private GameObject fire;
     [SerializeField] private float transitionPercent = 70;
 
-    int burningPercent = 0;
     List<float> fireEmission = new List<float>();
 
     public void SubscribeEvents()
