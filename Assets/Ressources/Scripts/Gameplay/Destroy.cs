@@ -1,4 +1,3 @@
-using Palmmedia.ReportGenerator.Core;
 using SDD.Events;
 using System.Collections;
 using System.Collections.Generic;

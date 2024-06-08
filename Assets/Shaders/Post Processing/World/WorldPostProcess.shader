@@ -257,6 +257,7 @@ Shader "Custom/WorldPostProcess"
 
             float calculateOcclusion(float3 pos, float3 normal, int numSamples, float radius) 
             {
+                
                 float occlusion = 0.0;
                 for (int i = 0; i < numSamples; ++i) 
                 {
@@ -421,7 +422,6 @@ Shader "Custom/WorldPostProcess"
             bool isInShadow(float3 pos, float3 normal, float3 lightDir)
             {
                 float3 startPos = pos;
-                float3 rayDir = lightDir;
                 startPos += normal * 0.002;
 
                 float3 shadowMapPos = getIntersectionWithPlane(startPos, lightDir, _ShadowMapOrigin);
@@ -523,9 +523,11 @@ Shader "Custom/WorldPostProcess"
                 float lightShaft = getLightShaft(rayPos, rayDir, lightDir, depth, offset);
                 float lightShaftTimeMultiplier = saturate(dot(float3(0, 1, 0), lightDir)) * 2;
                 lightShaft *= lightShaftTimeMultiplier;
+
                 if (isBackground)
                 {
-                    if (depth < 100)
+                    // Render object with lighting
+                    if (depth < 10000)
                     {
                         float3 objectPos = rayPos + rayDir * depth;
                         float3 light = 1;
@@ -535,16 +537,13 @@ Shader "Custom/WorldPostProcess"
                         }
                         return applyFog(float4(backgroundColor.rgb * light + lightShaft, 1), fog, fogColor);
                     }
-
-                    if (depth >= 10000)
+                    // Render skybox
+                    else
                     {
                         // Reduce fog in the sky
                         return applyFog(backgroundColor + lightShaft, fog * (1 - saturate(dot(rayDir, float3(0, 1, 0)) + 0.5)), fogColor);
                     }
-
-                    return applyFog(backgroundColor + lightShaft, fog, fogColor);
-
-                } 
+                }
 
                 float lightIntensity = computeLighting(pos, normal, lightDir, false);
                 return applyFog(float4((worldColor.rgb) * lightIntensity + lightShaft, worldColor.a), fog, fogColor);

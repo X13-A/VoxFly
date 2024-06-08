@@ -3959,8 +3959,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   processings:
   - {fileID: 1428198782}
-  - {fileID: 404103033}
   - {fileID: 488864615}
+  - {fileID: 404103033}
   - {fileID: 1224701480}
 --- !u!20 &888437838
 Camera:
@@ -4834,8 +4834,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   processings:
   - {fileID: 1428198782}
-  - {fileID: 404103033}
   - {fileID: 488864615}
+  - {fileID: 404103033}
   - {fileID: 1224701480}
 --- !u!20 &1112909378
 Camera:
@@ -6414,6 +6414,7 @@ MonoBehaviour:
   lightShaftFadeStart: 0.5
   lightShaftIntensity: 0.15
   lightShaftMaximumValue: 0.2
+  fogColor: {r: 1, g: 1, b: 1, a: 1}
   blockTextures:
   - {fileID: 2800000, guid: 0aa23de320bd55446a3993797fd431b7, type: 3}
   - {fileID: 2800000, guid: 1991bde95220af345a53095de5aa43bf, type: 3}
@@ -9271,6 +9272,7 @@ MonoBehaviour:
   shadowMapCompute: {fileID: 7200000, guid: ae460d4912a4cde4fb92586736f9984c, type: 3}
   textureWidth: 1000
   textureHeight: 1000
+  refreshDistanceStep: 20
 --- !u!4 &2103821578
 Transform:
   m_ObjectHideFlags: 0
