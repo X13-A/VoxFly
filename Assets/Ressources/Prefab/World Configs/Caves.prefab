@@ -50,21 +50,21 @@ MonoBehaviour:
   depth: 1024
   height: 128
   brickSize: 8
-  terrainSeed: 1077850192
+  terrainSeed: 1193751046
   terrainAmplitude: 78
   terrainStartY: 50
-  terrainScale: {x: 15, y: 15}
+  terrainScale: {x: 10, y: 10}
   terrainOffset: {x: 0, y: 0}
-  cavesSeed: 1805821895
+  cavesSeed: 208152288
   offset: {x: 0, y: 0, z: 0}
-  scale: {x: 40, y: 15, z: 40}
-  threshold: 0.5
-  cavesHeightDiminution: 0.005
-  deepTerrainSeed: 1581625760
-  deepTerrainAmplitude: 10
+  scale: {x: 30, y: 15, z: 30}
+  threshold: 0.55
+  cavesHeightDiminution: 0.1
+  deepTerrainSeed: 1473222391
+  deepTerrainAmplitude: 20
   deepTerrainScale: {x: 20, y: 20}
   deepTerrainOffset: {x: 0, y: 0}
-  coverageSeed: 247031547
+  coverageSeed: 942411549
   coverageScale: {x: 5, y: 5}
   coverageOffset: {x: 0, y: 0}
   coverage: 1

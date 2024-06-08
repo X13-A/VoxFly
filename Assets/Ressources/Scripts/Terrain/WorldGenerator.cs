@@ -1,4 +1,3 @@
-using Palmmedia.ReportGenerator.Core;
 using SDD.Events;
 using System;
 using System.Collections;
@@ -215,69 +214,6 @@ public class WorldGenerator : MonoBehaviour, IEventHandler
         callback?.Invoke();
     }
 
-    #region CPU generation
-
-    public void DEPRECATED_GenerateTerrain_CPU()
-    {
-        WorldGenerated = false;
-        UnityEngine.Debug.Log("Starting world generation (CPU)...");
-        Stopwatch stopwatch = new Stopwatch();
-        stopwatch.Start();
-
-        WorldTexture = new Texture3D(config.width, config.height, config.depth, TextureFormat.R8, false); // R8 car on a besoin seulement d'un channel, et peu de valeurs diff�rentes.
-        WorldTexture.anisoLevel = 0;
-        WorldTexture.filterMode = FilterMode.Point;
-        WorldTexture.wrapMode = TextureWrapMode.Clamp;
-
-        for (int x = 0; x < config.width; x++)
-        {
-            for (int z = 0; z < config.depth; z++)
-            {
-                float currentHeight = config.terrainStartY + RenderingUtils.Get2DNoise(x, z, config.terrainScale, config.terrainOffset) * config.terrainAmplitude;
-
-                // S'arr�te d�s qu'on atteint la hauteur actuelle pour ne pas g�n�rer des grottes au dessus du terrain
-                for (int y = 0; y < config.height; y++)
-                {
-                    if (y >= currentHeight)
-                    {
-                        WorldTexture.SetPixel(x, y, z, Color.clear);
-                        continue;
-                    }
-
-                    float noise = RenderingUtils.Get3DNoise(x, y, z, config.scale, config.offset);
-                    Color colorUsed = Mathf.Abs(currentHeight - y) < config.grassDepth ? grassColor : stoneColor;
-                    if (noise > config.threshold)
-                    {
-                        WorldTexture.SetPixel(x, y, z, colorUsed);
-                        continue;
-                    }
-                    WorldTexture.SetPixel(x, y, z, Color.clear);
-                }
-            }
-        }
-
-        // Fill bottom
-        for (int x = 0; x < config.width; x++)
-        {
-            for (int z = 0; z < config.depth; z++)
-            {
-                WorldTexture.SetPixel(x, 0, z, stoneColor);
-                WorldTexture.SetPixel(x, 1, z, stoneColor);
-                WorldTexture.SetPixel(x, 2, z, stoneColor);
-            }
-        }
-
-        stopwatch.Stop(); // Stop the timer after compute shader dispatch
-        float generationTime = (float)stopwatch.Elapsed.TotalSeconds;
-        UnityEngine.Debug.Log($"World generated in {generationTime} seconds (CPU).");
-
-        WorldTexture.Apply();
-        WorldGenerated = true;
-        RaiseGeneratedEvent();
-    }
-
-    #endregion
-    
     #region sample
     public bool IsInWorld(Vector3 pos)
     {
