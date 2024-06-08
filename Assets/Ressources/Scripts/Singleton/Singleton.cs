@@ -11,7 +11,7 @@ public abstract class Singleton<T> : MonoBehaviour where T : Component
     {
         if (_instance != null)
         {
-            Debug.LogError($"An instance of {typeof(T).Name} already exists. Deleting the new one.");
+            Debug.LogWarning($"An instance of {typeof(T).Name} already exists. Deleting the new one.");
             Destroy(gameObject);
         }
         else _instance = this as T;

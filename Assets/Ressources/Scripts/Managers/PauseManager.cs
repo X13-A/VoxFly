@@ -6,7 +6,7 @@ using SDD.Events;
 public class PauseManager : MonoBehaviour, IEventHandler
 {
 
-    private bool ready = false;
+    private bool available = false;
     private bool m_CanClick = true;
     [SerializeField] GameObject m_PausePanel;
 
@@ -14,14 +14,16 @@ public class PauseManager : MonoBehaviour, IEventHandler
     {
         EventManager.Instance.AddListener<GamePauseEvent>(Pause);
         EventManager.Instance.AddListener<GameResumeEvent>(Resume);
-        EventManager.Instance.AddListener<FinishTimerEvent>(SetReady);
+        EventManager.Instance.AddListener<FinishTimerEvent>(SetAvailable);
+        EventManager.Instance.AddListener<DestroyEvent>(SetUnavailable);
     }
 
     public void UnsubscribeEvents()
     {
         EventManager.Instance.RemoveListener<GamePauseEvent>(Pause);
         EventManager.Instance.RemoveListener<GameResumeEvent>(Resume);
-        EventManager.Instance.RemoveListener<FinishTimerEvent>(SetReady);
+        EventManager.Instance.RemoveListener<FinishTimerEvent>(SetAvailable);
+        EventManager.Instance.AddListener<DestroyEvent>(SetUnavailable);
     }
 
     void OnEnable()
@@ -33,9 +35,14 @@ public class PauseManager : MonoBehaviour, IEventHandler
         UnsubscribeEvents();
     }
 
-    private void SetReady(FinishTimerEvent e)
+    private void SetAvailable(FinishTimerEvent e)
     {
-        ready = true;
+        available = true;
+    }
+
+    private void SetUnavailable(DestroyEvent e)
+    {
+        available = false;
     }
 
     public void PauseButtonnClicked()
@@ -61,7 +68,7 @@ public class PauseManager : MonoBehaviour, IEventHandler
     {
         if (Input.GetKey(KeyCode.P))
         {
-            if (m_CanClick && ready)
+            if (m_CanClick && available)
             {
                 PauseButtonnClicked();
                 m_CanClick = false;

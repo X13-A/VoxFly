@@ -105,6 +105,7 @@ public class ShadowMap : MonoBehaviour
 
     private void FixedUpdate()
     {
+        if (Camera.main == null) return;
         if (!initialized) return;
         if (generator.WorldTexture == null) return;
         if (!firstFrame && Vector3.Distance(lastCameraPos, Camera.main.transform.position) < refreshDistanceStep) return;
