@@ -225,10 +225,31 @@ public class WinningPointsEvent : SDD.Events.Event
 }
 
 #region Rendering Events
+public class ScreenResolutionChangedEvent : SDD.Events.Event
+{
+    public int width;
+    public int height;
+    public int gBufferWidth;
+    public int gBufferHeight;
+}
+
+public class ScreenManagerReadyEvent : SDD.Events.Event
+{
+    public int width;
+    public int height;
+    public int gBufferWidth;
+    public int gBufferHeight;
+}
+
 // Called every frame before the custom post processing starts
 public class StartPostProcessingEvent : SDD.Events.Event
 {
 }
+
+public class GBufferReadyForInitEvent : SDD.Events.Event
+{
+}
+
 
 public class GBufferInitializedEvent : SDD.Events.Event
 {

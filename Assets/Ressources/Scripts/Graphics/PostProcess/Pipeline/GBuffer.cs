@@ -7,8 +7,9 @@ using UnityEngine;
 
 public class GBuffer : MonoBehaviour, IEventHandler
 {
-    [SerializeField] private int width;
-    [SerializeField] private int height;
+    private int width;
+    private int height;
+
     [SerializeField] private float voxelViewDistance;
     public float VoxelViewDistance => voxelViewDistance;
 
@@ -33,18 +34,19 @@ public class GBuffer : MonoBehaviour, IEventHandler
     {
         EventManager.Instance.AddListener<StartPostProcessingEvent>(UpdateGBuffer);
         EventManager.Instance.AddListener<WorldGeneratedEvent>(OnWorldGenerated);
+        EventManager.Instance.AddListener<ScreenResolutionChangedEvent>(HandleNewScreenResolution);
     }
 
     public void UnsubscribeEvents()
     {
         EventManager.Instance.RemoveListener<StartPostProcessingEvent>(UpdateGBuffer);
         EventManager.Instance.RemoveListener<WorldGeneratedEvent>(OnWorldGenerated);
+        EventManager.Instance.RemoveListener<ScreenResolutionChangedEvent>(HandleNewScreenResolution);
     }
 
     void OnEnable()
     {
         //Application.targetFrameRate = 60;
-        Setup();
         SubscribeEvents();
     }
 
@@ -55,10 +57,16 @@ public class GBuffer : MonoBehaviour, IEventHandler
         Initialized = false;
     }
 
-    void Setup()
+    void HandleNewScreenResolution(ScreenResolutionChangedEvent e)
     {
-        if (generator == null) return;
-        
+        width = e.gBufferWidth;
+        height = e.gBufferHeight;
+        Debug.Log($"Changed screen resolution to {width}x{height}");
+        Setup();
+    }
+
+    void Setup()
+    {        
         kernelHandle = shader.FindKernel("CSMain");
         ReleaseBuffers();
         InitializeBuffers();
@@ -73,7 +81,7 @@ public class GBuffer : MonoBehaviour, IEventHandler
 
         NormalBuffer = new RenderTexture(width, height, 0, RenderTextureFormat.ARGBFloat);
         NormalBuffer.enableRandomWrite = true;
-        NormalBuffer.filterMode = FilterMode.Bilinear; // Can act as free anti aliasing
+        NormalBuffer.filterMode = FilterMode.Point; // Could act as free smoothing with bilinear
         NormalBuffer.Create();
 
         DepthBuffer = new RenderTexture(width, height, 0, RenderTextureFormat.ARGBFloat);
@@ -126,8 +134,7 @@ public class GBuffer : MonoBehaviour, IEventHandler
         shader.SetMatrix("_InvViewMatrix", Camera.main.worldToCameraMatrix.inverse);
         shader.SetTextureFromGlobal(kernelHandle, "_UnityDepthTexture", "_CameraDepthTexture");
         shader.SetInts("_UnityBufferSize", new int[] { Screen.width, Screen.height });
-        
-        shader.Dispatch(kernelHandle, (width + width % 8) / 8, (height + height % 8) / 8, 1);
+        shader.Dispatch(kernelHandle, width / 8, height / 8, 1);
     }
 
     public void UpdateGBuffer(StartPostProcessingEvent e)
@@ -137,9 +144,19 @@ public class GBuffer : MonoBehaviour, IEventHandler
             Debug.Log("No camera active");
             return;
         }
+        if (ScreenManager.Instance == null)
+        {
+            Debug.Log("Waiting for ScreenManager");
+            return;
+        }
+        if (generator == null)
+        {
+            Debug.Log("Waiting for Generator");
+            return;
+        }
         if (!Initialized)
         {
-            Setup();
+            EventManager.Instance.Raise(new GBufferReadyForInitEvent());
         }
         if (Initialized)
         {
