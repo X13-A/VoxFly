@@ -37,6 +37,7 @@ public class GameManager : Singleton<GameManager>, IEventHandler
         EventManager.Instance.AddListener<PlayerExplodedEvent>(PlayerExploded);
         EventManager.Instance.AddListener<PauseButtonClickedEvent>(PauseButtonClicked);
         EventManager.Instance.AddListener<FinishTimerEvent>(FinishTimer);
+        EventManager.Instance.AddListener<ReturnMenuButtonClickedEvent>(ReturnMenuButtonClicked);
     }
 
     public void UnsubscribeEvents()
@@ -183,6 +184,11 @@ public class GameManager : Singleton<GameManager>, IEventHandler
         {
             Pause();
         }
+    }
+
+    void ReturnMenuButtonClicked(ReturnMenuButtonClickedEvent e)
+    {
+        StartCoroutine(LoadSceneThenFunction(0, MainMenu));
     }
 
     void FinishTimer(FinishTimerEvent e)

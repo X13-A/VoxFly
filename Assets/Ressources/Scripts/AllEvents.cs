@@ -114,6 +114,9 @@ public class PausePlayerEvent : SDD.Events.Event
 public class ResumePlayerEvent : SDD.Events.Event
 {
 }
+public class ReturnMenuButtonClickedEvent : SDD.Events.Event
+{
+}
 #endregion
 
 #region BeginTimer Events

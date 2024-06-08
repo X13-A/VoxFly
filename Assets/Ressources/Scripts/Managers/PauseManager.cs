@@ -63,4 +63,9 @@ public class PauseManager : MonoBehaviour, IEventHandler
         }
 
     }
+
+    public void ReturnMenuButtonClicked()
+    {
+        EventManager.Instance.Raise(new ReturnMenuButtonClickedEvent());
+    }
 }
