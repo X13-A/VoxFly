@@ -57,6 +57,7 @@ public class MenuManager : MonoBehaviour, IEventHandler
     void GameMenu(GameMenuEvent e)
     {
         OpenPanel(m_MainMenuPanel);
+        EventManager.Instance.Raise(new StopSoundAllEvent());
         EventManager.Instance.Raise(new PlaySoundEvent() { eNameClip = "menu", eLoop = true });
     }
 
