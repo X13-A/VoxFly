@@ -58,14 +58,14 @@ public class CloudsPostProcess : PostProcessBase
     public void SubscribeEvents()
     {
         EventManager.Instance.AddListener<GBufferInitializedEvent>(AttachGBuffer);
-        EventManager.Instance.AddListener<SetGlobalBrightnessEvent>(SetGlobalBrightness);
+        EventManager.Instance.AddListener<SetCloudDensityEvent>(SetGlobalBrightness);
         EventManager.Instance.AddListener<SetCloudCoverageEvent>(SetCloudCoverage);
     }
 
     public void UnsubscribeEvents()
     {
         EventManager.Instance.RemoveListener<GBufferInitializedEvent>(AttachGBuffer);
-        EventManager.Instance.RemoveListener<SetGlobalBrightnessEvent>(SetGlobalBrightness);
+        EventManager.Instance.RemoveListener<SetCloudDensityEvent>(SetGlobalBrightness);
         EventManager.Instance.RemoveListener<SetCloudCoverageEvent>(SetCloudCoverage);
     }
     #endregion
@@ -80,9 +80,9 @@ public class CloudsPostProcess : PostProcessBase
         UnsubscribeEvents();
     }
 
-    void SetGlobalBrightness(SetGlobalBrightnessEvent e)
+    void SetGlobalBrightness(SetCloudDensityEvent e)
     {
-        globalBrightness = e.eValue;
+        globalDensity = e.eValue;
     }
 
     void SetCloudCoverage(SetCloudCoverageEvent e)

@@ -7,32 +7,13 @@ using UnityEngine.SceneManagement;
 public enum GAMESTATE { menu, play, pause, victory, gameover }
 public delegate void afterFunction();
 
-public class GameManager : MonoBehaviour, IEventHandler
+public class GameManager : Singleton<GameManager>, IEventHandler
 {
-    public static GameManager m_Instance;
-    public static GameManager Instance { get { return m_Instance; } }
-
     GAMESTATE m_State;
     public bool IsPlaying => m_State == GAMESTATE.play;
 
     public int m_Score;
     public int Score {  get { return m_Score; } }
-
-    void Awake()
-    {
-        if (m_Instance == null)
-        {
-            m_Instance = this;
-        }
-
-
-        EventManager.Instance.Raise(new PlaySoundEvent()
-        {
-            eNameClip = "menu",
-            eLoop = true
-        });
-    }
-
     void SetScore(int newScore)
     {
         m_Score = newScore;
@@ -118,7 +99,8 @@ public class GameManager : MonoBehaviour, IEventHandler
         AsyncOperation loading = SceneManager.LoadSceneAsync(1);
         loading.completed += (AsyncOperation operation) => 
         {
-            EventManager.Instance.Raise(new SceneLoadedEvent { scene = 1 }); 
+            EventManager.Instance.Raise(new SceneLoadedEvent { scene = 1 });
+            SetState(GAMESTATE.play);
         };
         SetScore(0);
     }
@@ -131,7 +113,6 @@ public class GameManager : MonoBehaviour, IEventHandler
     void Play()
     {
         InitGame();
-        SetState(GAMESTATE.play);
         EventManager.Instance.Raise(new StopSoundEvent() { eNameClip = "menu" });
     }
 
@@ -143,7 +124,6 @@ public class GameManager : MonoBehaviour, IEventHandler
     {
         UpdateScores();
         SetState(GAMESTATE.gameover);
-        EventManager.Instance.Raise(new StopSoundAllEvent());
     }
 
     void UpdateScores()

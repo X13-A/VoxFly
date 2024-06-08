@@ -57,6 +57,7 @@ public class MenuManager : MonoBehaviour, IEventHandler
     void GameMenu(GameMenuEvent e)
     {
         OpenPanel(m_MainMenuPanel);
+        EventManager.Instance.Raise(new PlaySoundEvent() { eNameClip = "menu", eLoop = true });
     }
 
     void GamePlay(GamePlayEvent e)
@@ -84,7 +85,6 @@ public class MenuManager : MonoBehaviour, IEventHandler
         OpenPanel(m_ScorePanel);
         EventManager.Instance.Raise(new UpdateScoresTextEvent());
     }
-
 
     // UI events' callbacks
     public void PlayButtonHasBeenClicked()

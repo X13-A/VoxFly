@@ -123,11 +123,24 @@ public class FinishTimerEvent : SDD.Events.Event
 #endregion
 
 #region AudioManager Events
-public class SoundMixEvent : SDD.Events.Event
+public class SoundMixAllEvent : SDD.Events.Event
 {
     public float? eSFXVolume;
     public float? eGameplayVolume;
     public float? eMenuVolume;
+    public float? ePlaneVolume;
+}
+
+public class SoundMixSoundEvent : SDD.Events.Event
+{
+    public string eNameClip; // Check audioTypes list in AudioManager
+    public float eVolume;
+}
+
+public class PlaneMixSoundEvent : SDD.Events.Event
+{
+    public float? eVolume;
+    public float? ePitch;
 }
 
 #region player events
@@ -135,6 +148,10 @@ public class PlaySoundEvent : SDD.Events.Event
 {
     public string eNameClip;
     public bool eLoop;
+    public bool eCanStack;
+    public bool eDestroyWhenFinished = false;
+    public float ePitch = 1;
+    public float eVolumeMultiplier = 1;
 }
 
 public class StopSoundEvent : SDD.Events.Event
@@ -142,13 +159,16 @@ public class StopSoundEvent : SDD.Events.Event
     public string eNameClip;
 }
 public class StopSoundAllEvent : SDD.Events.Event
-{
-    public bool eMute;
-}
+{ }
 
 public class StopSoundByTypeEvent : SDD.Events.Event
 {
     public string eType; // Check audioTypes list in AudioManager
+}
+
+public class MuteAllSoundEvent : SDD.Events.Event
+{
+    public bool eMute;
 }
 #endregion
 #endregion
@@ -163,7 +183,7 @@ public class EnemyHasBeenHitEvent : SDD.Events.Event
 #region Plane Event
 public class PlaneStateEvent : SDD.Events.Event
 {
-    public float? eBurningPercent; // in pourcentage
+    public float? eBurningPercent;
     public float? eThrust;
     public bool? eIsInWater;
 }
@@ -179,7 +199,7 @@ public class PlaneInitializedEvent : SDD.Events.Event
 #endregion
 
 #region EnvrionnementManager Events
-public class SetGlobalBrightnessEvent : SDD.Events.Event
+public class SetCloudDensityEvent : SDD.Events.Event
 {
     public float eValue; // from 0 to 1 : 0 = black, 1 = full light
 }

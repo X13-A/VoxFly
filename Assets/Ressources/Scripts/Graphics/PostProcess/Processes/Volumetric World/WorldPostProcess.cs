@@ -23,6 +23,7 @@ public class WorldPostProcess : PostProcessBase
     [SerializeField][Range(0f, 1f)] private float lightShaftFadeStart;
     [SerializeField][Range(0f, 5f)] private float lightShaftIntensity;
     [SerializeField][Range(0f, 1f)] private float lightShaftMaximumValue;
+    [SerializeField] private Color fogColor = Color.white;
 
     [Header("Textures")]
     [SerializeField] private List<Texture2D> blockTextures;
@@ -134,6 +135,7 @@ public class WorldPostProcess : PostProcessBase
         postProcessMaterial.SetFloat("_LightShaftIntensity", lightShaftIntensity);
         postProcessMaterial.SetFloat("_LightShaftMaximumValue", lightShaftMaximumValue);
         postProcessMaterial.SetInt("_LightShaftSampleCount", lightShaftSampleCount);
+        postProcessMaterial.SetColor("_FogColor", fogColor);
 
         // Shadow map
         postProcessMaterial.SetVector("_LightDir", shadowMap.LightDir);

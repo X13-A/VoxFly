@@ -3,23 +3,25 @@ using UnityEngine;
 
 public class PlaneSound : MonoBehaviour, IEventHandler
 {
-    [SerializeField] private AudioSource audioSource;
-    [SerializeField] float minAudio;
-    [SerializeField] float maxAudio;
-
-    float minThrust;
-    float maxThrust;
+    float minThrust = 0;
+    float maxThrust = 1;
+    float minAudio = 0;
+    float maxAudio = 1;
 
     public void SubscribeEvents()
     {
         EventManager.Instance.AddListener<PlaneStateEvent>(Thrusting);
         EventManager.Instance.AddListener<PlaneInformationEvent>(PlaneInformation);
+        EventManager.Instance.AddListener<DestroyEvent>(Destroy);
+        EventManager.Instance.AddListener<GamePlayStartEvent>(GamePlayStart);
     }
 
     public void UnsubscribeEvents()
     {
         EventManager.Instance.RemoveListener<PlaneStateEvent>(Thrusting);
         EventManager.Instance.RemoveListener<PlaneInformationEvent>(PlaneInformation);
+        EventManager.Instance.RemoveListener<DestroyEvent>(Destroy);
+        EventManager.Instance.RemoveListener<GamePlayStartEvent>(GamePlayStart);
     }
 
     void OnEnable()
@@ -34,7 +36,19 @@ public class PlaneSound : MonoBehaviour, IEventHandler
 
     void Start()
     {
-        audioSource.volume = minAudio;
+        maxAudio = AudioManager.Instance.MaxPlaneVolume;
+        minAudio = maxAudio * .20f; // 20% of max volume
+    }
+
+    void Destroy(DestroyEvent e)
+    {
+        EventManager.Instance.Raise(new StopSoundEvent() { eNameClip = "plane" });
+    }
+
+    void GamePlayStart(GamePlayStartEvent e)
+    {
+        EventManager.Instance.Raise(new PlaySoundEvent() { eNameClip = "plane", eLoop = true });
+        EventManager.Instance.Raise(new SoundMixSoundEvent() { eNameClip = "plane", eVolume = minAudio });
     }
 
     void PlaneInformation(PlaneInformationEvent e)
@@ -57,16 +71,15 @@ public class PlaneSound : MonoBehaviour, IEventHandler
         float volume = normalizedThrust * (maxAudio - minAudio) + minAudio;
 
         volume = Mathf.Clamp(volume, minAudio, maxAudio);
-        audioSource.volume = volume;
 
         if (isInWater)
         {
-            audioSource.volume = Mathf.Max(audioSource.volume, 0.3f);
-            audioSource.pitch = 0.4f;
+            EventManager.Instance.Raise(new PlaneMixSoundEvent() { eVolume = volume * .30f, ePitch = .4f });
         }
         else
         {
-            audioSource.pitch = 1f;
+            EventManager.Instance.Raise(new PlaneMixSoundEvent() { eVolume = volume, ePitch = 1f });
+
         }
     }
 }

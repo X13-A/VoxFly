@@ -8,15 +8,14 @@ using System.Runtime.CompilerServices;
 
 public enum CameraMode { FirstPerson, ThirdPerson }
 
-public class CameraManager : MonoBehaviour, IEventHandler
+public class CameraManager : Singleton<CameraManager>, IEventHandler
 {
-    public static CameraManager m_Instance;
-    public static CameraManager Instance { get { return m_Instance; } }
 
     [Header("First Person")]
     [SerializeField] private Camera firstPerson_Camera;
     [SerializeField] private GameObject blackScreen;
     [SerializeField] private WorldPostProcess worldPostProcess;
+
     private float initialVolumetricIntensity;
 
     [Header("Third Person")]
@@ -24,18 +23,7 @@ public class CameraManager : MonoBehaviour, IEventHandler
     [SerializeField] private GameObject thirdPerson_MouseFlightRig;
     
     private CameraMode cameraMode;
-
-    void Awake()
-    {
-        if (m_Instance == null)
-        {
-            m_Instance = this;
-        }
-        else
-        {
-            Destroy(this);
-        }
-    }
+    private bool ready;
 
     void Init()
     {
@@ -65,6 +53,7 @@ public class CameraManager : MonoBehaviour, IEventHandler
     {
         EventManager.Instance.AddListener<SwitchToThirdPersonEvent>(SwitchToThirdPerson);
         EventManager.Instance.AddListener<SwitchToFirstPersonEvent>(SwitchToFirstPerson);
+        EventManager.Instance.AddListener<FinishTimerEvent>(HandleTimerFinished);
         EventManager.Instance.AddListener<DestroyEvent>(HandleDestroy);
     }
 
@@ -72,10 +61,11 @@ public class CameraManager : MonoBehaviour, IEventHandler
     {
         EventManager.Instance.RemoveListener<SwitchToThirdPersonEvent>(SwitchToThirdPerson);
         EventManager.Instance.RemoveListener<SwitchToFirstPersonEvent>(SwitchToFirstPerson);
+        EventManager.Instance.RemoveListener<FinishTimerEvent>(HandleTimerFinished);
         EventManager.Instance.RemoveListener<DestroyEvent>(HandleDestroy);
     }
 
-    public void SwitchToFirstPerson(SwitchToFirstPersonEvent e)
+    private void SwitchToFirstPerson(SwitchToFirstPersonEvent e)
     {
         thirdPerson_Camera.gameObject.SetActive(false);
         thirdPerson_MouseFlightRig.SetActive(false);
@@ -84,7 +74,7 @@ public class CameraManager : MonoBehaviour, IEventHandler
         worldPostProcess.playerLightVolumetricIntensity = 0;
     }
 
-    public void SwitchToThirdPerson(SwitchToThirdPersonEvent e)
+    private void SwitchToThirdPerson(SwitchToThirdPersonEvent e)
     {
         thirdPerson_Camera.gameObject.SetActive(true);
         thirdPerson_MouseFlightRig.SetActive(true);
@@ -93,19 +83,31 @@ public class CameraManager : MonoBehaviour, IEventHandler
         worldPostProcess.playerLightVolumetricIntensity = initialVolumetricIntensity;
     }
 
-    public void HandleDestroy(DestroyEvent e)
+    private void HandleTimerFinished(FinishTimerEvent e)
+    {
+        ready = true;
+    }
+
+    private void HandleDestroy(DestroyEvent e)
     {
         if (cameraMode == CameraMode.FirstPerson)
         {
             // Prevents the camera from being disabled
+            firstPerson_Camera.transform.localPosition -= new Vector3(0, 0, 7);
+
+            // Remove roll
+            Vector3 currentRotation = firstPerson_Camera.transform.eulerAngles;
+            float pitch = currentRotation.x;
+            float yaw = currentRotation.y;
+            firstPerson_Camera.transform.rotation = Quaternion.Euler(pitch, yaw, 0);
             firstPerson_Camera.transform.SetParent(null);
-            blackScreen.SetActive(true);
+            //blackScreen.SetActive(true);
         }
     }
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.C))
+        if (ready && Input.GetKeyDown(KeyCode.C))
         {
             if (cameraMode == CameraMode.FirstPerson)
             {

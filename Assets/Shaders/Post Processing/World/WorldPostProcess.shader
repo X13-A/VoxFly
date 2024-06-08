@@ -75,6 +75,7 @@ Shader "Custom/WorldPostProcess"
             float _LightShaftFadeStart;
             float _LightShaftIntensity;
             float _LightShaftMaximumValue;
+            float4 _FogColor;
 
             // Shadow map
             float3 _LightDir;
@@ -488,6 +489,11 @@ Shader "Custom/WorldPostProcess"
                     return clamp(lightScattered, 0, _LightShaftMaximumValue);
             }
 
+            float4 applyFog(float4 color, float fog, float4 fogColor)
+            {
+                return color * (1 - fog) + fogColor * fog;
+            }
+
             float4 frag (v2f i) : SV_Target
             {
                 // Create ray
@@ -508,9 +514,10 @@ Shader "Custom/WorldPostProcess"
                 float4 worldColor = getBlockColor(block, pos, normal);// * getOutline(pos);
 
                 // Compute fog
-                float fog = saturate(depth / 5000) * 1;
-                float4 fogColor = saturate(dot(lightDir, float3(0, 1, 0)));
-                
+                float fog = saturate(depth / 5000);
+                //float4 fogColor = saturate(dot(lightDir, float3(0, 1, 0)));
+                float4 fogColor = _FogColor;
+
                 // Compute lighting
                 float offset = tex2D(_NoiseTexture, i.uv/1) * 2;
                 float lightShaft = getLightShaft(rayPos, rayDir, lightDir, depth, offset);
@@ -526,13 +533,21 @@ Shader "Custom/WorldPostProcess"
                         {
                             light = 0.2;
                         }
-                        return float4(backgroundColor.rgb * light + lightShaft, 1);
+                        return applyFog(float4(backgroundColor.rgb * light + lightShaft, 1), fog, fogColor);
                     }
-                    return backgroundColor + lightShaft;
+
+                    if (depth >= 10000)
+                    {
+                        // Reduce fog in the sky
+                        return applyFog(backgroundColor + lightShaft, fog * (1 - saturate(dot(rayDir, float3(0, 1, 0)) + 0.5)), fogColor);
+                    }
+
+                    return applyFog(backgroundColor + lightShaft, fog, fogColor);
+
                 } 
 
                 float lightIntensity = computeLighting(pos, normal, lightDir, false);
-                return float4((worldColor.rgb) * lightIntensity + lightShaft, worldColor.a) + fogColor * fog;
+                return applyFog(float4((worldColor.rgb) * lightIntensity + lightShaft, worldColor.a), fog, fogColor);
             }
 
             ENDCG

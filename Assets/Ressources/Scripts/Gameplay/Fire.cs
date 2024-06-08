@@ -9,10 +9,9 @@ public class Fire : MonoBehaviour, IEventHandler
 {
     [SerializeField] private GameObject smoke;
     [SerializeField] private GameObject fire;
+    [SerializeField] private float transitionPercent = 70;
 
-    //int burningPercent = 0;
     List<float> fireEmission = new List<float>();
-    float transition = 70;
 
     public void SubscribeEvents()
     {
@@ -57,16 +56,36 @@ public class Fire : MonoBehaviour, IEventHandler
     /* For testing */
     //void Update()
     //{
-    //    if (Input.GetKey(KeyCode.RightControl))
-    //    {
-    //        burningPercent += 5;
-    //        UpdateFire();
-    //    }
-
-    //    if (Input.GetKey(KeyCode.LeftControl))
+    //    if (Input.GetKey(KeyCode.U))
     //    {
     //        burningPercent -= 5;
-    //        UpdateFire();
+    //        UpdateFireTest(burningPercent);
+    //    }
+
+    //    if (Input.GetKey(KeyCode.O))
+    //    {
+    //        burningPercent += 5;
+    //        UpdateFireTest(burningPercent);
+    //    }
+
+    //}
+
+    //void UpdateFireTest(float value)
+    //{
+    //    Debug.Log("burningPercent : " + value + "/100");
+
+    //    if (value <= 10)
+    //    {
+    //        smoke.SetActive(false);
+    //        fire.SetActive(false);
+    //    }
+    //    else if (value <= transition)
+    //    {
+    //        smokeUpdate(value);
+    //    }
+    //    else
+    //    {
+    //        fireUpdate(value);
     //    }
     //}
 
@@ -74,7 +93,12 @@ public class Fire : MonoBehaviour, IEventHandler
     {
         if (e.eBurningPercent.HasValue)
         {
-            if (e.eBurningPercent.Value <= transition)
+            if (e.eBurningPercent.Value <= 10)
+            {
+                smoke.SetActive(false);
+                fire.SetActive(false);
+            }
+            else if (e.eBurningPercent.Value <= transitionPercent)
             {
                 smokeUpdate(e.eBurningPercent.Value);
             }
@@ -90,8 +114,8 @@ public class Fire : MonoBehaviour, IEventHandler
         smoke.SetActive(true);
         fire.SetActive(false);
 
-        float normalizedPercent = Mathf.Clamp(percent / 100.0f, 0.0f, 1.0f);
-        float emissionRate = Mathf.Lerp(0, 50, normalizedPercent);
+        float normalizedPercent = percent / 100.0f;
+        float emissionRate = Mathf.Lerp(0, transitionPercent, normalizedPercent);
 
         ParticleSystem smokeParticles = smoke.GetComponent<ParticleSystem>();
         var emission = smokeParticles.emission;
@@ -100,14 +124,13 @@ public class Fire : MonoBehaviour, IEventHandler
 
     void fireUpdate(float percent)
     {
-        smoke.SetActive(false);
         fire.SetActive(true);
 
         int i = 0;
 
         foreach (Transform child in fire.transform)
         {
-            float normalizedPercent = Mathf.Clamp((percent - transition) / transition, 0.0f, 1.0f);
+            float normalizedPercent = (percent - transitionPercent) / transitionPercent;
             float emissionRate = Mathf.Lerp(0, fireEmission[i], normalizedPercent);
 
             ParticleSystem fireParticles = child.GetComponent<ParticleSystem>();

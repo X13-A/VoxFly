@@ -7,80 +7,100 @@ using UnityEngine.UI;
 
 public class EnvironnementManager : MonoBehaviour, IEventHandler
 {
-    [SerializeField] private List<int> levels;
+    [SerializeField] private AnimationCurve densityCurve;
+    [SerializeField] private AnimationCurve coverageCurve;
+    [SerializeField] private AnimationCurve turbulenceCurve;
+    [SerializeField] private AnimationCurve soundCurve;
 
-    private Dictionary<int, bool> levelsReached;
+    [SerializeField] private float scoreStart = 5000;
+    [SerializeField] private float scoreEnd = 10000;
 
     public void SubscribeEvents()
     {
         EventManager.Instance.AddListener<UpdateGameScoreEvent>(UpdateEnvironnement);
+        EventManager.Instance.AddListener<GamePlayStartEvent>(GamePlayStart);
+        EventManager.Instance.AddListener<DestroyEvent>(Destroy);
     }
 
     public void UnsubscribeEvents()
     {
         EventManager.Instance.RemoveListener<UpdateGameScoreEvent>(UpdateEnvironnement);
+        EventManager.Instance.RemoveListener<GamePlayStartEvent>(GamePlayStart);
+        EventManager.Instance.RemoveListener<DestroyEvent>(Destroy);
     }
 
-    void OnEnable()
+    private void OnEnable()
     {
         SubscribeEvents();
     }
 
-    void OnDisable()
+    private void OnDisable()
     {
         UnsubscribeEvents();
     }
 
-    void Start()
+    private void GamePlayStart(GamePlayStartEvent e)
     {
-        if (levels.Count == 0)
-        {
-            Debug.LogError("Levels list is empty.");
-            return;
-        }
-
-        EventManager.Instance.Raise(new SetGlobalBrightnessEvent() { eValue = 1 });
-        EventManager.Instance.Raise(new SetCloudCoverageEvent() { eValue = 0 });
-        EventManager.Instance.Raise(new SoundMixEvent() { eGameplayVolume = 0 });
+        EventManager.Instance.Raise(new StopSoundEvent() { eNameClip = "explosion" });
+        EventManager.Instance.Raise(new SetCloudDensityEvent() { eValue = 1 });
+        EventManager.Instance.Raise(new SetCloudCoverageEvent() { eValue = 0.2f });
         EventManager.Instance.Raise(new PlaySoundEvent() { eNameClip = "wind", eLoop = true });
+        EventManager.Instance.Raise(new SoundMixSoundEvent() { eNameClip = "wind", eVolume = 0 });
         EventManager.Instance.Raise(new PlaySoundEvent() { eNameClip = "thunder", eLoop = true });
-        levels.Sort();
-        levelsReached = new Dictionary<int, bool>();
-        foreach (int level in levels)
-        {
-            levelsReached[level] = false;
-        }
+        EventManager.Instance.Raise(new SoundMixSoundEvent() { eNameClip = "thunder", eVolume = 0 });
     }
 
-    void UpdateEnvironnement(UpdateGameScoreEvent e)
+    private void Destroy(DestroyEvent e)
     {
-        foreach (int level in levels)
-        {
-            if (e.score >= level && !levelsReached[level])
-            {
-                increaseEnvironnementVariables(level);
-                levelsReached[level] = true;
-            }
-        }
+        EventManager.Instance.Raise(new StopSoundEvent() { eNameClip = "wind" });
+        EventManager.Instance.Raise(new StopSoundEvent() { eNameClip = "thunder" });
     }
 
-    void increaseEnvironnementVariables(float level)
+    private void UpdateEnvironnement(UpdateGameScoreEvent e)
     {
-        float normalizedValue = normalizeLight(level);
-        // from 0 to 1 : 0 = black, 1 = full light
-        EventManager.Instance.Raise(new SetGlobalBrightnessEvent() { eValue = 1 - normalizedValue });
+        UpdateEnvironmentVariables(e.score);
+    }
+
+    private void UpdateEnvironmentVariables(float score)
+    {
+        float normalizedScore = NormalizeScore(score);
+        float densityValue = EvaluateDensity(normalizedScore);
+        float coverageValue = EvaluateCoverage(normalizedScore);
+        float turbulenceValue = EvaluateTurbulence(normalizedScore);
+        float soundValue = EvaluateSound(normalizedScore);
+
+        // from 0 to 1 : 0 = low density, 1 = high
+        EventManager.Instance.Raise(new SetCloudDensityEvent() { eValue = densityValue });
         // from 0 to 1 : 0 = no clouds, 1 = full clouds
-        EventManager.Instance.Raise(new SetCloudCoverageEvent() { eValue = normalizedValue });
-        // increase sfx volume
-        EventManager.Instance.Raise(new SoundMixEvent() { eGameplayVolume = normalizedValue });
+        EventManager.Instance.Raise(new SetCloudCoverageEvent() { eValue = coverageValue });
+        // increase gameplay volume
+        EventManager.Instance.Raise(new SoundMixSoundEvent() { eNameClip = "wind", eVolume = soundValue });
+        EventManager.Instance.Raise(new SoundMixSoundEvent() { eNameClip = "thunder", eVolume = soundValue });
         // increase aircraft disruptions
-        EventManager.Instance.Raise(new SetTurbulenceEvent() { eStrength = normalizedValue });
+        EventManager.Instance.Raise(new SetTurbulenceEvent() { eStrength = turbulenceValue });
     }
 
-    float normalizeLight(float value)
+    private float EvaluateDensity(float score)
     {
-        float minLevel = levels[0];
-        float maxLevel = levels[levels.Count - 1];
-        return (value - minLevel) / (maxLevel - minLevel);
+        return densityCurve.Evaluate(score);
+    }
+
+    private float EvaluateCoverage(float score)
+    {
+        return coverageCurve.Evaluate(score);
+    }
+    private float EvaluateTurbulence(float score)
+    {
+        return turbulenceCurve.Evaluate(score);
+    }
+
+    private float EvaluateSound(float score)
+    {
+        return soundCurve.Evaluate(score);
+    }
+
+    private float NormalizeScore(float score)
+    {
+        return Mathf.Clamp01((score - scoreStart) / (scoreEnd - scoreStart));
     }
 }
