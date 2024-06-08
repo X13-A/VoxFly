@@ -222,11 +222,14 @@ Shader"Custom/CloudsPostProcess"
 		            float density = sampleDensity(rayPos) * stepSize * _GlobalDensity;
 		            totalDensity += density;
 
-                    float sampleDist = dstTravelled + dstToBox;
-		            float lightTransmittance = lightMarch(rayPos, lightDir, sampleDist);
-		            lightEnergy += density * transmittance * lightTransmittance;
-		            transmittance *= exp(-density);
+                    if (density > 0)
+                    {
+                        float sampleDist = dstTravelled + dstToBox;
+		                float lightTransmittance = lightMarch(rayPos, lightDir, sampleDist);
+		                lightEnergy += density * transmittance * lightTransmittance;
+                    }
 
+		            transmittance *= exp(-density);
 		            dstTravelled += stepSize;
 	            }
 	            return float2(transmittance, lightEnergy * phaseVal);

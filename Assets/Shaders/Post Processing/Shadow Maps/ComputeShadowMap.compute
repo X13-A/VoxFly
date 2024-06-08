@@ -405,8 +405,10 @@ void CSMain(uint3 id : SV_DispatchThreadID)
     // from light
     float3 uv = computeUV3D(id);
     float3 startPos = _StartPos + uv;
+
     // Very edgy hack, otherwise there is an offset due to precision problems.
     // Can be mitigated by increasing shadow map res, but costly
+    // Not sure if this hack is still useful, it could be angle dependant
     startPos.z += 0.01;
     startPos.x += 0.01;
 

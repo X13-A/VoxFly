@@ -1,4 +1,3 @@
-using Palmmedia.ReportGenerator.Core;
 using SDD.Events;
 using System.Collections;
 using System.Collections.Generic;
@@ -43,6 +42,10 @@ public class ShadowMap : MonoBehaviour
 
     private bool initialized;
     private WorldGenerator generator;
+
+    private bool firstFrame = true;
+    private Vector3 lastCameraPos;
+    [SerializeField] private float refreshDistanceStep;
 
     #region Events
     private void OnWorldGenerated(WorldGeneratedEvent e)
@@ -104,6 +107,8 @@ public class ShadowMap : MonoBehaviour
     {
         if (!initialized) return;
         if (generator.WorldTexture == null) return;
+        if (!firstFrame && Vector3.Distance(lastCameraPos, Camera.main.transform.position) < refreshDistanceStep) return;
+        firstFrame = false;
 
         shadowMapCompute.SetFloats("_ShadowMapCoverage", new float[] { mapWidth, mapHeight });
         shadowMapCompute.SetInts("_ShadowMapResolution", new int[] { textureWidth, textureHeight });
@@ -119,6 +124,7 @@ public class ShadowMap : MonoBehaviour
         shadowMapCompute.SetTexture(mapKernel, "_WorldTexture", generator.WorldTexture);
         shadowMapCompute.SetInts("_WorldTextureSize", new int[] { generator.WorldTexture.width, generator.WorldTexture.height, generator.WorldTexture.depth });
 
+
         // BrickMap optimization (on hold for now)
         //shadowMapCompute.SetTexture(mapKernel, "_BrickMapTexture", generator.BrickMapTexture);
         //shadowMapCompute.SetInts("_BrickMapTextureSize", new int[] { generator.BrickMapTexture.width, generator.BrickMapTexture.height, generator.BrickMapTexture.depth });
@@ -129,5 +135,6 @@ public class ShadowMap : MonoBehaviour
         //shadowMapCompute.SetMatrix("_InvViewMatrix", cam.worldToCameraMatrix.inverse);
 
         shadowMapCompute.Dispatch(mapKernel, textureWidth / 8, textureHeight / 8, 1);
+        lastCameraPos = Camera.main.transform.position;
     }
 }
