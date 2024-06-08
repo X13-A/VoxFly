@@ -75,8 +75,6 @@ public class plane : MonoBehaviour
     AnimationCurve dragBottom;
     [SerializeField]
     Vector3 angularDrag;
-    [SerializeField]
-    float airbrakeDrag;
 
     [Header("Thrust")]
     [SerializeField]
@@ -129,7 +127,6 @@ public class plane : MonoBehaviour
 
     private void Start()
     {
-        //rigid.velocity = rigid.rotation * new Vector3(0, 0, initialSpeed);
         EventManager.Instance.Raise(new PlaneInformationEvent() { eMinThrust = minThrust, eMaxThrust = maxThrust });
         EventManager.Instance.Raise(new PlaneInitializedEvent() { plane = this });
     }
@@ -187,16 +184,6 @@ public class plane : MonoBehaviour
         turbulenceScale = e.eScale;
     }
 
-    void UpdateTurbulence()
-    {
-        float planeAltitude = rigid.position.y * metersToFeet;
-        /*
-        if(planeAltitude < ?) SetTurbulence(0,0);
-        else if(planeAltitude < ?) SetTurbulence(?,?);
-        ...
-        */
-    }
-
     void UpdateDrag()
     {
         var lv = LocalVelocity;
@@ -208,12 +195,11 @@ public class plane : MonoBehaviour
             lv.normalized,
             dragRight.Evaluate(Mathf.Abs(lv.x)), dragLeft.Evaluate(Mathf.Abs(lv.x)),
             dragTop.Evaluate(Mathf.Abs(lv.y)), dragBottom.Evaluate(Mathf.Abs(lv.y)),
-            dragForward.Evaluate(Mathf.Abs(lv.z)) + airbrakeDrag,   //include extra drag for forward coefficient
+            dragForward.Evaluate(Mathf.Abs(lv.z)),
             dragBack.Evaluate(Mathf.Abs(lv.z))
         );
 
         var drag = coefficient.magnitude * lv2 * -lv.normalized;    //drag is opposite direction of velocity
-        //Debug.Log("drag : " + drag);
         rigid.AddRelativeForce(drag);
     }
 
@@ -236,42 +222,33 @@ public class plane : MonoBehaviour
         var liftVelocity = Vector3.ProjectOnPlane(LocalVelocity, rightAxis);    //project velocity onto YZ plane
         var v2 = liftVelocity.sqrMagnitude;                                     //square of velocity
 
-        //lift = velocity^2 * coefficient * liftPower
         //coefficient varies with AOA
-        //Debug.Log("ANGLEOFATTACK : " + angleOfAttack * Mathf.Rad2Deg);
         var liftCoefficient = aoaCurve.Evaluate(angleOfAttack * Mathf.Rad2Deg);
-        //Debug.Log("Velocity : "+liftVelocity+ " - Local : " + LocalVelocity + " - Angle : " + angleOfAttack * Mathf.Rad2Deg + " - Coeff : "+liftCoefficient);
         var liftForce = v2 * liftCoefficient * liftPower;
 
-
-        //lift is perpendicular to velocity
         var liftDirection = Vector3.up;
-        //Debug.Log("lift velocity : "+LocalVelocity.normalized+" - liftDirection : "+liftDirection);
         var lift = liftDirection * liftForce;
 
         //induced drag varies with square of lift coefficient
         var dragForce = liftCoefficient * liftCoefficient;
         var dragDirection = -liftVelocity.normalized;
         var inducedDrag = dragDirection * v2 * dragForce * this.inducedDrag * inducedDragCurve.Evaluate(Mathf.Max(0, LocalVelocity.z));
-        //Debug.Log(liftForce + " - " + v2 + " - " + liftCoefficient);
         return lift + inducedDrag;
     }
 
-    // Méthode pour mettre à jour la poussée basée sur l'état actuel du throttle
     void UpdateThrust()
     {
-        // Calculer la poussée actuelle en fonction du throttle
-        // Throttle varie entre 0 et 1, donc on mappe cette valeur à l'intervalle [minThrust, maxThrust]
+        // Thrust depending on Throttle
         float currentThrust = Mathf.Lerp(minThrust, maxThrust, Throttle);
         EventManager.Instance.Raise(new PlaneStateEvent() { eIsInWater = isInWater, eThrust = currentThrust });
 
-        // Appliquer la poussée
+        // Apply Thrust
         rigid.AddRelativeForce(Vector3.forward * currentThrust, ForceMode.Force);
     }
 
     public void AdjustThrottle(float adjustment)
     {
-        // Modifier le throttle par l'ajustement, en s'assurant qu'il reste entre 0 et 1
+        // Throttle between 0 and 1
         Throttle = Mathf.Clamp(Throttle + adjustment, 0, 1);
     }
 
@@ -383,56 +360,8 @@ public class plane : MonoBehaviour
         roll = (rollOverride) ? keyboardRoll : autoRoll;
     }
 
-    /*private void RunAutopilot(Vector3 flyTarget, out float yaw, out float pitch, out float roll)
-    {
-        // This is my usual trick of converting the fly to position to local space.
-        // You can derive a lot of information from where the target is relative to self.
-        var localFlyTarget = transform.InverseTransformPoint(flyTarget).normalized * sensitivity;
-        var angleOffTarget = Vector3.Angle(transform.forward, flyTarget - transform.position);
-
-        // IMPORTANT!
-        // These inputs are created proportionally. This means it can be prone to
-        // overshooting. The physics in this example are tweaked so that it's not a big
-        // issue, but in something with different or more realistic physics this might
-        // not be the case. Use of a PID controller for each axis is highly recommended.
-
-        // ====================
-        // PITCH AND YAW
-        // ====================
-
-        // Yaw/Pitch into the target so as to put it directly in front of the aircraft.
-        // A target is directly in front the aircraft if the relative X and Y are both
-        // zero. Note this does not handle for the case where the target is directly behind.
-        yaw = Mathf.Clamp(localFlyTarget.x, -1f, 1f);
-        pitch = -Mathf.Clamp(localFlyTarget.y, -1f, 1f);
-
-        // ====================
-        // ROLL
-        // ====================
-
-        // Roll is a little special because there are two different roll commands depending
-        // on the situation. When the target is off axis, then the plane should roll into it.
-        // When the target is directly in front, the plane should fly wings level.
-
-        // An "aggressive roll" is input such that the aircraft rolls into the target so
-        // that pitching up (handled above) will put the nose onto the target. This is
-        // done by rolling such that the X component of the target's position is zeroed.
-        var agressiveRoll = Mathf.Clamp(localFlyTarget.x, -1f, 1f);
-
-        // A "wings level roll" is a roll commands the aircraft to fly wings level.
-        // This can be done by zeroing out the Y component of the aircraft's right.
-        var wingsLevelRoll = transform.right.y;
-
-        // Blend between auto level and banking into the target.
-        var wingsLevelInfluence = Mathf.InverseLerp(0f, aggressiveTurnAngle, angleOffTarget);
-        roll = Mathf.Lerp(wingsLevelRoll, agressiveRoll, wingsLevelInfluence);
-    }*/
-
     private void FixedUpdate()
     {
-        // Ultra simple flight where the plane just gets pushed forward and manipulated
-        // with torques to turn.
-        //rigid.AddRelativeForce(Vector3.forward * thrust * forceMult, ForceMode.Force);
         float dt = Time.fixedDeltaTime;
         float time = Time.fixedTime;
 
@@ -444,7 +373,6 @@ public class plane : MonoBehaviour
         UpdateDrag();
         UpdateLift();
         UpdateThrust();
-        UpdateTurbulence();
 
         // Calculate and apply turbulence effects
         Vector3 currentTurbulence = Vector3.zero;
