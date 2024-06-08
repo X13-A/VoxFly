@@ -14,7 +14,7 @@ public class PauseManager : MonoBehaviour, IEventHandler
     {
         EventManager.Instance.AddListener<GamePauseEvent>(Pause);
         EventManager.Instance.AddListener<GameResumeEvent>(Resume);
-        EventManager.Instance.AddListener<FinishTimerEvent>(SetAvailable);
+        EventManager.Instance.AddListener<GamePlayStartEvent>(SetAvailable);
         EventManager.Instance.AddListener<DestroyEvent>(SetUnavailable);
     }
 
@@ -22,7 +22,7 @@ public class PauseManager : MonoBehaviour, IEventHandler
     {
         EventManager.Instance.RemoveListener<GamePauseEvent>(Pause);
         EventManager.Instance.RemoveListener<GameResumeEvent>(Resume);
-        EventManager.Instance.RemoveListener<FinishTimerEvent>(SetAvailable);
+        EventManager.Instance.RemoveListener<GamePlayStartEvent>(SetAvailable);
         EventManager.Instance.AddListener<DestroyEvent>(SetUnavailable);
     }
 
@@ -35,7 +35,7 @@ public class PauseManager : MonoBehaviour, IEventHandler
         UnsubscribeEvents();
     }
 
-    private void SetAvailable(FinishTimerEvent e)
+    private void SetAvailable(GamePlayStartEvent e)
     {
         available = true;
     }
@@ -45,7 +45,7 @@ public class PauseManager : MonoBehaviour, IEventHandler
         available = false;
     }
 
-    public void PauseButtonnClicked()
+    public void PauseButtonClicked()
     {
         EventManager.Instance.Raise(new PauseButtonClickedEvent());
     }
@@ -66,11 +66,11 @@ public class PauseManager : MonoBehaviour, IEventHandler
 
     void Update()
     {
-        if (Input.GetKey(KeyCode.P))
+        if (Input.GetKey(KeyCode.Escape))
         {
             if (m_CanClick && available)
             {
-                PauseButtonnClicked();
+                PauseButtonClicked();
                 m_CanClick = false;
             }
         }
@@ -84,5 +84,10 @@ public class PauseManager : MonoBehaviour, IEventHandler
     public void ReturnMenuButtonClicked()
     {
         EventManager.Instance.Raise(new ReturnMenuButtonClickedEvent());
+    }
+
+    public void ResumeButtonClicked()
+    {
+        EventManager.Instance.Raise(new PauseButtonClickedEvent());
     }
 }

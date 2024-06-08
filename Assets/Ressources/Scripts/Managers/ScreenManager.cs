@@ -12,7 +12,8 @@ public class ScreenManager : Singleton<ScreenManager>, IEventHandler
     private int height;
 
     private float lastGBufferResolutionScale;
-    [SerializeField][Range(0.01f, 1)] private float gBufferResolutionScale;
+    [SerializeField][Range(0.01f, 1)] private float gBufferResolutionScale = 1;
+    public float GBufferResolutionScale => gBufferResolutionScale;
     public int GBufferHeight 
     {
         get 
@@ -75,16 +76,23 @@ public class ScreenManager : Singleton<ScreenManager>, IEventHandler
     public void SubscribeEvents()
     {
         EventManager.Instance.AddListener<GBufferReadyForInitEvent>(EmitResolution);
+        EventManager.Instance.AddListener<GBufferScaleSliderEvent>(UpdateGBufferResolutionScale);
     }
 
     public void UnsubscribeEvents()
     {
         EventManager.Instance.RemoveListener<GBufferReadyForInitEvent>(EmitResolution);
+        EventManager.Instance.RemoveListener<GBufferScaleSliderEvent>(UpdateGBufferResolutionScale);
     }
 
     void EmitResolution(GBufferReadyForInitEvent e)
     {
         EventManager.Instance.Raise(new ScreenResolutionChangedEvent { width = width, height = height, gBufferWidth = GBufferWidth, gBufferHeight = GBufferHeight });
+    }
+
+    public void UpdateGBufferResolutionScale(GBufferScaleSliderEvent e)
+    {
+        gBufferResolutionScale = Mathf.Clamp(e.value, 0.01f, 1);
     }
 
     void Update()
