@@ -39,12 +39,14 @@ public class PauseManager : MonoBehaviour, IEventHandler
     {
         m_PausePanel.SetActive(true);
         EventManager.Instance.Raise(new PausePlayerEvent());
+        EventManager.Instance.Raise(new MuteAllSoundEvent() { eMute = true });
     }
 
     public void Resume(GameResumeEvent e)
     {
         m_PausePanel.SetActive(false);
         EventManager.Instance.Raise(new ResumePlayerEvent());
+        EventManager.Instance.Raise(new MuteAllSoundEvent() { eMute = false });
     }
 
     void FixedUpdate()
@@ -62,5 +64,10 @@ public class PauseManager : MonoBehaviour, IEventHandler
             m_CanClick = true;
         }
 
+    }
+
+    public void ReturnMenuButtonClicked()
+    {
+        EventManager.Instance.Raise(new ReturnMenuButtonClickedEvent());
     }
 }
