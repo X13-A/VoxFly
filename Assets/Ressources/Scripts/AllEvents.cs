@@ -233,6 +233,12 @@ public class ScreenResolutionChangedEvent : SDD.Events.Event
     public int gBufferHeight;
 }
 
+public class GBufferScaleSliderEvent : SDD.Events.Event
+{
+    public float value;
+}
+
+
 public class ScreenManagerReadyEvent : SDD.Events.Event
 {
     public int width;
