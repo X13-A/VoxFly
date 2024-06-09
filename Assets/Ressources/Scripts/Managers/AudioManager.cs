@@ -82,6 +82,7 @@ public class AudioManager : Singleton<AudioManager>, IEventHandler
         EventManager.Instance.AddListener<MuteAllSoundEvent>(MuteAllSound);
         EventManager.Instance.AddListener<SoundMixSoundEvent>(SoundMixSound);
         EventManager.Instance.AddListener<PlaneMixSoundEvent>(PlaneMixSound);
+        EventManager.Instance.AddListener<PauseAllSoundEvent>(PauseAllSound);
     }
 
     public void UnsubscribeEvents()
@@ -94,6 +95,7 @@ public class AudioManager : Singleton<AudioManager>, IEventHandler
         EventManager.Instance.RemoveListener<MuteAllSoundEvent>(MuteAllSound);
         EventManager.Instance.RemoveListener<SoundMixSoundEvent>(SoundMixSound);
         EventManager.Instance.RemoveListener<PlaneMixSoundEvent>(PlaneMixSound);
+        EventManager.Instance.RemoveListener<PauseAllSoundEvent>(PauseAllSound);
     }
 
     void OnEnable()
@@ -143,6 +145,26 @@ public class AudioManager : Singleton<AudioManager>, IEventHandler
                 eSFXVolume = saveSFXVolume,
                 ePlaneVolume = savePlaneVolume
             });
+        }
+    }
+
+    void PauseAllSound(PauseAllSoundEvent e)
+    {
+        if (e.ePause)
+        {
+            foreach (Transform child in transform)
+            {
+                AudioSource audioSource = child.GetComponent<AudioSource>();
+                audioSource.Pause();
+            }
+        }
+        else
+        {
+            foreach (Transform child in transform)
+            {
+                AudioSource audioSource = child.GetComponent<AudioSource>();
+                audioSource.UnPause();
+            }
         }
     }
 

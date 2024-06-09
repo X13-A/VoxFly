@@ -92,6 +92,7 @@ public class GameManager : Singleton<GameManager>, IEventHandler
 
     void MainMenu()
     {
+        EventManager.Instance.Raise(new PlaySoundEvent() { eNameClip = "menu", eLoop = true });
         SetState(GAMESTATE.menu);
     }
 
@@ -134,12 +135,14 @@ public class GameManager : Singleton<GameManager>, IEventHandler
 
     void Pause()
     {
+        EventManager.Instance.Raise(new PauseAllSoundEvent() { ePause = true });
         EventManager.Instance.Raise(new GamePauseEvent());
         SetState(GAMESTATE.pause);
     }
 
     void Resume()
     {
+        EventManager.Instance.Raise(new PauseAllSoundEvent() { ePause = false });
         EventManager.Instance.Raise(new GameResumeEvent());
         SetState(GAMESTATE.play);
     }
@@ -157,6 +160,10 @@ public class GameManager : Singleton<GameManager>, IEventHandler
     void MainMenuButtonClicked(MainMenuButtonClickedEvent e)
     {
         MainMenu();
+        if (e.eResetMusic)
+        {
+            EventManager.Instance.Raise(new PlaySoundEvent() { eNameClip = "menu", eLoop = true });
+        }
     }
 
     void QuitButtonClicked(QuitButtonClickedEvent e)

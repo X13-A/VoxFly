@@ -34,12 +34,6 @@ public class PlaneSound : MonoBehaviour, IEventHandler
         UnsubscribeEvents();
     }
 
-    void Start()
-    {
-        maxAudio = AudioManager.Instance.MaxPlaneVolume;
-        minAudio = maxAudio * .20f; // 20% of max volume
-    }
-
     void Destroy(DestroyEvent e)
     {
         EventManager.Instance.Raise(new StopSoundEvent() { eNameClip = "plane" });
@@ -47,6 +41,8 @@ public class PlaneSound : MonoBehaviour, IEventHandler
 
     void GamePlayStart(GamePlayStartEvent e)
     {
+        maxAudio = AudioManager.Instance.MaxPlaneVolume;
+        minAudio = maxAudio * .20f; // 20% of max volume
         EventManager.Instance.Raise(new PlaySoundEvent() { eNameClip = "plane", eLoop = true });
         EventManager.Instance.Raise(new SoundMixSoundEvent() { eNameClip = "plane", eVolume = minAudio });
     }

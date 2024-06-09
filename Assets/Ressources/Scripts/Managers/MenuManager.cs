@@ -57,8 +57,6 @@ public class MenuManager : MonoBehaviour, IEventHandler
     void GameMenu(GameMenuEvent e)
     {
         OpenPanel(m_MainMenuPanel);
-        EventManager.Instance.Raise(new StopSoundAllEvent());
-        EventManager.Instance.Raise(new PlaySoundEvent() { eNameClip = "menu", eLoop = true });
     }
 
     void GamePlay(GamePlayEvent e)
@@ -96,9 +94,9 @@ public class MenuManager : MonoBehaviour, IEventHandler
     {
         EventManager.Instance.Raise(new ReplayButtonClickedEvent());
     }
-    public void MainMenuButtonHasBeenClicked()
+    public void MainMenuButtonHasBeenClicked(bool resetMusic)
     {
-        EventManager.Instance.Raise(new MainMenuButtonClickedEvent());
+        EventManager.Instance.Raise(new MainMenuButtonClickedEvent() { eResetMusic = resetMusic });
     }
     public void QuitButtonHasBeenClicked()
     {

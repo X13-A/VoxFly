@@ -30,7 +30,7 @@ public class PlayerDisable : MonoBehaviour, IEventHandler
 
     void PlaneExplosion(ExplosionEvent e)
     {
-        EventManager.Instance.Raise(new PlaySoundEvent() { eNameClip = "explosion", eLoop = false });
+        EventManager.Instance.Raise(new PlaySoundEvent() { eNameClip = "explosion", eLoop = false, eDestroyWhenFinished = true });
         explosion = true;
         Explosion.transform.parent = null;
         Explosion.SetActive(true);

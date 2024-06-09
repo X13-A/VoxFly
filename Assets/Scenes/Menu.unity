@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.18182722, g: 0.22749972, b: 0.30741858, a: 1}
+  m_IndirectSpecularColor: {r: 0.18182662, g: 0.22749916, b: 0.30741757, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -865,17 +865,6 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 7239427582754929119, guid: 546c76fc19f459d4c8093c73bbbede12, type: 3}
   m_PrefabInstance: {fileID: 52043756}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &52043758 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 4181957934603175686, guid: 546c76fc19f459d4c8093c73bbbede12, type: 3}
-  m_PrefabInstance: {fileID: 52043756}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 67db9e8f0e2ae9c40bc1e2b64352a6b4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &52043759 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 8135652611169309254, guid: 546c76fc19f459d4c8093c73bbbede12, type: 3}
@@ -893,8 +882,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1a6b6f87e89e63941b85740dc8c08ec7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  slider: {fileID: 52043758}
-  text: {fileID: 421984873}
+  slider: {fileID: 0}
+  text: {fileID: 0}
 --- !u!1 &61106959
 GameObject:
   m_ObjectHideFlags: 0
@@ -981,14 +970,14 @@ MonoBehaviour:
       - m_Target: {fileID: 2060305831}
         m_TargetAssemblyTypeName: MenuManager, Assembly-CSharp
         m_MethodName: MainMenuButtonHasBeenClicked
-        m_Mode: 1
+        m_Mode: 6
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
-          m_BoolArgument: 0
+          m_BoolArgument: 1
         m_CallState: 2
 --- !u!114 &61106962
 MonoBehaviour:
@@ -5351,7 +5340,7 @@ MonoBehaviour:
       - m_Target: {fileID: 2060305831}
         m_TargetAssemblyTypeName: MenuManager, Assembly-CSharp
         m_MethodName: MainMenuButtonHasBeenClicked
-        m_Mode: 1
+        m_Mode: 6
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -6498,7 +6487,7 @@ VideoPlayer:
   m_TargetMaterialRenderer: {fileID: 0}
   m_TargetMaterialProperty: <noninit>
   m_RenderMode: 2
-  m_AspectRatio: 2
+  m_AspectRatio: 1
   m_DataSource: 0
   m_TimeUpdateMode: 2
   m_PlaybackSpeed: 1
@@ -7424,7 +7413,7 @@ MonoBehaviour:
       - m_Target: {fileID: 2060305831}
         m_TargetAssemblyTypeName: MenuManager, Assembly-CSharp
         m_MethodName: MainMenuButtonHasBeenClicked
-        m_Mode: 1
+        m_Mode: 6
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -11890,7 +11879,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: de6b25a513560da4a83827c029f83ba8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gBufferResolutionScale: 0.515
+  gBufferResolutionScale: 1
 --- !u!1 &1638532146
 GameObject:
   m_ObjectHideFlags: 0
@@ -13963,14 +13952,14 @@ MonoBehaviour:
       - m_Target: {fileID: 2060305831}
         m_TargetAssemblyTypeName: MenuManager, Assembly-CSharp
         m_MethodName: MainMenuButtonHasBeenClicked
-        m_Mode: 1
+        m_Mode: 6
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
-          m_BoolArgument: 0
+          m_BoolArgument: 1
         m_CallState: 2
 --- !u!114 &1873390678
 MonoBehaviour:

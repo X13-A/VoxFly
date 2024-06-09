@@ -83,6 +83,7 @@ public class ResumeButtonClickedEvent : SDD.Events.Event
 }
 public class MainMenuButtonClickedEvent : SDD.Events.Event
 {
+    public bool eResetMusic;
 }
 public class NextLevelButtonClickedEvent : SDD.Events.Event
 {
@@ -172,6 +173,11 @@ public class StopSoundByTypeEvent : SDD.Events.Event
 public class MuteAllSoundEvent : SDD.Events.Event
 {
     public bool eMute;
+}
+
+public class PauseAllSoundEvent : SDD.Events.Event
+{
+    public bool ePause;
 }
 #endregion
 #endregion
