@@ -13,10 +13,6 @@ public class CameraManager : Singleton<CameraManager>, IEventHandler
 
     [Header("First Person")]
     [SerializeField] private Camera firstPerson_Camera;
-    [SerializeField] private GameObject blackScreen;
-    [SerializeField] private WorldPostProcess worldPostProcess;
-
-    private float initialVolumetricIntensity;
 
     [Header("Third Person")]
     [SerializeField] private Camera thirdPerson_Camera;
@@ -27,7 +23,6 @@ public class CameraManager : Singleton<CameraManager>, IEventHandler
 
     void Init()
     {
-        initialVolumetricIntensity = worldPostProcess.playerLightVolumetricIntensity;
         if (Camera.main == firstPerson_Camera)
         {
             EventManager.Instance.Raise(new SwitchToFirstPersonEvent());
@@ -71,7 +66,7 @@ public class CameraManager : Singleton<CameraManager>, IEventHandler
         thirdPerson_MouseFlightRig.SetActive(false);
         firstPerson_Camera.gameObject.SetActive(true);
         cameraMode = CameraMode.FirstPerson;
-        worldPostProcess.playerLightVolumetricIntensity = 0;
+        EventManager.Instance.Raise(new ToggleFlashlightVolumetricsEvent { value = false });
     }
 
     private void SwitchToThirdPerson(SwitchToThirdPersonEvent e)
@@ -80,7 +75,7 @@ public class CameraManager : Singleton<CameraManager>, IEventHandler
         thirdPerson_MouseFlightRig.SetActive(true);
         firstPerson_Camera.gameObject.SetActive(false);
         cameraMode = CameraMode.ThirdPerson;
-        worldPostProcess.playerLightVolumetricIntensity = initialVolumetricIntensity;
+        EventManager.Instance.Raise(new ToggleFlashlightVolumetricsEvent { value = true });
     }
 
     private void HandleTimerFinished(FinishTimerEvent e)

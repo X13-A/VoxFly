@@ -20,11 +20,11 @@ RenderSettings:
   m_FogDensity: 0.01
   m_LinearFogStart: 0
   m_LinearFogEnd: 300
-  m_AmbientSkyColor: {r: 0.212, g: 0.227, b: 0.259, a: 1}
+  m_AmbientSkyColor: {r: 0.38830188, g: 0.44377363, b: 0.554717, a: 1}
   m_AmbientEquatorColor: {r: 0.114, g: 0.125, b: 0.133, a: 1}
   m_AmbientGroundColor: {r: 0.047, g: 0.043, b: 0.035, a: 1}
   m_AmbientIntensity: 1
-  m_AmbientMode: 0
+  m_AmbientMode: 3
   m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
   m_SkyboxMaterial: {fileID: 10304, guid: 0000000000000000f000000000000000, type: 0}
   m_HaloStrength: 0.5
@@ -1377,7 +1377,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 0, y: 0.5}
   m_AnchoredPosition: {x: 150, y: 0}
-  m_SizeDelta: {x: 125, y: 25}
+  m_SizeDelta: {x: 250, y: 25}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!114 &109972606
 MonoBehaviour:
@@ -11043,6 +11043,15 @@ MonoBehaviour:
     minThrust: 0
     maxThrust: 1000
     throttleAdjustmentRate: 0.1
+  - name: Creative Mode
+    pitchMult: 0
+    yawMult: 0
+    rollMult: 0
+    forceMult: 0
+    liftPower: 0
+    minThrust: 0
+    maxThrust: 0
+    throttleAdjustmentRate: 0
 --- !u!1 &1515601278
 GameObject:
   m_ObjectHideFlags: 0

@@ -291,7 +291,7 @@ rayMarchInfo rayMarchBrickMap(float3 startPos, float3 rayDir)
         }
     }
 
-    float dstLimit = min(_VoxelRenderDistance - dstToWorld, dstInsideWorld + 50); // TODO: +50 is a quick fix, the distInsideWorld calculation was a bit off on the edges. Will investigate when I have time.
+    float dstLimit = min(_VoxelRenderDistance, dstInsideWorld + 50); // TODO: +50 is a quick fix, the distInsideWorld calculation was a bit off on the edges. Will investigate when I have time.
     float dstTravelled = 0;
 
     int loopCount = 0;
@@ -397,7 +397,7 @@ rayMarchInfo rayMarchWorld_Brickmap(float3 startPos, float3 rayDir)
 
     float3 tMax_old = tMax; // Used for calculating the normals
     float dstTravelled = 0;
-    float dstLimit = min(_VoxelRenderDistance - dstToWorld, dstInsideWorld + 50);
+    float dstLimit = min(_VoxelRenderDistance, dstInsideWorld + 50);
     int loopCount = 0;
     int hardLoopLimit = (int)dstLimit * 2;
 

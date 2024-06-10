@@ -4,14 +4,15 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-public class WorldPostProcess : PostProcessBase
+public class WorldPostProcess : PostProcessBase, IEventHandler
 {
     [Header("Player")]
     [SerializeField] private Transform playerLight;
     [SerializeField][Range(0, 200f)] private float playerLightRange;
     [SerializeField][Range(0, 5f)] private float playerLightIntensity;
-    [SerializeField][Range(0, 1f)] public float playerLightVolumetricIntensity;
+    [SerializeField][Range(0, 1f)] private float playerLightVolumetricIntensity;
     [SerializeField][Range(0, 90f)] private float playerLightAngle;
+    private float playerVolumetricIntensity_base;
 
     [Header("Pipeline")]
     [SerializeField] private Material postProcessMaterial;
@@ -59,6 +60,7 @@ public class WorldPostProcess : PostProcessBase
         EventManager.Instance.AddListener<GBufferInitializedEvent>(AttachGBuffer);
         EventManager.Instance.AddListener<ShadowMapInitializedEvent>(AttachShadowMap);
         EventManager.Instance.AddListener<WorldGeneratedEvent>(OnWorldGenerated);
+        EventManager.Instance.AddListener<ToggleFlashlightVolumetricsEvent>(ToggleFlashlightVolumetrics);
     }
 
     public void UnsubscribeEvents()
@@ -66,7 +68,7 @@ public class WorldPostProcess : PostProcessBase
         EventManager.Instance.RemoveListener<GBufferInitializedEvent>(AttachGBuffer);
         EventManager.Instance.RemoveListener<ShadowMapInitializedEvent>(AttachShadowMap);
         EventManager.Instance.RemoveListener<WorldGeneratedEvent>(OnWorldGenerated);
-
+        EventManager.Instance.RemoveListener<ToggleFlashlightVolumetricsEvent>(ToggleFlashlightVolumetrics);
     }
     #endregion
 
@@ -82,7 +84,21 @@ public class WorldPostProcess : PostProcessBase
 
     private void Start()
     {
+        playerVolumetricIntensity_base = playerLightVolumetricIntensity;
         CreateTextureAtlas();
+    }
+
+    private void ToggleFlashlightVolumetrics(ToggleFlashlightVolumetricsEvent e)
+    {
+        if (e.value == false)
+        {
+            playerLightVolumetricIntensity = 0;
+        }
+
+        if (e.value == true)
+        {
+            playerLightVolumetricIntensity = playerVolumetricIntensity_base;
+        }
     }
 
     void CreateTextureAtlas()

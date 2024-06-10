@@ -16,6 +16,7 @@ public class PauseManager : MonoBehaviour, IEventHandler
         EventManager.Instance.AddListener<GameResumeEvent>(Resume);
         EventManager.Instance.AddListener<GamePlayStartEvent>(SetAvailable);
         EventManager.Instance.AddListener<DestroyEvent>(SetUnavailable);
+        EventManager.Instance.AddListener<CreativeModeStartEvent>(SetAvailable);
     }
 
     public void UnsubscribeEvents()
@@ -23,7 +24,8 @@ public class PauseManager : MonoBehaviour, IEventHandler
         EventManager.Instance.RemoveListener<GamePauseEvent>(Pause);
         EventManager.Instance.RemoveListener<GameResumeEvent>(Resume);
         EventManager.Instance.RemoveListener<GamePlayStartEvent>(SetAvailable);
-        EventManager.Instance.AddListener<DestroyEvent>(SetUnavailable);
+        EventManager.Instance.RemoveListener<DestroyEvent>(SetUnavailable);
+        EventManager.Instance.RemoveListener<CreativeModeStartEvent>(SetAvailable);
     }
 
     void OnEnable()
@@ -36,6 +38,11 @@ public class PauseManager : MonoBehaviour, IEventHandler
     }
 
     private void SetAvailable(GamePlayStartEvent e)
+    {
+        available = true;
+    }
+
+    private void SetAvailable(CreativeModeStartEvent e)
     {
         available = true;
     }

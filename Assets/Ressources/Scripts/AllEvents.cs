@@ -38,6 +38,9 @@ public class UpdateGameScoreEvent : SDD.Events.Event
 {
     public float score { get; set; }
 }
+public class CreativeModeStartEvent : SDD.Events.Event
+{
+}
 
 public class GamePlayStartEvent : SDD.Events.Event
 {
@@ -225,6 +228,12 @@ public class WinningPointsEvent : SDD.Events.Event
 }
 
 #region Rendering Events
+public class ToggleFlashlightVolumetricsEvent : SDD.Events.Event
+{
+    public bool value;
+}
+
+
 public class ScreenResolutionChangedEvent : SDD.Events.Event
 {
     public int width;

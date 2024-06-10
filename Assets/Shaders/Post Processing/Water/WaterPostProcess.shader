@@ -133,7 +133,7 @@ Shader"Custom/WaterPostProcess"
                 return res;
             }
 
-            float getFoam(float3 surfacePos, float depth, float foamThickness = 1)
+            float getFoam(float3 surfacePos, float foamThickness = 1)
             {
                 static const float3 offsets[8] = 
                 {
@@ -217,9 +217,11 @@ Shader"Custom/WaterPostProcess"
                     surfacePos = rayPos + rayDir * dstToWater; 
                     
                     // Foam
-                    foam = getFoam(surfacePos, depth, 0.05 + (sin(_Time.y) / 2 + 0.5) * 0.2);
+                    foam = getFoam(surfacePos, 0.05 + (sin(_Time.y) / 2 + 0.5) * 0.2);
                     foam *= transmittance;
-                    foam *= 100 / dstToWater;
+                    foam *= 100.0 / dstToWater;
+                    foam -= dstToWater / 100.0;
+                    foam = saturate(foam);
 
                     light = getLighting(surfacePos, rayDir, lightDir, true);
                 }
