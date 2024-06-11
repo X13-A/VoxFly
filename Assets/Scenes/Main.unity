@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0.17376858, g: 0.21726137, b: 0.29939994, a: 1}
+  m_IndirectSpecularColor: {r: 0.1737682, g: 0.21726067, b: 0.2993987, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -399,7 +399,7 @@ MonoBehaviour:
   directionalLight: {fileID: 705507995}
   cloudsPostProcess: {fileID: 404103033}
   waterPostProcess: {fileID: 488864615}
-  sunBurningRate: 5
+  sunBurningRate: 0
   waterRecoverRate: 50
   shadowRecoverRate: 25
 --- !u!114 &152044756
