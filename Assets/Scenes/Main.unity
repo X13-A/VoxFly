@@ -399,7 +399,7 @@ MonoBehaviour:
   directionalLight: {fileID: 705507995}
   cloudsPostProcess: {fileID: 404103033}
   waterPostProcess: {fileID: 488864615}
-  sunBurningRate: 0
+  sunBurningRate: 4
   waterRecoverRate: 50
   shadowRecoverRate: 25
 --- !u!114 &152044756
