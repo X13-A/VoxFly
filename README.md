@@ -1,7 +1,7 @@
 # **VoxFly**
 
 Découvrez **Voxfly**, un simulateur de vol immersif avec une physique réaliste, où chaque partie vous plonge dans des paysages générés de manière procédurale.
-[Un descriptif plus complet du jeu avec vidéos est visible sur ce lien.]([https://link-url-here.org](https://alexfoulon.notion.site/IG4-VoxFly-8a6d7989ea254f948f255373f2ea3264?pvs=4))
+![Un descriptif plus complet du jeu avec vidéos est visible sur ce lien.]([https://link-url-here.org](https://alexfoulon.notion.site/IG4-VoxFly-8a6d7989ea254f948f255373f2ea3264?pvs=4))
 ### **Objectif du jeu**
 
 Votre mission est d'explorer ces vastes terrains tout en accumulant des points. Pour cela, volez au plus près des obstacles et du sol. Mais attention ! Le soleil représente un danger mortel. Si vous vous exposez trop longtemps, vous risquez de vous brûler et d'exploser.
