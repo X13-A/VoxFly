@@ -51,6 +51,7 @@ public class DepthOfFieldPostProcess : PostProcessBase, IEventHandler
         postProcessMaterial.SetFloat("_BlurStart", blurStart);
         postProcessMaterial.SetFloat("_BlurEnd", blurEnd);
         postProcessMaterial.SetFloat("_BlurScale", blurScale);
+        postProcessMaterial.SetVector("_ScreenSize", new Vector2(Screen.width, Screen.height));
     }
 
     public override void Apply(RenderTexture source, RenderTexture dest)

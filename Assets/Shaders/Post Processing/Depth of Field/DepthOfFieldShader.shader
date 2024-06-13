@@ -43,6 +43,7 @@ Shader"Custom/DepthOfFieldPostProcess"
 
             sampler2D _MainTex;
             sampler2D _DepthTexture;
+            int2 _ScreenSize;
             float _BlurStart;
             float _BlurEnd;
             float _BlurScale;
@@ -54,7 +55,7 @@ Shader"Custom/DepthOfFieldPostProcess"
 
                 float normalizedDepth = (depth - _BlurStart) / (_BlurEnd - _BlurStart);
                 normalizedDepth = saturate(normalizedDepth);
-                float blurAmount = normalizedDepth * _BlurScale; 
+                float blurAmount = normalizedDepth * _BlurScale / _ScreenSize.x * 1920.0; 
 
                 float offsetSize = blurAmount * 0.002;
                 
