@@ -32,8 +32,13 @@ Explorez, évitez les pièges du soleil, adaptez-vous aux changements climatique
 ### Contrôles
 
 **Espace** : Accélérer
+
 **R** : Régulateur de vitesse
+
 **C** : Changer de caméra
+
 **ZQSD** : Piloter l’avion
+
 **Souris (3ème personne)** : Orienter la caméra
+
 **Echap** : Pause
