@@ -28,3 +28,12 @@ Dans **Voxfly**, le terrain est généré procéduralement. Planez au dessus d�
 ### **En résumé**
 
 Explorez, évitez les pièges du soleil, adaptez-vous aux changements climatiques, et battez des records dans **Voxfly**. Préparez-vous pour une aventure aérienne intense et captivante où chaque vol est une nouvelle expérience !
+
+### Contrôles
+
+**Espace** : Accélérer
+**R** : Régulateur de vitesse
+**C** : Changer de caméra
+**ZQSD** : Piloter l’avion
+**Souris (3ème personne)** : Orienter la caméra
+**Echap** : Pause
