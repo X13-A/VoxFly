@@ -1442,7 +1442,7 @@ MonoBehaviour:
   maxStepSize: 50
   blueNoise: {fileID: 2800000, guid: 46b80e55c53d548458b0cb4a2f5b7dd7, type: 3}
   offsetNoiseIntensity: 150
-  shadowIntensity: 1.75
+  shadowIntensity: 1.25
   shadowSteps: 3
   shadowDist: 10000
 --- !u!1 &413974518
@@ -6227,7 +6227,7 @@ MonoBehaviour:
   postProcessMaterial: {fileID: 2100000, guid: 05b4be822ba17f84e834a7eea93588a8, type: 2}
   blurStart: 400
   blurEnd: 800
-  blurScale: 1
+  blurScale: 0.5
 --- !u!1 &1235045771
 GameObject:
   m_ObjectHideFlags: 0
@@ -6652,7 +6652,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: -215, y: -46.00006}
+  m_AnchoredPosition: {x: -215, y: -46}
   m_SizeDelta: {x: 300, y: 250}
   m_Pivot: {x: 1, y: 0}
 --- !u!114 &1274869904
@@ -7071,6 +7071,8 @@ MonoBehaviour:
   cam: {fileID: 967678605}
   movementSpeed: 30
   mouseSensitivity: 100
+  movementDamping: 2
+  rotationDamping: 3
   objectsToDisable:
   - {fileID: 1205585269}
   - {fileID: 1112909374}

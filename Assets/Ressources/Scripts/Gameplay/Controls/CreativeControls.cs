@@ -9,9 +9,14 @@ public class CreativeControls : MonoBehaviour, IEventHandler
     [SerializeField] private Camera cam;
     [SerializeField] private float movementSpeed;
     [SerializeField] private float mouseSensitivity = 100f;
+    public float movementDamping = 0.1f;
+    public float rotationDamping = 0.1f;
 
     [SerializeField] private List<GameObject> objectsToDisable;
     [SerializeField] private List<GameObject> objectsToEnable;
+
+    private Vector3 movementVelocity;
+    private Vector2 rotationVelocity;
 
     private bool active = false;
 
@@ -71,7 +76,7 @@ public class CreativeControls : MonoBehaviour, IEventHandler
             Cursor.visible = true;
             return;
         }
-
+        Application.targetFrameRate = 60; // Better for video recording, prevents lag
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
 
@@ -79,28 +84,34 @@ public class CreativeControls : MonoBehaviour, IEventHandler
         float horizontalInput = Input.GetAxis("Horizontal");
         float verticalInput = Input.GetAxis("Vertical");
 
-        Vector3 movement = new Vector3(horizontalInput, 0, verticalInput);
-        movement = controller.transform.TransformDirection(movement);
+        Vector3 targetMovement = new Vector3(horizontalInput, 0, verticalInput);
+        targetMovement = controller.transform.TransformDirection(targetMovement);
 
         if (Input.GetKey(KeyCode.LeftControl))
         {
-            movement *= 2;
+            targetMovement *= 2;
         }
 
         if (Input.GetKey(KeyCode.Space))
         {
-            movement.y += 1;
+            targetMovement.y += 1;
         }
         if (Input.GetKey(KeyCode.LeftShift))
         {
-            movement.y -= 1;
+            targetMovement.y -= 1;
         }
 
-        controller.Move(movement * movementSpeed * Time.deltaTime);
+        movementVelocity = Vector3.Lerp(movementVelocity, targetMovement * movementSpeed, movementDamping * Time.deltaTime);
+        controller.Move(movementVelocity * Time.deltaTime);
 
+        // Camera Rotation
         float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
         float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
-        controller.transform.Rotate(Vector3.up * mouseX);
-        cam.transform.Rotate(Vector3.left * mouseY);
+
+        rotationVelocity.x = Mathf.Lerp(rotationVelocity.x, mouseX, rotationDamping * Time.deltaTime);
+        rotationVelocity.y = Mathf.Lerp(rotationVelocity.y, mouseY, rotationDamping * Time.deltaTime);
+
+        controller.transform.Rotate(Vector3.up * rotationVelocity.x);
+        cam.transform.Rotate(Vector3.left * rotationVelocity.y);
     }
 }
