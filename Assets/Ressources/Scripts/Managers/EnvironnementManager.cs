@@ -11,6 +11,8 @@ public class EnvironnementManager : MonoBehaviour, IEventHandler
     [SerializeField] private AnimationCurve coverageCurve;
     [SerializeField] private AnimationCurve turbulenceCurve;
     [SerializeField] private AnimationCurve soundCurve;
+    [SerializeField] private float turbulenceScale = 2;
+
 
     [SerializeField] private float scoreStart = 5000;
     [SerializeField] private float scoreEnd = 10000;
@@ -77,7 +79,7 @@ public class EnvironnementManager : MonoBehaviour, IEventHandler
         EventManager.Instance.Raise(new SoundMixSoundEvent() { eNameClip = "wind", eVolume = soundValue });
         EventManager.Instance.Raise(new SoundMixSoundEvent() { eNameClip = "thunder", eVolume = soundValue });
         // increase aircraft disruptions
-        EventManager.Instance.Raise(new SetTurbulenceEvent() { eStrength = turbulenceValue });
+        EventManager.Instance.Raise(new SetTurbulenceEvent() { eStrength = turbulenceValue, eScale = turbulenceScale });
     }
 
     private float EvaluateDensity(float score)
