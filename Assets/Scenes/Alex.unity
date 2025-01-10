@@ -298,11 +298,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 914c1d880f9c47b419fb316c6cdc68e5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  width: 1600
-  height: 900
   voxelViewDistance: 3000
   shader: {fileID: 7200000, guid: 99fdae86e32fd1e4d8e00eda8bc53cef, type: 3}
-  cam: {fileID: 2076661877}
 --- !u!4 &135120473
 Transform:
   m_ObjectHideFlags: 0
@@ -1422,34 +1419,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 58df6255bdca75f4f81b37a64a0ec18c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  grassDepth: 15
-  width: 1024
-  depth: 1024
-  height: 128
-  brickSize: 8
-  terrainSeed: 0
-  terrainAmplitude: 50
-  terrainStartY: 100
-  terrainScale: {x: 25, y: 25}
-  terrainOffset: {x: 0, y: 0}
-  cavesSeed: 0
-  offset: {x: 1820, y: -25, z: 0}
-  scale: {x: 40, y: 15, z: 40}
-  threshold: 0.45
-  deepTerrainSeed: 0
-  deepTerrainAmplitude: 10
-  deepTerrainScale: {x: 20, y: 20}
-  deepTerrainOffset: {x: 0, y: 0}
-  coverageSeed: 0
-  coverageScale: {x: 5, y: 5}
-  coverageOffset: {x: 0, y: 0}
-  coverage: 0.5
-  BrickMapPreset: {fileID: 0}
-  WorldPreset: {fileID: 0}
-  BrickMapViz: {fileID: 0}
-  WorldViz: {fileID: 0}
-  grassColor: {r: 0.003921569, g: 0, b: 0, a: 1}
-  stoneColor: {r: 0.007843138, g: 0, b: 0, a: 1}
   compute: {fileID: 7200000, guid: 59e9808d211cde0459cf13b6080d8a74, type: 3}
 --- !u!4 &386176207
 Transform:
@@ -2891,7 +2860,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ac079a5990c8846409b683d0a3dc9ed9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cam: {fileID: 2076661877}
   playerLight: {fileID: 1789811083}
   playerLightRange: 20
   playerLightIntensity: 1
@@ -2903,6 +2871,7 @@ MonoBehaviour:
   lightShaftFadeStart: 0.5
   lightShaftIntensity: 0.15
   lightShaftMaximumValue: 0.2
+  fogColor: {r: 1, g: 1, b: 1, a: 1}
   blockTextures:
   - {fileID: 2800000, guid: 0aa23de320bd55446a3993797fd431b7, type: 3}
   - {fileID: 2800000, guid: 1991bde95220af345a53095de5aa43bf, type: 3}
@@ -3705,7 +3674,6 @@ MonoBehaviour:
   lightForwardTransform: {fileID: 286850343}
   lightUpTransform: {fileID: 1479337330}
   lightRightTransform: {fileID: 215885059}
-  cam: {fileID: 2076661877}
   mapWidth: 200
   mapHeight: 200
   mapDistance: 1000
@@ -3713,6 +3681,7 @@ MonoBehaviour:
   shadowMapCompute: {fileID: 7200000, guid: ae460d4912a4cde4fb92586736f9984c, type: 3}
   textureWidth: 1000
   textureHeight: 1000
+  refreshDistanceStep: 0
 --- !u!4 &1046456992
 Transform:
   m_ObjectHideFlags: 0
@@ -5716,7 +5685,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   postProcessMaterial: {fileID: 2100000, guid: f2c9c46882c128b49ae2f8c548122fd2, type: 2}
-  cam: {fileID: 2076661877}
   container: {fileID: 1852401001}
   heightMap: {fileID: 2800000, guid: 719aa961a7a62404f87534ef4a045a2d, type: 3}
   heightScale: 2000
@@ -6888,6 +6856,9 @@ MonoBehaviour:
   directionalLight: {fileID: 0}
   cloudsPostProcess: {fileID: 0}
   waterPostProcess: {fileID: 0}
+  sunBurningRate: 10
+  waterRecoverRate: -100
+  shadowRecoverRate: -50
 --- !u!143 &1997677969
 CharacterController:
   m_ObjectHideFlags: 0
@@ -6930,6 +6901,10 @@ MonoBehaviour:
   cam: {fileID: 2076661877}
   movementSpeed: 20
   mouseSensitivity: 100
+  movementDamping: 0.1
+  rotationDamping: 0.1
+  objectsToDisable: []
+  objectsToEnable: []
 --- !u!4 &1997677971
 Transform:
   m_ObjectHideFlags: 0
@@ -7024,7 +6999,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9da9fe60e48d7ad4aadbcd1f9670a6a2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cam: {fileID: 2076661877}
   postProcessMaterial: {fileID: 2100000, guid: 1759a57d80d643d41925f91b992670eb, type: 2}
   waterLevel: 9.8
   waterDensity: 0.25
@@ -7170,6 +7144,51 @@ Transform:
   - {fileID: 1820172542}
   m_Father: {fileID: 1503416047}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &2082332876
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2082332877}
+  - component: {fileID: 2082332878}
+  m_Layer: 0
+  m_Name: ScreenManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2082332877
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2082332876}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -491.57605, y: 3978.703, z: -1746.2152}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2082332878
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2082332876}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: de6b25a513560da4a83827c029f83ba8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gBufferResolutionScale: 1
 --- !u!1 &2086465526
 GameObject:
   m_ObjectHideFlags: 0
@@ -7427,3 +7446,4 @@ SceneRoots:
   - {fileID: 1244499983}
   - {fileID: 705507995}
   - {fileID: 1997677971}
+  - {fileID: 2082332877}
